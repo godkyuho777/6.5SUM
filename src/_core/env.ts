@@ -6,7 +6,6 @@ export const ENV = {
   directUrl: process.env.DIRECT_URL ?? "",
 
   supabaseUrl: process.env.SUPABASE_URL ?? "",
-  supabaseJwtSecret: process.env.SUPABASE_JWT_SECRET ?? "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
 
   // Comma-separated list of Supabase user UUIDs treated as admins.

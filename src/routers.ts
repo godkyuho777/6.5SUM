@@ -144,29 +144,40 @@ export const appRouter = router({
     list: protectedProcedure
       .input(z.object({ status: z.enum(["open", "closed", "liquidated"]).optional() }).optional())
       .query(async ({ ctx, input }) => {
-        const positionList = await getUserPositions(ctx.user.id, input?.status);
+        return getUserPositions(ctx.user.id, input?.status);
+      }),
 
-        if (!input?.status || input.status === "open") {
-          const openPositions = positionList.filter((p) => p.status === "open");
-          if (openPositions.length > 0) {
-            const symbols = Array.from(new Set(openPositions.map((p) => p.symbol)));
-            const prices = await fetchMultiplePrices(symbols);
+    refreshPrices: protectedProcedure
+      .input(z.object({ symbols: z.array(z.string()) }))
+      .query(async ({ ctx, input }) => {
+        if (input.symbols.length === 0) return [];
+        const symbols = Array.from(new Set(input.symbols));
+        const [prices, openPositions] = await Promise.all([
+          fetchMultiplePrices(symbols),
+          getUserPositions(ctx.user.id, "open"),
+        ]);
 
-            for (const pos of openPositions) {
-              const currentPrice = prices.get(pos.symbol);
-              if (currentPrice) {
-                const pnlPercent = ((currentPrice - pos.entryPrice) / pos.entryPrice) * 100 * pos.leverage;
-                const pnlAmount = (currentPrice - pos.entryPrice) * pos.quantity * pos.leverage;
-                pos.currentPrice = currentPrice;
-                pos.pnlPercent = pnlPercent;
-                pos.pnlAmount = pnlAmount;
-                updatePosition(pos.id, { currentPrice, pnlPercent, pnlAmount }).catch(() => {});
-              }
-            }
-          }
-        }
+        const updates: Array<{
+          symbol: string;
+          currentPrice: number;
+          pnlPercent: number;
+          pnlAmount: number;
+        }> = [];
 
-        return positionList;
+        await Promise.all(
+          openPositions.map(async (pos) => {
+            const currentPrice = prices.get(pos.symbol);
+            if (currentPrice == null) return;
+            const pnlPercent =
+              ((currentPrice - pos.entryPrice) / pos.entryPrice) * 100 * pos.leverage;
+            const pnlAmount =
+              (currentPrice - pos.entryPrice) * pos.quantity * pos.leverage;
+            await updatePosition(pos.id, { currentPrice, pnlPercent, pnlAmount });
+            updates.push({ symbol: pos.symbol, currentPrice, pnlPercent, pnlAmount });
+          })
+        );
+
+        return updates;
       }),
 
     create: protectedProcedure

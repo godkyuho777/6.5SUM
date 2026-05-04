@@ -62,6 +62,73 @@ export interface TechnicalIndicators {
   }[];
 }
 
+// ─── BBDX-PATTERN v6.1 ──────────────────────────────────────────────────────
+
+/** +DI / -DI 압력 라벨 */
+export type PressureLabel =
+  | "BULL_PRESSURE"
+  | "WEAK_BULL"
+  | "BEAR_PRESSURE"
+  | "WEAK_BEAR"
+  | "NEUTRAL";
+
+/** 캔들 패턴 이름 */
+export type CandlePatternName =
+  | "engulfing"
+  | "morningStar"
+  | "hammer"
+  | "invertedHammer"
+  | "pinBar"
+  | "doji"
+  | "threeWhiteSoldiers"
+  | "bearishEngulfing"
+  | "eveningStar"
+  | "threeBlackCrows";
+
+/** 감지된 캔들 패턴 */
+export interface CandlePatternMatch {
+  name: CandlePatternName;
+  bias: "bullish" | "bearish";
+  /** 0 = 가장 최근 캔들에서 감지, 1~4 = N캔들 전 */
+  candlesAgo: number;
+  /** 패턴 강도 (60~100) */
+  strength: number;
+}
+
+/** BB 구조 패턴 */
+export type BBStructure =
+  | "upperRiding"
+  | "middleSupport"
+  | "squeezeBreakout"
+  | "lowerBounce";
+
+/** 매수 진입 경로 */
+export type EntryPath = "NUM" | "PTN" | "BB";
+
+/** 매수 진입 결정 */
+export interface EntryDecision {
+  path: EntryPath;
+  /** 사람이 읽을 수 있는 충족 조건 목록 */
+  reasons: string[];
+  /** PTN 경로일 때 사용된 강세 패턴들 */
+  patterns?: CandlePatternMatch[];
+  /** BB 경로일 때 사용된 BB 구조 */
+  bbStructure?: BBStructure;
+}
+
+/** 매도(EXIT) 결정 */
+export interface ExitDecision {
+  /** 4개 조건 중 충족된 개수 */
+  conditionsMet: number;
+  total: 4;
+  /** 약세 패턴 감지로 2/4 완화 적용 여부 */
+  relaxedToBearish: boolean;
+  /** 어떤 조건들이 충족되었는지 */
+  triggers: ("bbMiddle" | "rsi65" | "adx30" | "plusDi25")[];
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+
 /** 스캔 결과 (개별 코인) */
 export interface CoinScanResult {
   symbol: string;
@@ -69,8 +136,12 @@ export interface CoinScanResult {
   change24h: number;
   volume24h: number;
   indicators: TechnicalIndicators;
+
+  // Legacy boolean — kept for the current frontend (until PR B). Equivalent to
+  // `entryDecision != null` and `exitDecision != null`.
   isEntrySignal: boolean;
   isExitSignal: boolean;
+
   signalStrength: number;
   fibSignal?: {
     level: number;
@@ -81,6 +152,27 @@ export interface CoinScanResult {
     type: "buy" | "sell";
     trendType: "support" | "resistance";
   };
+
+  // BBDX-PATTERN v6.1 additions —
+  pressure: PressureLabel;
+  pressureStrong: boolean;
+  /** 0~100, 100 - (ADX × 2.5) */
+  reversalProb: number;
+  /** 최근 5캔들 평균 / 전체 평균 */
+  volumeRatio: number;
+  /** -5 / 0 / +15 — strength 점수 기여분 */
+  volumeConfirmation: number;
+  /** dedup된, 최근 5캔들 윈도우 내 감지된 패턴들 */
+  candlePatterns: CandlePatternMatch[];
+  bbStructure: BBStructure | null;
+  entryDecision: EntryDecision | null;
+  exitDecision: ExitDecision | null;
+  /** BB하단 × 0.97 */
+  stopLossPrice: number;
+  /** currentPrice ≤ stopLossPrice */
+  isStopLossHit: boolean;
+  /** -DI > +DI AND ADX > 25 — LONG 진입 차단 */
+  isFallingKnife: boolean;
 }
 
 /** 시그널 상세 */

@@ -1,4 +1,13 @@
-import type { Candle, TechnicalIndicators } from "@shared/types";
+import type {
+  BBStructure,
+  Candle,
+  CandlePatternMatch,
+  CandlePatternName,
+  EntryDecision,
+  ExitDecision,
+  PressureLabel,
+  TechnicalIndicators,
+} from "@shared/types";
 
 /**
  * RSI (Relative Strength Index) 계산
@@ -442,4 +451,618 @@ export function calculateTrendlines(candles: Candle[]) {
   }
 
   return trendlines;
+}
+
+// ─── BBDX-PATTERN v6.1 ──────────────────────────────────────────────────────
+
+/**
+ * Bollinger Bands 시계열 (각 캔들 시점의 BB)
+ * 패턴 인식 및 BB 구조 감지에 사용.
+ */
+export function calculateBollingerBandsSeries(
+  closes: number[],
+  period = 20,
+  stdDev = 2
+): { upper: number; middle: number; lower: number }[] {
+  const out: { upper: number; middle: number; lower: number }[] = [];
+  for (let i = 0; i < closes.length; i++) {
+    if (i + 1 < period) {
+      const v = closes[i];
+      out.push({ upper: v, middle: v, lower: v });
+      continue;
+    }
+    out.push(calculateBollingerBands(closes.slice(0, i + 1), period, stdDev));
+  }
+  return out;
+}
+
+// ── 캔들 패턴 helpers ──────────────────────────────────────────────────────
+
+const PATTERN_STRENGTH: Record<CandlePatternName, number> = {
+  engulfing: 100,
+  morningStar: 90,
+  hammer: 75,
+  invertedHammer: 75,
+  pinBar: 70,
+  doji: 60,
+  threeWhiteSoldiers: 85,
+  bearishEngulfing: 100,
+  eveningStar: 90,
+  threeBlackCrows: 85,
+};
+
+const isBull = (c: Candle) => c.close > c.open;
+const isBear = (c: Candle) => c.close < c.open;
+const bodySize = (c: Candle) => Math.abs(c.close - c.open);
+const upperWick = (c: Candle) => c.high - Math.max(c.open, c.close);
+const lowerWick = (c: Candle) => Math.min(c.open, c.close) - c.low;
+const range = (c: Candle) => c.high - c.low;
+
+function patternMatch(
+  name: CandlePatternName,
+  bias: "bullish" | "bearish",
+  candlesAgo: number
+): CandlePatternMatch {
+  return { name, bias, candlesAgo, strength: PATTERN_STRENGTH[name] };
+}
+
+function detectHammerAt(
+  candles: Candle[],
+  idx: number
+): CandlePatternMatch | null {
+  const c = candles[idx];
+  if (!c || range(c) === 0) return null;
+  const body = bodySize(c);
+  const lower = lowerWick(c);
+  const upper = upperWick(c);
+  // Long lower wick (≥2× body), small upper wick, small body
+  if (
+    lower >= body * 2 &&
+    upper <= body * 0.5 &&
+    body / range(c) <= 0.4 &&
+    isBull(c)
+  ) {
+    return patternMatch("hammer", "bullish", candles.length - 1 - idx);
+  }
+  return null;
+}
+
+function detectInvertedHammerAt(
+  candles: Candle[],
+  idx: number
+): CandlePatternMatch | null {
+  const c = candles[idx];
+  if (!c || range(c) === 0) return null;
+  const body = bodySize(c);
+  const lower = lowerWick(c);
+  const upper = upperWick(c);
+  if (
+    upper >= body * 2 &&
+    lower <= body * 0.5 &&
+    body / range(c) <= 0.4 &&
+    isBull(c)
+  ) {
+    return patternMatch("invertedHammer", "bullish", candles.length - 1 - idx);
+  }
+  return null;
+}
+
+function detectPinBarAt(
+  candles: Candle[],
+  idx: number
+): CandlePatternMatch | null {
+  const c = candles[idx];
+  if (!c || range(c) === 0) return null;
+  const body = bodySize(c);
+  const lower = lowerWick(c);
+  const upper = upperWick(c);
+  // Bullish pin: long lower wick, body in upper portion
+  const bullishPin =
+    lower >= range(c) * 0.6 &&
+    upper <= range(c) * 0.2 &&
+    isBull(c);
+  if (bullishPin && body / range(c) <= 0.3) {
+    return patternMatch("pinBar", "bullish", candles.length - 1 - idx);
+  }
+  return null;
+}
+
+function detectDojiAt(
+  candles: Candle[],
+  idx: number
+): CandlePatternMatch | null {
+  const c = candles[idx];
+  if (!c || range(c) === 0) return null;
+  const body = bodySize(c);
+  if (body / range(c) <= 0.1) {
+    return patternMatch("doji", "bullish", candles.length - 1 - idx);
+  }
+  return null;
+}
+
+function detectEngulfingAt(
+  candles: Candle[],
+  idx: number,
+  dir: "bullish" | "bearish"
+): CandlePatternMatch | null {
+  if (idx < 1) return null;
+  const prev = candles[idx - 1];
+  const c = candles[idx];
+  if (!c || !prev) return null;
+  if (dir === "bullish") {
+    if (
+      isBear(prev) &&
+      isBull(c) &&
+      c.open <= prev.close &&
+      c.close >= prev.open &&
+      bodySize(c) > bodySize(prev)
+    ) {
+      return patternMatch("engulfing", "bullish", candles.length - 1 - idx);
+    }
+    return null;
+  }
+  if (
+    isBull(prev) &&
+    isBear(c) &&
+    c.open >= prev.close &&
+    c.close <= prev.open &&
+    bodySize(c) > bodySize(prev)
+  ) {
+    return patternMatch("bearishEngulfing", "bearish", candles.length - 1 - idx);
+  }
+  return null;
+}
+
+function detectMorningStarAt(
+  candles: Candle[],
+  idx: number
+): CandlePatternMatch | null {
+  if (idx < 2) return null;
+  const c1 = candles[idx - 2];
+  const c2 = candles[idx - 1];
+  const c3 = candles[idx];
+  if (!c1 || !c2 || !c3) return null;
+  // c1 bear, c2 small body (star), c3 bull closing past c1's midpoint
+  const c1Bear = isBear(c1);
+  const c2Small = bodySize(c2) <= bodySize(c1) * 0.5;
+  const c3Bull = isBull(c3);
+  const c1Mid = (c1.open + c1.close) / 2;
+  const c3PastMid = c3.close > c1Mid;
+  if (c1Bear && c2Small && c3Bull && c3PastMid) {
+    return patternMatch("morningStar", "bullish", candles.length - 1 - idx);
+  }
+  return null;
+}
+
+function detectEveningStarAt(
+  candles: Candle[],
+  idx: number
+): CandlePatternMatch | null {
+  if (idx < 2) return null;
+  const c1 = candles[idx - 2];
+  const c2 = candles[idx - 1];
+  const c3 = candles[idx];
+  if (!c1 || !c2 || !c3) return null;
+  const c1Bull = isBull(c1);
+  const c2Small = bodySize(c2) <= bodySize(c1) * 0.5;
+  const c3Bear = isBear(c3);
+  const c1Mid = (c1.open + c1.close) / 2;
+  const c3PastMid = c3.close < c1Mid;
+  if (c1Bull && c2Small && c3Bear && c3PastMid) {
+    return patternMatch("eveningStar", "bearish", candles.length - 1 - idx);
+  }
+  return null;
+}
+
+function detectThreeWhiteSoldiersAt(
+  candles: Candle[],
+  idx: number
+): CandlePatternMatch | null {
+  if (idx < 2) return null;
+  const c1 = candles[idx - 2];
+  const c2 = candles[idx - 1];
+  const c3 = candles[idx];
+  if (
+    isBull(c1) &&
+    isBull(c2) &&
+    isBull(c3) &&
+    c2.close > c1.close &&
+    c3.close > c2.close &&
+    c2.open >= c1.open &&
+    c2.open <= c1.close &&
+    c3.open >= c2.open &&
+    c3.open <= c2.close
+  ) {
+    return patternMatch(
+      "threeWhiteSoldiers",
+      "bullish",
+      candles.length - 1 - idx
+    );
+  }
+  return null;
+}
+
+function detectThreeBlackCrowsAt(
+  candles: Candle[],
+  idx: number
+): CandlePatternMatch | null {
+  if (idx < 2) return null;
+  const c1 = candles[idx - 2];
+  const c2 = candles[idx - 1];
+  const c3 = candles[idx];
+  if (
+    isBear(c1) &&
+    isBear(c2) &&
+    isBear(c3) &&
+    c2.close < c1.close &&
+    c3.close < c2.close &&
+    c2.open <= c1.open &&
+    c2.open >= c1.close &&
+    c3.open <= c2.open &&
+    c3.open >= c2.close
+  ) {
+    return patternMatch("threeBlackCrows", "bearish", candles.length - 1 - idx);
+  }
+  return null;
+}
+
+/**
+ * 단일 캔들 인덱스에서 모든 패턴을 감지하고, 우선순위 기반으로 dedup 후 반환.
+ *
+ * 우선순위 (강세):
+ *   engulfing > morningStar > threeWhiteSoldiers > hammer/invertedHammer/pinBar > doji
+ * 우선순위 (약세):
+ *   bearishEngulfing > eveningStar > threeBlackCrows
+ */
+function detectAtIndex(candles: Candle[], idx: number): CandlePatternMatch[] {
+  const out: CandlePatternMatch[] = [];
+
+  // Bullish path with priority dedup
+  const bullEng = detectEngulfingAt(candles, idx, "bullish");
+  if (bullEng) {
+    out.push(bullEng);
+  } else {
+    const morningStar = detectMorningStarAt(candles, idx);
+    if (morningStar) {
+      out.push(morningStar);
+    } else {
+      const tws = detectThreeWhiteSoldiersAt(candles, idx);
+      if (tws) {
+        out.push(tws);
+      } else {
+        const hammer = detectHammerAt(candles, idx);
+        const inv = detectInvertedHammerAt(candles, idx);
+        const pin = detectPinBarAt(candles, idx);
+        if (hammer) out.push(hammer);
+        if (inv && !hammer) out.push(inv);
+        if (pin && !hammer && !inv) out.push(pin);
+        if (out.length === 0) {
+          const doji = detectDojiAt(candles, idx);
+          if (doji) out.push(doji);
+        }
+      }
+    }
+  }
+
+  // Bearish path (independent of bullish) with priority
+  const bearEng = detectEngulfingAt(candles, idx, "bearish");
+  if (bearEng) {
+    out.push(bearEng);
+  } else {
+    const eveningStar = detectEveningStarAt(candles, idx);
+    if (eveningStar) {
+      out.push(eveningStar);
+    } else {
+      const tbc = detectThreeBlackCrowsAt(candles, idx);
+      if (tbc) out.push(tbc);
+    }
+  }
+
+  return out;
+}
+
+/**
+ * 최근 5개 캔들 윈도우 내에서 감지된 모든 패턴을 dedup해서 반환.
+ * candlesAgo 0~4 범위의 패턴만 포함.
+ */
+export function detectAllCandlePatterns(
+  candles: Candle[]
+): CandlePatternMatch[] {
+  if (candles.length < 1) return [];
+  const out: CandlePatternMatch[] = [];
+  const start = Math.max(0, candles.length - 5);
+  for (let i = candles.length - 1; i >= start; i--) {
+    const matches = detectAtIndex(candles, i);
+    for (const m of matches) {
+      out.push(m);
+    }
+  }
+  return out;
+}
+
+// ── BB 구조 패턴 ───────────────────────────────────────────────────────────
+
+/** 평균 밴드 폭 (현재 BB 기준 비교용) */
+function averageBandWidth(
+  bbSeries: { upper: number; middle: number; lower: number }[],
+  lookback = 20
+): number {
+  const recent = bbSeries.slice(-lookback);
+  let sum = 0;
+  let count = 0;
+  for (const bb of recent) {
+    if (bb.middle > 0) {
+      sum += ((bb.upper - bb.lower) / bb.middle) * 100;
+      count++;
+    }
+  }
+  return count > 0 ? sum / count : 0;
+}
+
+function bandWidth(bb: { upper: number; middle: number; lower: number }): number {
+  if (bb.middle <= 0) return 0;
+  return ((bb.upper - bb.lower) / bb.middle) * 100;
+}
+
+/**
+ * BB 구조 패턴 감지 (4가지 중 우선순위로 1개 반환).
+ * 우선순위: lowerBounce > squeezeBreakout > middleSupport > upperRiding
+ */
+export function detectBBStructure(
+  candles: Candle[],
+  bbSeries: { upper: number; middle: number; lower: number }[]
+): BBStructure | null {
+  if (candles.length < 5 || bbSeries.length < 5) return null;
+
+  const last = candles[candles.length - 1];
+  const prev = candles[candles.length - 2];
+  const lastBB = bbSeries[bbSeries.length - 1];
+  const prevBB = bbSeries[bbSeries.length - 2];
+
+  // ── Lower Bounce ──
+  // 직전 저가가 BB하단 × 0.98 이하, 현재 캔들 반전 + 종가 > 직전 종가
+  const prevTouchedLower = prev.low <= prevBB.lower * 0.98;
+  const reversalCandle =
+    isBull(last) &&
+    (lowerWick(last) >= bodySize(last) * 1.5 ||
+      (last.open <= prev.close && last.close >= prev.open && bodySize(last) > bodySize(prev)));
+  if (prevTouchedLower && reversalCandle && last.close > prev.close) {
+    return "lowerBounce";
+  }
+
+  // ── Squeeze Breakout ──
+  const avgBW = averageBandWidth(bbSeries.slice(0, -1));
+  const recentBWs = bbSeries.slice(-6, -1).map(bandWidth);
+  const wasSqueezed = recentBWs.some((bw) => avgBW > 0 && bw < avgBW * 0.6);
+  const nowExpanded = avgBW > 0 && bandWidth(lastBB) > avgBW * 0.8;
+  if (wasSqueezed && nowExpanded && isBull(last) && last.close > lastBB.middle) {
+    return "squeezeBreakout";
+  }
+
+  // ── Middle Support ──
+  // 최근 5캔들 중 3개 이상이 BB중간선 ±1% 터치, 종가 > 중간선
+  let middleTouches = 0;
+  for (let i = candles.length - 5; i < candles.length; i++) {
+    const c = candles[i];
+    const bb = bbSeries[i];
+    if (!c || !bb) continue;
+    const lo = bb.middle * 0.99;
+    const hi = bb.middle * 1.01;
+    if (c.low <= hi && c.low >= lo) middleTouches++;
+  }
+  if (middleTouches >= 3 && last.close > lastBB.middle) {
+    return "middleSupport";
+  }
+
+  // ── Upper Riding ──
+  // 연속 3개 캔들이 BB상단 상위 20% + 종가 > 중간선 + 모두 상승 방향
+  if (candles.length >= 3) {
+    const ridingCandles = candles.slice(-3);
+    const ridingBBs = bbSeries.slice(-3);
+    let allRiding = true;
+    for (let i = 0; i < 3; i++) {
+      const c = ridingCandles[i];
+      const bb = ridingBBs[i];
+      const upper20 = bb.upper - (bb.upper - bb.middle) * 0.2;
+      if (!(c.close > upper20 && c.close > bb.middle && isBull(c))) {
+        allRiding = false;
+        break;
+      }
+    }
+    if (allRiding && bandWidth(lastBB) > avgBW * 0.7) {
+      return "upperRiding";
+    }
+  }
+
+  return null;
+}
+
+// ── 압력 / 역추세 / 거래량 / Falling Knife ────────────────────────────────
+
+export function pressureLabel(plusDi: number, minusDi: number): PressureLabel {
+  // Treat near-equal +DI/-DI as neutral
+  if (Math.abs(plusDi - minusDi) < 2) return "NEUTRAL";
+  if (plusDi > minusDi) {
+    return plusDi > 25 ? "BULL_PRESSURE" : "WEAK_BULL";
+  }
+  return minusDi > 25 ? "BEAR_PRESSURE" : "WEAK_BEAR";
+}
+
+export function reversalProbability(adx: number): number {
+  return Math.max(0, Math.min(100, 100 - adx * 2.5));
+}
+
+export function volumeRatio(candles: Candle[]): number {
+  if (candles.length < 100) {
+    if (candles.length === 0) return 1;
+    const avg = candles.reduce((a, c) => a + c.volume, 0) / candles.length;
+    if (avg <= 0) return 1;
+    const recent = candles.slice(-Math.min(5, candles.length));
+    const recentAvg = recent.reduce((a, c) => a + c.volume, 0) / recent.length;
+    return recentAvg / avg;
+  }
+  const totalAvg =
+    candles.reduce((a, c) => a + c.volume, 0) / candles.length;
+  if (totalAvg <= 0) return 1;
+  const recent = candles.slice(-5);
+  const recentAvg = recent.reduce((a, c) => a + c.volume, 0) / recent.length;
+  return recentAvg / totalAvg;
+}
+
+export function volumeConfirmationFromRatio(ratio: number): number {
+  if (ratio > 1.2) {
+    // (ratio - 0.8) / 0.4 × 15, clamped to 0..15
+    return Math.max(0, Math.min(15, ((ratio - 0.8) / 0.4) * 15));
+  }
+  if (ratio < 0.8) return -5;
+  return 0;
+}
+
+export function isFallingKnife(
+  plusDi: number,
+  minusDi: number,
+  adx: number
+): boolean {
+  return minusDi > plusDi && adx > 25;
+}
+
+// ── 진입 결정 (3가지 경로) ────────────────────────────────────────────────
+
+const NUM_RSI_LOW = 25;
+const NUM_RSI_HIGH = 38;
+const NUM_BB_TOLERANCE = 0.02;
+const NUM_ADX_MAX = 20;
+const PTN_BB_TOLERANCE = 0.05;
+const PTN_ADX_MAX = 25;
+
+/**
+ * 3가지 진입 경로 중 가장 우선순위 높은 1개를 반환.
+ * 우선순위: BB > PTN > NUM (스펙: BB가 가장 명확한 신호).
+ * Falling Knife일 때는 호출 측에서 미리 차단해야 함.
+ */
+export function decideEntry(
+  candles: Candle[],
+  ind: TechnicalIndicators,
+  patterns: CandlePatternMatch[],
+  bbStructure: BBStructure | null,
+  _volRatio: number
+): EntryDecision | null {
+  if (candles.length === 0) return null;
+  const last = candles[candles.length - 1];
+  const price = last.close;
+
+  // ── BB 경로 ──
+  if (bbStructure != null) {
+    return {
+      path: "BB",
+      reasons: [`BB 구조 패턴: ${bbStructure}`],
+      bbStructure,
+    };
+  }
+
+  // ── PTN 경로 ──
+  const bullishPatterns = patterns.filter((p) => p.bias === "bullish");
+  if (bullishPatterns.length > 0) {
+    const nearLower = price <= ind.bbLower * (1 + PTN_BB_TOLERANCE);
+    const adxOk = ind.adx < PTN_ADX_MAX;
+    if (nearLower && adxOk) {
+      return {
+        path: "PTN",
+        reasons: [
+          `${bullishPatterns.length}개 강세 패턴 감지`,
+          `현재가 ≤ BB하단 × ${1 + PTN_BB_TOLERANCE}`,
+          `ADX ${ind.adx.toFixed(1)} < ${PTN_ADX_MAX}`,
+        ],
+        patterns: bullishPatterns,
+      };
+    }
+  }
+
+  // ── NUM 경로 ──
+  const rsiOk = ind.rsi >= NUM_RSI_LOW && ind.rsi <= NUM_RSI_HIGH;
+  const nearLower = price <= ind.bbLower * (1 + NUM_BB_TOLERANCE);
+  const adxOk = ind.adx < NUM_ADX_MAX;
+  if (rsiOk && nearLower && adxOk) {
+    return {
+      path: "NUM",
+      reasons: [
+        `RSI ${ind.rsi.toFixed(1)} ∈ [${NUM_RSI_LOW}, ${NUM_RSI_HIGH}]`,
+        `현재가 ≤ BB하단 × ${1 + NUM_BB_TOLERANCE}`,
+        `ADX ${ind.adx.toFixed(1)} < ${NUM_ADX_MAX}`,
+      ],
+    };
+  }
+
+  return null;
+}
+
+// ── EXIT 결정 ─────────────────────────────────────────────────────────────
+
+const EXIT_RSI_THRESHOLD = 65;
+const EXIT_ADX_THRESHOLD = 30;
+const EXIT_PLUSDI_THRESHOLD = 25;
+
+export function decideExit(
+  price: number,
+  ind: TechnicalIndicators,
+  bearishPatterns: CandlePatternMatch[]
+): ExitDecision | null {
+  const triggers: ExitDecision["triggers"] = [];
+  if (price >= ind.bbMiddle) triggers.push("bbMiddle");
+  if (ind.rsi >= EXIT_RSI_THRESHOLD) triggers.push("rsi65");
+  if (ind.adx >= EXIT_ADX_THRESHOLD) triggers.push("adx30");
+  if (ind.plusDi >= EXIT_PLUSDI_THRESHOLD) triggers.push("plusDi25");
+
+  const conditionsMet = triggers.length;
+  const hasBearish = bearishPatterns.length > 0;
+  const required = hasBearish ? 2 : 3;
+
+  if (conditionsMet >= required) {
+    return {
+      conditionsMet,
+      total: 4,
+      relaxedToBearish: hasBearish && conditionsMet < 3,
+      triggers,
+    };
+  }
+  return null;
+}
+
+// ── 시그널 강도 (5-component formula per spec) ────────────────────────────
+
+/**
+ * BBDX-PATTERN v6.1 시그널 강도. 0~100.
+ *
+ * components:
+ *   - RSI_score        (0–25)  RSI 25에 가까울수록 높음
+ *   - BB_proximity     (0–25)  BB 하단에 가까울수록 높음
+ *   - ADX_reversal     (0–20)  ADX 낮을수록 높음
+ *   - reversal_prob    (0–15)  reversalProbability / 100 × 15
+ *   - volume_confirm   (-5–15) 거래량 확인
+ */
+export function calculateSignalStrengthV2(
+  price: number,
+  ind: TechnicalIndicators,
+  volumeConfirmation: number
+): number {
+  const rsiScore = Math.max(
+    0,
+    Math.min(25, ((NUM_RSI_HIGH - ind.rsi) / (NUM_RSI_HIGH - NUM_RSI_LOW)) * 25)
+  );
+
+  const range = ind.bbUpper - ind.bbLower;
+  const bbProximity =
+    range > 0
+      ? Math.max(0, Math.min(25, (1 - (price - ind.bbLower) / range) * 25))
+      : 0;
+
+  const adxReversal = Math.max(
+    0,
+    Math.min(20, ((20 - ind.adx) / 20) * 20)
+  );
+
+  const reversalProb = (reversalProbability(ind.adx) / 100) * 15;
+
+  const total = rsiScore + bbProximity + adxReversal + reversalProb + volumeConfirmation;
+  return Math.max(0, Math.min(100, Math.round(total)));
 }

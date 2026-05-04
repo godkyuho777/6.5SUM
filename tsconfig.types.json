@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./dist/types",
+    "allowImportingTsExtensions": false,
+    "rootDir": ".",
+    "incremental": false
+  },
+  "include": [
+    "src/types-entry.ts",
+    "src/**/*.ts",
+    "drizzle/schema.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
+  ]
+}

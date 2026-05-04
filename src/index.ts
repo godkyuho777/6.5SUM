@@ -2,10 +2,23 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
+import { sql } from "drizzle-orm";
 import { appRouter } from "./routers";
 import { createContext } from "./_core/context";
 import { ENV } from "./_core/env";
+import { getDb } from "./db";
 import { startBackgroundWarmup } from "./scanner";
+
+async function warmDbPool() {
+  const db = await getDb();
+  if (!db) return;
+  try {
+    await db.execute(sql`SELECT 1`);
+    console.log("[db] pool warm");
+  } catch (err) {
+    console.warn("[db] warmup failed:", err);
+  }
+}
 
 async function startServer() {
   const app = express();
@@ -89,6 +102,7 @@ async function startServer() {
 
   app.listen(ENV.port, () => {
     console.log(`[server] running on http://localhost:${ENV.port}/`);
+    void warmDbPool();
     startBackgroundWarmup();
   });
 }

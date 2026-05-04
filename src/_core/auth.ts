@@ -1,4 +1,4 @@
-import { jwtVerify } from "jose";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 import type { Request } from "express";
 import { ENV } from "./env";
 
@@ -9,13 +9,17 @@ export type AuthUser = {
   role: "user" | "admin";
 };
 
-const encoder = new TextEncoder();
+let _jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
 
-function getSecretKey(): Uint8Array {
-  if (!ENV.supabaseJwtSecret) {
-    throw new Error("SUPABASE_JWT_SECRET is not configured");
+function getJwks(): ReturnType<typeof createRemoteJWKSet> {
+  if (_jwks) return _jwks;
+  if (!ENV.supabaseUrl) {
+    throw new Error("SUPABASE_URL is not configured");
   }
-  return encoder.encode(ENV.supabaseJwtSecret);
+  _jwks = createRemoteJWKSet(
+    new URL(`${ENV.supabaseUrl}/auth/v1/.well-known/jwks.json`)
+  );
+  return _jwks;
 }
 
 function extractBearer(req: Request): string | null {
@@ -37,14 +41,14 @@ export async function authenticateRequest(
   const token = extractBearer(req);
   if (!token) return null;
 
-  if (!ENV.supabaseJwtSecret) {
-    console.warn("[Auth] SUPABASE_JWT_SECRET missing — rejecting token");
+  if (!ENV.supabaseUrl) {
+    console.warn("[Auth] SUPABASE_URL missing — rejecting token");
     return null;
   }
 
   try {
-    const { payload } = await jwtVerify(token, getSecretKey(), {
-      algorithms: ["HS256"],
+    const { payload } = await jwtVerify(token, getJwks(), {
+      algorithms: ["RS256", "ES256"],
     });
 
     const sub = payload.sub;

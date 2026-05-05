@@ -1,12 +1,10 @@
-import { eq, desc, and, asc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
   signals,
   positions,
   alertSettings,
-  backtestRuns,
-  backtestTrades,
   type InsertSignal,
   type InsertPosition,
   type InsertAlertSetting,
@@ -191,63 +189,3 @@ export async function deleteAlertSetting(id: number) {
   if (!db) return;
   await db.delete(alertSettings).where(eq(alertSettings.id, id));
 }
-
-// ─── Backtest ──────────────────────────────────────────────
-
-/**
- * 백테스트 실행 목록 조회 (최신순)
- */
-export async function getBacktestRuns(limit = 20) {
-  const db = await getDb();
-  if (!db) return [];
-  return db
-    .select()
-    .from(backtestRuns)
-    .orderBy(desc(backtestRuns.createdAt))
-    .limit(limit);
-}
-
-/**
- * 특정 백테스트 run 상세 조회
- */
-export async function getBacktestRunDetail(runId: number) {
-  const db = await getDb();
-  if (!db) return null;
-  const [run] = await db
-    .select()
-    .from(backtestRuns)
-    .where(eq(backtestRuns.id, runId))
-    .limit(1);
-  return run ?? null;
-}
-
-/**
- * 특정 run의 개별 트레이드 목록 조회
- */
-export async function getBacktestRunTrades(input: {
-  runId: number;
-  symbol?: string;
-  win?: boolean;
-  limit: number;
-  offset: number;
-}) {
-  const db = await getDb();
-  if (!db) return { trades: [], total: 0 };
-
-  const conditions = [eq(backtestTrades.runId, input.runId)];
-  if (input.symbol) conditions.push(eq(backtestTrades.symbol, input.symbol));
-  if (input.win !== undefined) conditions.push(eq(backtestTrades.win, input.win));
-
-  const rows = await db
-    .select()
-    .from(backtestTrades)
-    .where(and(...conditions))
-    .orderBy(asc(backtestTrades.signalTs))
-    .limit(input.limit)
-    .offset(input.offset);
-
-  return { trades: rows, total: rows.length };
-}
-
-// schema tables re-exported so runner.ts can dynamically import from "../../drizzle/schema"
-// (no additional exports needed here)

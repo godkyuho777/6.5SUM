@@ -3,10 +3,13 @@ import type {
   Candle,
   CandlePatternMatch,
   CandlePatternName,
+  EmaPosition,
   EntryDecision,
   ExitDecision,
   PressureLabel,
   TechnicalIndicators,
+  VwapPosition,
+  VwapSignal,
 } from "@shared/types";
 
 /**
@@ -175,15 +178,21 @@ export function calculateAllIndicators(candles: Candle[]): TechnicalIndicators {
   const maxHigh = Math.max(...highs);
   const minLow = Math.min(...lows);
   const fibLevels = calculateFibonacciLevels(maxHigh, minLow, 'up');
-  
+
   // 빗각 계산
   const trendlines = calculateTrendlines(candles);
+
+  // VWAP / EMA(9) — Parker Brooks scanner inputs
+  const vwap = calculateVWAP(candles);
+  const ema9 = calculateEMA(closes, 9);
 
   return {
     rsi: Math.round(rsi * 100) / 100,
     bbUpper: bb.upper,
     bbMiddle: bb.middle,
     bbLower: bb.lower,
+    vwap: Math.round(vwap * 10000) / 10000,
+    ema9: Math.round(ema9 * 10000) / 10000,
     adx,
     plusDi,
     minusDi,
@@ -1065,4 +1074,155 @@ export function calculateSignalStrengthV2(
 
   const total = rsiScore + bbProximity + adxReversal + reversalProb + volumeConfirmation;
   return Math.max(0, Math.min(100, Math.round(total)));
+}
+
+// ─── VWAP Strategy (Parker Brooks Style) ─────────────────────────────────
+
+const VWAP_AT_TOLERANCE = 0.001; // ±0.1% counts as "AT"
+const PULLBACK_PROXIMITY = 0.005; // within 0.5% of VWAP/EMA = approaching
+const VWAP_SIGNAL_THRESHOLD = 50;
+
+/**
+ * Volume-weighted average price across the supplied candle range.
+ * Uses typical price (H+L+C)/3 weighted by volume.
+ */
+export function calculateVWAP(candles: Candle[]): number {
+  let cumPV = 0;
+  let cumVol = 0;
+  for (const c of candles) {
+    const typical = (c.high + c.low + c.close) / 3;
+    cumPV += typical * c.volume;
+    cumVol += c.volume;
+  }
+  return cumVol > 0 ? cumPV / cumVol : 0;
+}
+
+/** Standard EMA. Returns the trailing EMA over `values` with `period`. */
+export function calculateEMA(values: number[], period: number): number {
+  if (values.length === 0 || period <= 0) return 0;
+  if (values.length < period) {
+    return values.reduce((a, b) => a + b, 0) / values.length;
+  }
+  const k = 2 / (period + 1);
+  let ema = values.slice(0, period).reduce((a, b) => a + b, 0) / period;
+  for (let i = period; i < values.length; i++) {
+    ema = values[i] * k + ema * (1 - k);
+  }
+  return ema;
+}
+
+export function vwapPosition(price: number, vwap: number): VwapPosition {
+  if (vwap <= 0) return "AT";
+  const diff = (price - vwap) / vwap;
+  if (Math.abs(diff) < VWAP_AT_TOLERANCE) return "AT";
+  return diff > 0 ? "ABOVE" : "BELOW";
+}
+
+export function emaPosition(price: number, ema: number): EmaPosition {
+  if (ema <= 0) return "AT";
+  const diff = (price - ema) / ema;
+  if (Math.abs(diff) < VWAP_AT_TOLERANCE) return "AT";
+  return diff > 0 ? "ABOVE" : "BELOW";
+}
+
+/**
+ * Pullback = price has recently approached VWAP or EMA(9) within
+ * PULLBACK_PROXIMITY without crossing the prevailing-trend reference line.
+ * Looks at the last 5 candles. Returns false when the trend hasn't been
+ * established (current position is "AT") or when no candle approached.
+ */
+export function detectPullback(
+  candles: Candle[],
+  vwap: number,
+  ema9: number
+): boolean {
+  if (candles.length < 5 || vwap <= 0 || ema9 <= 0) return false;
+  const last = candles[candles.length - 1];
+  const currentSide = vwapPosition(last.close, vwap);
+  if (currentSide === "AT") return false;
+
+  const lookback = candles.slice(-5);
+  for (const c of lookback) {
+    const distance = Math.abs(c.low - vwap) / vwap;
+    const distanceHigh = Math.abs(c.high - vwap) / vwap;
+    const minDist = Math.min(distance, distanceHigh);
+    if (minDist <= PULLBACK_PROXIMITY) {
+      const closeSide = vwapPosition(c.close, vwap);
+      if (closeSide === currentSide || closeSide === "AT") return true;
+    }
+  }
+  for (const c of lookback) {
+    const distance = Math.abs(c.low - ema9) / ema9;
+    const distanceHigh = Math.abs(c.high - ema9) / ema9;
+    const minDist = Math.min(distance, distanceHigh);
+    if (minDist <= PULLBACK_PROXIMITY) {
+      const closeSide = emaPosition(c.close, ema9);
+      if (closeSide === currentSide || closeSide === "AT") return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Decide LONG / SHORT / null per spec §6.3.
+ *
+ * LONG: price ABOVE both VWAP and EMA(9) (EMA can be AT).
+ * SHORT: price BELOW both VWAP and EMA(9) (EMA can be AT).
+ * Mixed → null.
+ */
+export function decideVwapSignal(
+  price: number,
+  vwap: number,
+  ema9: number,
+  pullback: boolean,
+  volRatio: number
+): VwapSignal | null {
+  if (vwap <= 0 || ema9 <= 0 || price <= 0) return null;
+
+  const vwapPos = vwapPosition(price, vwap);
+  const emaPos = emaPosition(price, ema9);
+  if (vwapPos === "AT") return null;
+
+  let side: "LONG" | "SHORT" | null = null;
+  if (vwapPos === "ABOVE" && (emaPos === "ABOVE" || emaPos === "AT")) {
+    side = "LONG";
+  } else if (vwapPos === "BELOW" && (emaPos === "BELOW" || emaPos === "AT")) {
+    side = "SHORT";
+  }
+  if (!side) return null;
+
+  // Strength components
+  const vwapDistPct = Math.abs(price - vwap) / vwap;
+  const vwapDistanceScore = Math.max(0, Math.min(35, vwapDistPct * 100 * 17.5));
+  const aligned =
+    (side === "LONG" && emaPos === "ABOVE") ||
+    (side === "SHORT" && emaPos === "BELOW");
+  const emaScore = aligned ? 25 : 12.5;
+  const volRaw = volumeConfirmationFromRatio(volRatio);
+  const volScore = Math.max(0, Math.min(25, ((volRaw + 5) / 20) * 25));
+  const pullbackScore = pullback ? 15 : 0;
+
+  const strength = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(vwapDistanceScore + emaScore + volScore + pullbackScore)
+    )
+  );
+
+  if (strength < VWAP_SIGNAL_THRESHOLD) return null;
+
+  const reasons: string[] = [];
+  reasons.push(
+    side === "LONG"
+      ? `Price ABOVE VWAP (${(vwapDistPct * 100).toFixed(2)}%)`
+      : `Price BELOW VWAP (${(vwapDistPct * 100).toFixed(2)}%)`
+  );
+  reasons.push(
+    `EMA(9) ${emaPos.toLowerCase()} (${aligned ? "aligned" : "transition"})`
+  );
+  if (pullback) reasons.push("Pullback detected (entry zone)");
+  if (volRatio > 1.2) reasons.push(`Volume +${((volRatio - 1) * 100).toFixed(0)}%`);
+
+  return { side, strength, reasons };
 }

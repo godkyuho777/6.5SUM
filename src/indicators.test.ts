@@ -773,3 +773,136 @@ describe("calculateSignalStrengthV2", () => {
     expect(v).toBeLessThanOrEqual(100);
   });
 });
+
+// ─── VWAP Strategy ──────────────────────────────────────────────────────────
+
+import {
+  calculateVWAP,
+  calculateEMA,
+  vwapPosition,
+  emaPosition,
+  detectPullback,
+  decideVwapSignal,
+} from "./indicators";
+
+describe("calculateVWAP", () => {
+  it("returns volume-weighted typical price", () => {
+    // 2 candles with equal volume — VWAP should equal mean of typical prices.
+    const cs: Candle[] = [
+      candle(100, 110, 90, 100, 1000, 0),
+      candle(100, 120, 80, 100, 1000, 1),
+    ];
+    // typical prices: (110+90+100)/3 = 100, (120+80+100)/3 = 100
+    expect(calculateVWAP(cs)).toBeCloseTo(100, 4);
+  });
+
+  it("weights heavier-volume candles more", () => {
+    const cs: Candle[] = [
+      candle(100, 110, 90, 100, 100, 0), // typical = 100
+      candle(100, 220, 200, 200, 1000, 1), // typical = ~206.67, vol 10×
+    ];
+    const v = calculateVWAP(cs);
+    // Weighted: (100*100 + 206.67*1000) / (100 + 1000) ≈ 197
+    expect(v).toBeGreaterThan(190);
+    expect(v).toBeLessThan(210);
+  });
+
+  it("returns 0 when total volume is 0", () => {
+    const cs: Candle[] = [candle(100, 110, 90, 100, 0, 0)];
+    expect(calculateVWAP(cs)).toBe(0);
+  });
+});
+
+describe("calculateEMA", () => {
+  it("returns mean for series shorter than period", () => {
+    expect(calculateEMA([10, 20, 30], 9)).toBe(20);
+  });
+
+  it("returns trailing EMA for longer series", () => {
+    const values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    const ema = calculateEMA(values, 9);
+    // EMA should weight the most recent value more — trail closer to 12 than mean
+    expect(ema).toBeGreaterThan(7);
+    expect(ema).toBeLessThan(12);
+  });
+});
+
+describe("vwapPosition / emaPosition", () => {
+  it("returns ABOVE when price > vwap by > 0.1%", () => {
+    expect(vwapPosition(101, 100)).toBe("ABOVE");
+  });
+  it("returns BELOW when price < vwap by > 0.1%", () => {
+    expect(vwapPosition(99, 100)).toBe("BELOW");
+  });
+  it("returns AT within 0.1% tolerance", () => {
+    expect(vwapPosition(100.05, 100)).toBe("AT");
+  });
+  it("emaPosition mirrors vwapPosition behavior", () => {
+    expect(emaPosition(105, 100)).toBe("ABOVE");
+    expect(emaPosition(95, 100)).toBe("BELOW");
+    expect(emaPosition(100.01, 100)).toBe("AT");
+  });
+});
+
+describe("detectPullback", () => {
+  it("returns false with insufficient candles", () => {
+    expect(detectPullback([], 100, 100)).toBe(false);
+  });
+
+  it("detects pullback when recent candle approaches VWAP without crossing", () => {
+    const cs: Candle[] = [
+      candle(105, 106, 104, 105, 1000, 0),
+      candle(105, 106, 104, 105, 1000, 1),
+      candle(105, 106, 104, 105, 1000, 2),
+      candle(105, 106, 100.4, 105, 1000, 3), // low touched within 0.5% of vwap=100
+      candle(105, 106, 104, 105, 1000, 4),
+    ];
+    expect(detectPullback(cs, 100, 100)).toBe(true);
+  });
+
+  it("returns false when no candle approaches VWAP/EMA", () => {
+    const cs: Candle[] = Array.from({ length: 5 }, (_, i) =>
+      candle(110, 112, 108, 110, 1000, i)
+    );
+    expect(detectPullback(cs, 100, 100)).toBe(false);
+  });
+});
+
+describe("decideVwapSignal", () => {
+  it("returns LONG when price ABOVE both VWAP and EMA(9)", () => {
+    const cs: Candle[] = Array.from({ length: 5 }, (_, i) =>
+      candle(105, 106, 104, 105, 1000, i)
+    );
+    const sig = decideVwapSignal(105, 100, 102, false, 1.3);
+    expect(sig?.side).toBe("LONG");
+    expect(sig!.strength).toBeGreaterThanOrEqual(50);
+    void cs;
+  });
+
+  it("returns SHORT when price BELOW both VWAP and EMA(9)", () => {
+    const sig = decideVwapSignal(95, 100, 98, false, 1.3);
+    expect(sig?.side).toBe("SHORT");
+  });
+
+  it("returns null when mixed (above VWAP, below EMA)", () => {
+    const sig = decideVwapSignal(101, 100, 105, false, 1.0);
+    expect(sig).toBeNull();
+  });
+
+  it("returns null when price AT VWAP", () => {
+    const sig = decideVwapSignal(100, 100, 102, false, 1.0);
+    expect(sig).toBeNull();
+  });
+
+  it("pullback boosts strength relative to no-pullback", () => {
+    const noPullback = decideVwapSignal(105, 100, 102, false, 1.3);
+    const withPullback = decideVwapSignal(105, 100, 102, true, 1.3);
+    expect(withPullback!.strength).toBeGreaterThan(noPullback!.strength);
+  });
+
+  it("strength clamps to 0..100", () => {
+    const sig = decideVwapSignal(150, 100, 110, true, 5);
+    expect(sig!.strength).toBeLessThanOrEqual(100);
+    expect(sig!.strength).toBeGreaterThanOrEqual(0);
+  });
+});

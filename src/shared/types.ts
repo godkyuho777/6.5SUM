@@ -50,6 +50,10 @@ export interface TechnicalIndicators {
   adx: number;
   plusDi: number;
   minusDi: number;
+  /** VWAP across the loaded candle range. Optional for back-compat. */
+  vwap?: number;
+  /** 9-period EMA of close prices. */
+  ema9?: number;
   fibLevels?: {
     level: number;
     price: number;
@@ -127,6 +131,19 @@ export interface ExitDecision {
   triggers: ("bbMiddle" | "rsi65" | "adx30" | "plusDi25")[];
 }
 
+// ─── VWAP Strategy (Parker Brooks Style) ────────────────────────────────────
+
+export type VwapPosition = "ABOVE" | "BELOW" | "AT";
+export type EmaPosition = "ABOVE" | "BELOW" | "AT";
+
+export interface VwapSignal {
+  side: "LONG" | "SHORT";
+  /** 0~100 composite */
+  strength: number;
+  /** Human-readable reasons (for click-detail dialogs) */
+  reasons: string[];
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 
 /** 스캔 결과 (개별 코인) */
@@ -173,6 +190,18 @@ export interface CoinScanResult {
   isStopLossHit: boolean;
   /** -DI > +DI AND ADX > 25 — LONG 진입 차단 */
   isFallingKnife: boolean;
+
+  // ─── VWAP Strategy fields ───────────────────────────────────────────────
+  /** Volume-weighted average price across the loaded candle range. */
+  vwap: number;
+  /** 9-period EMA of close prices. */
+  ema9: number;
+  vwapPosition: VwapPosition;
+  emaPosition: EmaPosition;
+  /** Price retraced toward VWAP/EMA(9) without crossing. */
+  pullbackDetected: boolean;
+  /** LONG/SHORT signal derived from VWAP+EMA confluence. null if neither. */
+  vwapSignal: VwapSignal | null;
 }
 
 /** 시그널 상세 */

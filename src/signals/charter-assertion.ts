@@ -39,7 +39,15 @@ export interface RuntimeIndicatorSet {
 export function assertSevenDimensions(
   set: RuntimeIndicatorSet
 ): ValidationResult {
-  const result = validateAgainstCharter(set);
+  // Adapt the runtime shape (uses `strategy`) to the validator shape
+  // (uses `name`). Both refer to the same human-readable strategy
+  // identifier; the names diverge because the validator was built
+  // generically while the runtime caller already had a `strategy`
+  // field on the signal it was asserting against.
+  const result = validateAgainstCharter({
+    name: set.strategy,
+    indicators: set.indicators,
+  });
 
   if (result.missingDimensions.length > 0) {
     const dims = result.missingDimensions.map((m) => m.dimension).join(", ");

@@ -126,13 +126,22 @@ export type ExitCategory = "A" | "B" | "C" | "D" | "STOP";
 /** v6.3 EXIT 액션. */
 export type ExitAction = "full_exit" | "partial_exit" | "move_stop";
 
-/** v6.3 EXIT-B 반전 점수 컴포넌트 (debug/UI 표시용). */
+/**
+ * v6.3 EXIT-B 반전 점수 컴포넌트 (debug/UI 표시용).
+ *
+ * v6.5 추가 필드: macroBoost / onchainBoost — 거시·온체인 환경
+ * 가중. 기존 5개 컴포넌트 합 + 두 boost 의 부호 있는 가산.
+ */
 export interface ReversalScoreBreakdown {
   diCross: number;
   adxConfirmation: number;
   bearishPattern: number;
   trendlineBreak: number;
   macdDivergence: number;
+  /** v6.5 §5.2 — non-zero when macroRegime ∈ {crisis, tight, flooded}. */
+  macroBoost: number;
+  /** v6.5 §5.2 — non-zero when onchainRegime ∈ {distribution, strong_distribution}; multiplicative damp via strong_accumulation. */
+  onchainBoost: number;
   total: number;
 }
 

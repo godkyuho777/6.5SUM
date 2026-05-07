@@ -53,6 +53,19 @@ export const signals = pgTable("signals", {
   exitRatio: doublePrecision("exit_ratio"),
   exitReversalScore: doublePrecision("exit_reversal_score"),
   exitReason: varchar("exit_reason", { length: 200 }),
+  // v6.5 multiplier breakdown — every emitted signal stores its
+  // confidence pipeline so the FE can render the `base × confluence ×
+  // wave × macro × onchain → final` chain on detail pages.
+  macroScore: doublePrecision("macro_score"),
+  macroRegime: varchar("macro_regime", { length: 20 }),
+  macroMult: doublePrecision("macro_mult"),
+  onchainScore: doublePrecision("onchain_score"),
+  onchainRegime: varchar("onchain_regime", { length: 30 }),
+  onchainMult: doublePrecision("onchain_mult"),
+  confluenceMult: doublePrecision("confluence_mult"),
+  waveMult: doublePrecision("wave_mult"),
+  finalConfidence: doublePrecision("final_confidence"),
+  sizeFactor: varchar("size_factor", { length: 10 }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -161,3 +174,54 @@ export const charterAudits = pgTable("charter_audits", {
 
 export type CharterAudit = typeof charterAudits.$inferSelect;
 export type InsertCharterAudit = typeof charterAudits.$inferInsert;
+
+/**
+ * Macro Liquidity snapshot — v6.5 §2.
+ *
+ * Daily cadence. Latest row drives the `macro_mult` in the
+ * confidence orchestrator. Older rows kept for backtest replay.
+ */
+export const macroSnapshots = pgTable("macro_snapshots", {
+  id: serial("id").primaryKey(),
+  ts: timestamp("ts", { withTimezone: true }).defaultNow().notNull(),
+  sofr: doublePrecision("sofr"),
+  iorb: doublePrecision("iorb"),
+  rrpChange30d: doublePrecision("rrp_change_30d"),
+  tgaChange30d: doublePrecision("tga_change_30d"),
+  fedBalanceChange30d: doublePrecision("fed_balance_change_30d"),
+  realFedFundsRate: doublePrecision("real_fed_funds_rate"),
+  score: doublePrecision("score").notNull(),
+  regime: varchar("regime", { length: 20 }).notNull(),
+  breakdown: jsonb("breakdown").default({}).notNull(),
+  koreaModifier: doublePrecision("korea_modifier").default(0),
+  krwChange30d: doublePrecision("krw_change_30d"),
+  bokRateChange90d: doublePrecision("bok_rate_change_90d"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type MacroSnapshot = typeof macroSnapshots.$inferSelect;
+export type InsertMacroSnapshot = typeof macroSnapshots.$inferInsert;
+
+/**
+ * Onchain composite snapshot — v6.5 §3.
+ *
+ * 1h cadence per symbol. The latest row drives the `onchain_mult`
+ * in the confidence orchestrator.
+ */
+export const onchainSnapshots = pgTable("onchain_snapshots", {
+  id: serial("id").primaryKey(),
+  symbol: varchar("symbol", { length: 20 }).notNull(),
+  ts: timestamp("ts", { withTimezone: true }).defaultNow().notNull(),
+  tier: varchar("tier", { length: 20 }).notNull(),
+  score: doublePrecision("score").notNull(),
+  regime: varchar("regime", { length: 30 }).notNull(),
+  breakdown: jsonb("breakdown").default({}).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type OnchainSnapshot = typeof onchainSnapshots.$inferSelect;
+export type InsertOnchainSnapshot = typeof onchainSnapshots.$inferInsert;

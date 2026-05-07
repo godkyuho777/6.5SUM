@@ -35,6 +35,7 @@ import { checkTimeStop } from "./time-stop";
 
 interface LegacyShape {
   triggers: ExitDecision["triggers"];
+  total: 4;
   conditionsMet: number;
   relaxedToBearish: boolean;
 }
@@ -51,6 +52,7 @@ function legacyV61Triggers(
   if (ind.plusDi >= 25) triggers.push("plusDi25");
   return {
     triggers,
+    total: 4,
     conditionsMet: triggers.length,
     relaxedToBearish: bearishPresent && triggers.length < 3,
   };

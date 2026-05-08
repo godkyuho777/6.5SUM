@@ -10,13 +10,60 @@
  *   WHALE_ALERT_API_KEY  → whale_alert
  *   GLASSNODE_API_KEY    → lth_supply
  *   ETF_FLOW_PROVIDER    → etf_flow ("farside" 면 스크래핑, 미설정이면 stub)
+ *   ONCHAIN_MOCK         → "1" 이면 키 미설정 stub 자리에 결정론 mock 값 주입
+ *                          (UI 시각화 검증 용도. status="mock" 으로 식별).
  *
  * 각 함수는 명세서의 임계값을 그대로 적용한다. 진짜 호출 경로는 v1 에서
  * "key 있으면 호출, 없으면 stub" 만 분기. 실제 구현은 키 발급 후 한 곳에서.
+ *
+ * Mock 모드 우선순위:
+ *   1. 실제 API 키 존재 → 실데이터 경로 (TBD, 현재는 stub 그대로 반환)
+ *   2. ONCHAIN_MOCK=1 → 결정론 mock (symbol+key hash 기반)
+ *   3. 그 외 → status: "stub", value: 0
  */
 
 import axios from "axios";
-import type { OnchainModifierResult } from "./types";
+import type { OnchainModifierKey, OnchainModifierResult } from "./types";
+
+// ─── Mock 유틸 ──────────────────────────────────────────────────────
+
+/**
+ * 결정론적 32-bit 해시 (FNV-1a 변형). 같은 입력은 항상 같은 출력.
+ * symbol+modifierKey 조합으로 modifier 마다 다른 mock 값이 나오도록 한다.
+ */
+function simpleHash(input: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  }
+  return h >>> 0;
+}
+
+/** [0, 1) 범위 결정론 0~1 float. */
+function hashUnit(input: string): number {
+  return simpleHash(input) / 0xffffffff;
+}
+
+/**
+ * Mock 값 산출 — 각 modifier 의 정상 ±max 한계 내에서 결정론적으로 분포.
+ * coin 마다 다른 값이 나오도록 symbol+key 를 모두 해시 입력으로 사용.
+ *
+ * 분포: |signed| < 0.1 인 영역은 0 (영향 없음) 으로 dead-zone 처리,
+ *       나머지는 [-maxAbs, +maxAbs] 정상 분포.
+ * 시각화 용도로 코인마다 색이 다르게 나오도록 한다.
+ */
+function mockValue(symbol: string, key: OnchainModifierKey, maxAbs: number): number {
+  const u = hashUnit(`${symbol}|${key}`);
+  const signed = u * 2 - 1; // [-1, +1)
+  if (Math.abs(signed) < 0.1) return 0;
+  const raw = signed * maxAbs;
+  return Math.round(raw * 100) / 100;
+}
+
+function isMockMode(): boolean {
+  return process.env.ONCHAIN_MOCK === "1";
+}
 
 // ─── Exchange Netflow ───────────────────────────────────────────────
 
@@ -25,6 +72,15 @@ export async function computeExchangeNetflow(
 ): Promise<OnchainModifierResult> {
   const key = process.env.CRYPTOQUANT_API_KEY;
   if (!key) {
+    if (isMockMode()) {
+      const value = mockValue(symbol, "exchange_netflow", 0.20);
+      return {
+        key: "exchange_netflow",
+        value,
+        status: "mock",
+        detail: `[mock] ${symbol} exchange netflow ${value >= 0 ? "+" : ""}${value.toFixed(2)} (ONCHAIN_MOCK=1)`,
+      };
+    }
     return {
       key: "exchange_netflow",
       value: 0,
@@ -52,6 +108,15 @@ export async function computeWhaleAlert(
 ): Promise<OnchainModifierResult> {
   const key = process.env.WHALE_ALERT_API_KEY;
   if (!key) {
+    if (isMockMode()) {
+      const value = mockValue(symbol, "whale_alert", 0.15);
+      return {
+        key: "whale_alert",
+        value,
+        status: "mock",
+        detail: `[mock] ${symbol} whale alert ${value >= 0 ? "+" : ""}${value.toFixed(2)} (ONCHAIN_MOCK=1)`,
+      };
+    }
     return {
       key: "whale_alert",
       value: 0,
@@ -88,6 +153,15 @@ export async function computeEtfFlow(
 
   const provider = process.env.ETF_FLOW_PROVIDER;
   if (provider !== "farside") {
+    if (isMockMode()) {
+      const value = mockValue(symbol, "etf_flow", 0.20);
+      return {
+        key: "etf_flow",
+        value,
+        status: "mock",
+        detail: `[mock] ${symbol} ETF flow ${value >= 0 ? "+" : ""}${value.toFixed(2)} (ONCHAIN_MOCK=1)`,
+      };
+    }
     return {
       key: "etf_flow",
       value: 0,
@@ -143,6 +217,15 @@ export async function computeMinerOutflow(
 
   const key = process.env.CRYPTOQUANT_API_KEY;
   if (!key) {
+    if (isMockMode()) {
+      const value = mockValue(symbol, "miner_outflow", 0.15);
+      return {
+        key: "miner_outflow",
+        value,
+        status: "mock",
+        detail: `[mock] ${symbol} miner outflow ${value >= 0 ? "+" : ""}${value.toFixed(2)} (ONCHAIN_MOCK=1)`,
+      };
+    }
     return {
       key: "miner_outflow",
       value: 0,
@@ -178,6 +261,15 @@ export async function computeLthSupply(
 
   const key = process.env.GLASSNODE_API_KEY;
   if (!key) {
+    if (isMockMode()) {
+      const value = mockValue(symbol, "lth_supply", 0.15);
+      return {
+        key: "lth_supply",
+        value,
+        status: "mock",
+        detail: `[mock] ${symbol} LTH supply ${value >= 0 ? "+" : ""}${value.toFixed(2)} (ONCHAIN_MOCK=1)`,
+      };
+    }
     return {
       key: "lth_supply",
       value: 0,
@@ -196,3 +288,7 @@ export async function computeLthSupply(
     raw: { hasKey: true },
   };
 }
+
+// ─── Test exports ───────────────────────────────────────────────────
+// 테스트에서 결정론 검증 용 — 프로덕션 코드는 사용 X.
+export const __testing = { simpleHash, hashUnit, mockValue, isMockMode };

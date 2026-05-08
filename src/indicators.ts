@@ -7,10 +7,13 @@ import type {
   EntryDecision,
   ExitDecision,
   PressureLabel,
+  PullbackQuality,
   TechnicalIndicators,
+  VwapBands,
   VwapPosition,
   VwapSignal,
 } from "@shared/types";
+import type { VolumeProfile } from "./volume-profile";
 
 /**
  * RSI (Relative Strength Index) 계산
@@ -1161,18 +1164,202 @@ export function detectPullback(
 }
 
 /**
+ * VWAP 표준편차 밴드 (volume-weighted variance).
+ *
+ * VWAP_STRATEGY.md §6.3 — 1σ/2σ/3σ 밴드.
+ * variance = Σ((typical - vwap)² × vol) / Σvol
+ *
+ * 엣지: candles 비었거나 cumVol === 0 → sigma = 0, 모든 밴드 0.
+ */
+export function calculateVwapBands(candles: Candle[]): VwapBands {
+  if (!candles || candles.length === 0) {
+    return {
+      vwap: 0,
+      sigma: 0,
+      upper1: 0,
+      upper2: 0,
+      upper3: 0,
+      lower1: 0,
+      lower2: 0,
+      lower3: 0,
+    };
+  }
+  let cumPV = 0;
+  let cumVol = 0;
+  for (const c of candles) {
+    const typical = (c.high + c.low + c.close) / 3;
+    cumPV += typical * c.volume;
+    cumVol += c.volume;
+  }
+  if (cumVol <= 0) {
+    return {
+      vwap: 0,
+      sigma: 0,
+      upper1: 0,
+      upper2: 0,
+      upper3: 0,
+      lower1: 0,
+      lower2: 0,
+      lower3: 0,
+    };
+  }
+  const vwap = cumPV / cumVol;
+
+  // volume-weighted variance
+  let cumVarNum = 0;
+  for (const c of candles) {
+    const typical = (c.high + c.low + c.close) / 3;
+    const dev = typical - vwap;
+    cumVarNum += dev * dev * c.volume;
+  }
+  const variance = cumVarNum / cumVol;
+  const sigma = Math.sqrt(Math.max(0, variance));
+
+  return {
+    vwap,
+    sigma,
+    upper1: vwap + sigma,
+    upper2: vwap + 2 * sigma,
+    upper3: vwap + 3 * sigma,
+    lower1: vwap - sigma,
+    lower2: vwap - 2 * sigma,
+    lower3: vwap - 3 * sigma,
+  };
+}
+
+/**
+ * Pullback v2 — VWAP_STRATEGY.md §8 의 "터치 + 반등" 패턴 검증.
+ *
+ * 알고리즘:
+ *   1. 마지막 5 캔들 (lookback) 에서 low/high 가 vwap/ema9 의 0.5% 이내 터치
+ *   2. 터치 발견 시 다음 1~2 캔들의 종가가 추세 방향으로 반등 확인
+ *      LONG: next.close > next.open && next.close > touch.close
+ *      SHORT: next.close < next.open && next.close < touch.close
+ *
+ * 헌장 규칙 3 준수: standalone 시그널 X, decideVwapSignal 의 보조 점수로만 사용.
+ *
+ * 엣지: candles.length < 7 → detected: false (5 lookback + 2 confirm 필요).
+ */
+export function detectPullbackV2(
+  candles: Candle[],
+  vwap: number,
+  ema9: number,
+  side: "LONG" | "SHORT"
+): PullbackQuality {
+  const empty: PullbackQuality = {
+    detected: false,
+    touchCandleIdx: null,
+    bounceConfirmed: false,
+    proximityRatio: 1,
+    touchedLine: null,
+  };
+  if (!candles || candles.length < 7 || vwap <= 0 || ema9 <= 0) return empty;
+
+  const n = candles.length;
+  // lookback: 마지막에서 두 번째 5 캔들 윈도우 — confirm 캔들 2개 여유 확보
+  // i.e. touch candidate idx = [n-7 .. n-3], confirm = [touch+1, touch+2]
+  let bestProximity = 1;
+  let bestIdx: number | null = null;
+  let bestLine: "vwap" | "ema9" | null = null;
+
+  // 가장 가까웠던 거리 추적 (proximityRatio) — 관찰 윈도우는 마지막 5 캔들
+  const obsStart = Math.max(0, n - 5);
+  for (let i = obsStart; i < n; i++) {
+    const c = candles[i];
+    const distVwap = Math.min(
+      Math.abs(c.low - vwap) / vwap,
+      Math.abs(c.high - vwap) / vwap
+    );
+    const distEma = Math.min(
+      Math.abs(c.low - ema9) / ema9,
+      Math.abs(c.high - ema9) / ema9
+    );
+    if (distVwap < bestProximity) bestProximity = distVwap;
+    if (distEma < bestProximity) bestProximity = distEma;
+  }
+
+  // touch 후보: confirm 캔들 1~2 개 여유 → idx 최대 n-3 까지
+  for (let i = obsStart; i <= n - 3; i++) {
+    const c = candles[i];
+    const distVwap = Math.min(
+      Math.abs(c.low - vwap) / vwap,
+      Math.abs(c.high - vwap) / vwap
+    );
+    const distEma = Math.min(
+      Math.abs(c.low - ema9) / ema9,
+      Math.abs(c.high - ema9) / ema9
+    );
+    if (distVwap <= PULLBACK_PROXIMITY) {
+      bestIdx = i;
+      bestLine = "vwap";
+      break;
+    }
+    if (distEma <= PULLBACK_PROXIMITY) {
+      bestIdx = i;
+      bestLine = "ema9";
+      break;
+    }
+  }
+
+  if (bestIdx === null) {
+    return { ...empty, proximityRatio: bestProximity };
+  }
+
+  // bounce 확인: 다음 1~2 캔들
+  const touchCandle = candles[bestIdx];
+  let bounceConfirmed = false;
+  for (let j = 1; j <= 2; j++) {
+    const next = candles[bestIdx + j];
+    if (!next) break;
+    if (side === "LONG") {
+      if (next.close > next.open && next.close > touchCandle.close) {
+        bounceConfirmed = true;
+        break;
+      }
+    } else {
+      if (next.close < next.open && next.close < touchCandle.close) {
+        bounceConfirmed = true;
+        break;
+      }
+    }
+  }
+
+  return {
+    detected: true,
+    touchCandleIdx: bestIdx,
+    bounceConfirmed,
+    proximityRatio: bestProximity,
+    touchedLine: bestLine,
+  };
+}
+
+/**
+ * decideVwapSignal 의 5-컴포넌트 평가 옵션 (VWAP_STRATEGY.md §9.1).
+ *
+ * opts 미제공 시 기존 4-컴포넌트 (35/25/25/15) fallback — 호환성.
+ */
+export interface DecideVwapSignalOptions {
+  pullbackQuality?: PullbackQuality;
+  volumeProfile?: VolumeProfile;
+}
+
+/**
  * Decide LONG / SHORT / null per spec §6.3.
  *
  * LONG: price ABOVE both VWAP and EMA(9) (EMA can be AT).
  * SHORT: price BELOW both VWAP and EMA(9) (EMA can be AT).
  * Mixed → null.
+ *
+ * opts 제공 시 5-컴포넌트 (25/20/25/15/15) 명세서 §9.1 가중치.
+ * opts 미제공 시 기존 4-컴포넌트 (35/25/25/15) — legacy 호환.
  */
 export function decideVwapSignal(
   price: number,
   vwap: number,
   ema9: number,
   pullback: boolean,
-  volRatio: number
+  volRatio: number,
+  opts?: DecideVwapSignalOptions
 ): VwapSignal | null {
   if (vwap <= 0 || ema9 <= 0 || price <= 0) return null;
 
@@ -1188,38 +1375,159 @@ export function decideVwapSignal(
   }
   if (!side) return null;
 
-  // Strength components
   const vwapDistPct = Math.abs(price - vwap) / vwap;
-  const vwapDistanceScore = Math.max(0, Math.min(35, vwapDistPct * 100 * 17.5));
   const aligned =
     (side === "LONG" && emaPos === "ABOVE") ||
     (side === "SHORT" && emaPos === "BELOW");
-  const emaScore = aligned ? 25 : 12.5;
-  const volRaw = volumeConfirmationFromRatio(volRatio);
-  const volScore = Math.max(0, Math.min(25, ((volRaw + 5) / 20) * 25));
-  const pullbackScore = pullback ? 15 : 0;
-
-  const strength = Math.max(
-    0,
-    Math.min(
-      100,
-      Math.round(vwapDistanceScore + emaScore + volScore + pullbackScore)
-    )
-  );
-
-  if (strength < VWAP_SIGNAL_THRESHOLD) return null;
 
   const reasons: string[] = [];
-  reasons.push(
-    side === "LONG"
-      ? `Price ABOVE VWAP (${(vwapDistPct * 100).toFixed(2)}%)`
-      : `Price BELOW VWAP (${(vwapDistPct * 100).toFixed(2)}%)`
-  );
-  reasons.push(
-    `EMA(9) ${emaPos.toLowerCase()} (${aligned ? "aligned" : "transition"})`
-  );
-  if (pullback) reasons.push("Pullback detected (entry zone)");
-  if (volRatio > 1.2) reasons.push(`Volume +${((volRatio - 1) * 100).toFixed(0)}%`);
+  let strength = 0;
+
+  if (opts && (opts.pullbackQuality || opts.volumeProfile)) {
+    // ── 5-컴포넌트 평가 (명세서 §9.1) ──
+    // (1) VWAP 거리: 25점 (vwapDistPct × 17.5 ×100, capped at 25)
+    const vwapDistanceScore = Math.max(
+      0,
+      Math.min(25, vwapDistPct * 100 * 17.5)
+    );
+    // (2) EMA(9) 위치: 20 (aligned), 10 (partial — emaPos === "AT"), 0 (else)
+    const emaScore = aligned ? 20 : emaPos === "AT" ? 10 : 0;
+    // (3) EMA 되돌림 (Pullback v2): 25 (bounceConfirmed), 12 (detected only), 0
+    const pq = opts.pullbackQuality;
+    const pullbackScore = pq
+      ? pq.bounceConfirmed
+        ? 25
+        : pq.detected
+          ? 12
+          : 0
+      : pullback
+        ? 12
+        : 0;
+    // (4) Volume Profile 지지 (HVN/POC 0.5% 이내): 15
+    // (5) Volume Profile 구조 (LONG: price > nearest LVN, SHORT: price < nearest LVN): 15
+    let vpSupportScore = 0;
+    let vpStructureScore = 0;
+    const vp = opts.volumeProfile;
+    if (vp) {
+      const tolerance = price * 0.005;
+      const pocDist = Math.abs(price - vp.poc);
+      const nearestHvnDist = vp.hvnList.length
+        ? Math.min(...vp.hvnList.map((h) => Math.abs(price - h)))
+        : Infinity;
+      if (pocDist <= tolerance || nearestHvnDist <= tolerance) {
+        vpSupportScore = 15;
+      }
+      if (vp.lvnList.length > 0) {
+        if (side === "LONG") {
+          // 위쪽에 LVN 빈 구간 = 상승 여력
+          const lvnsAbove = vp.lvnList.filter((l) => l > price);
+          if (lvnsAbove.length > 0) vpStructureScore = 15;
+        } else {
+          const lvnsBelow = vp.lvnList.filter((l) => l < price);
+          if (lvnsBelow.length > 0) vpStructureScore = 15;
+        }
+      }
+    }
+
+    strength = Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(
+          vwapDistanceScore +
+            emaScore +
+            pullbackScore +
+            vpSupportScore +
+            vpStructureScore
+        )
+      )
+    );
+
+    if (strength < VWAP_SIGNAL_THRESHOLD) return null;
+
+    reasons.push(
+      side === "LONG"
+        ? `Price ABOVE VWAP (${(vwapDistPct * 100).toFixed(2)}%)`
+        : `Price BELOW VWAP (${(vwapDistPct * 100).toFixed(2)}%)`
+    );
+    reasons.push(
+      `EMA(9) ${emaPos.toLowerCase()} (${aligned ? "aligned" : "transition"})`
+    );
+    if (pq?.bounceConfirmed) {
+      reasons.push("Pullback bounce confirmed (touch + reversal)");
+    } else if (pq?.detected) {
+      reasons.push("Pullback touch detected (awaiting bounce)");
+    } else if (pullback) {
+      reasons.push("Pullback proximity (legacy)");
+    }
+    if (vpSupportScore > 0) reasons.push("Volume Profile support (POC/HVN nearby)");
+    if (vpStructureScore > 0) {
+      reasons.push(
+        side === "LONG"
+          ? "LVN gap above (room to move)"
+          : "LVN gap below (room to drop)"
+      );
+    }
+  } else {
+    // ── 4-컴포넌트 fallback (legacy) ──
+    const vwapDistanceScore = Math.max(
+      0,
+      Math.min(35, vwapDistPct * 100 * 17.5)
+    );
+    const emaScore = aligned ? 25 : 12.5;
+    const volRaw = volumeConfirmationFromRatio(volRatio);
+    const volScore = Math.max(0, Math.min(25, ((volRaw + 5) / 20) * 25));
+    const pullbackScore = pullback ? 15 : 0;
+
+    strength = Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(vwapDistanceScore + emaScore + volScore + pullbackScore)
+      )
+    );
+
+    if (strength < VWAP_SIGNAL_THRESHOLD) return null;
+
+    reasons.push(
+      side === "LONG"
+        ? `Price ABOVE VWAP (${(vwapDistPct * 100).toFixed(2)}%)`
+        : `Price BELOW VWAP (${(vwapDistPct * 100).toFixed(2)}%)`
+    );
+    reasons.push(
+      `EMA(9) ${emaPos.toLowerCase()} (${aligned ? "aligned" : "transition"})`
+    );
+    if (pullback) reasons.push("Pullback detected (entry zone)");
+    if (volRatio > 1.2) reasons.push(`Volume +${((volRatio - 1) * 100).toFixed(0)}%`);
+  }
 
   return { side, strength, reasons };
+}
+
+/**
+ * VwapSignal → BBDX confidence multiplier (헌장 규칙 3 준수).
+ *
+ * Standalone VwapSignal 발행은 deprecated — 본 헬퍼가 정식 통합 경로.
+ *
+ * Mapping:
+ *   - null signal: 1.00 (neutral)
+ *   - signal.side === bbdxSide:  1.0 + (strength - 50) / 50 × 0.30  → 1.0~1.30
+ *   - signal.side !== bbdxSide:  1.0 - (strength - 50) / 50 × 0.30  → 0.70~1.0
+ *
+ * Tradelab 은 현재 LONG-only — bbdxSide 기본값 "LONG".
+ *
+ * @param signal - decideVwapSignal 결과
+ * @param bbdxSide - BBDX 진입 path side
+ */
+export function vwapToMultiplier(
+  signal: VwapSignal | null,
+  bbdxSide: "LONG" = "LONG"
+): number {
+  if (!signal) return 1.0;
+  const normalizedStrength =
+    Math.max(0, Math.min(50, signal.strength - 50)) / 50; // 0~1
+  if (signal.side === bbdxSide) {
+    return 1.0 + normalizedStrength * 0.3; // 1.0~1.30
+  }
+  return 1.0 - normalizedStrength * 0.3; // 0.70~1.0
 }

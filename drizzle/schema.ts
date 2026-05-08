@@ -5,6 +5,7 @@ import {
   pgEnum,
   pgTable,
   serial,
+  text,
   timestamp,
   uuid,
   varchar,
@@ -185,3 +186,35 @@ export const backtestTrades = pgTable("backtest_trades", {
 
 export type BacktestTradeRow = typeof backtestTrades.$inferSelect;
 export type InsertBacktestTradeRow = typeof backtestTrades.$inferInsert;
+
+// ─────────────────────────────────────────────────────────
+// Coin Detail Workstation — Calendar Events
+// ─────────────────────────────────────────────────────────
+
+/**
+ * Per-symbol or global market events (macro releases, token unlocks, forks,
+ * halvings, listings, custom user-added events). Powers the CoinDetail
+ * calendar/timeline panel.
+ *
+ * symbol: 'BTCUSDT' (specific) or 'GLOBAL' (macro events visible to all coins).
+ * event_type: macro | unlock | fork | halving | listing | custom
+ *
+ * createdBy is a Supabase auth.users(id) UUID — no FK because that schema lives
+ * outside this codebase (same convention as positions.userId).
+ */
+export const coinEvents = pgTable("coin_events", {
+  id: serial("id").primaryKey(),
+  symbol: text("symbol").notNull(),
+  eventType: text("event_type").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
+  source: text("source"),
+  createdBy: uuid("created_by"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type CoinEvent = typeof coinEvents.$inferSelect;
+export type InsertCoinEvent = typeof coinEvents.$inferInsert;

@@ -1,4 +1,4 @@
-import { eq, desc, and, asc } from "drizzle-orm";
+import { eq, desc, and, asc, gte, lt, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
@@ -7,9 +7,12 @@ import {
   alertSettings,
   backtestRuns,
   backtestTrades,
+  coinEvents,
   type InsertSignal,
   type InsertPosition,
   type InsertAlertSetting,
+  type InsertCoinEvent,
+  type CoinEvent,
 } from "../drizzle/schema";
 
 let _client: ReturnType<typeof postgres> | null = null;
@@ -247,4 +250,56 @@ export async function getBacktestRunTrades(input: {
     .offset(input.offset);
 
   return { trades: rows, total: rows.length };
+}
+
+// ─── Coin Events ───────────────────────────────────────────
+// Calendar / timeline of macro and per-coin events.
+// symbol === "GLOBAL" 은 모든 코인에서 같이 보이는 매크로 이벤트.
+
+export async function listCoinEvents(input: {
+  symbol?: string;
+  days?: number;
+  includeGlobal?: boolean;
+}): Promise<CoinEvent[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const days = input.days ?? 30;
+  const now = new Date();
+  const horizon = new Date(now.getTime() + days * 86400 * 1000);
+
+  const conditions = [
+    gte(coinEvents.scheduledAt, now),
+    lt(coinEvents.scheduledAt, horizon),
+  ];
+
+  if (input.symbol) {
+    if (input.includeGlobal !== false) {
+      // 특정 symbol + GLOBAL 매크로 이벤트 함께.
+      const sf = or(
+        eq(coinEvents.symbol, input.symbol),
+        eq(coinEvents.symbol, "GLOBAL")
+      );
+      if (sf) conditions.push(sf);
+    } else {
+      conditions.push(eq(coinEvents.symbol, input.symbol));
+    }
+  }
+
+  return db
+    .select()
+    .from(coinEvents)
+    .where(and(...conditions))
+    .orderBy(asc(coinEvents.scheduledAt))
+    .limit(500);
+}
+
+export async function addCoinEvent(input: InsertCoinEvent): Promise<number | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const [row] = await db
+    .insert(coinEvents)
+    .values(input)
+    .returning({ id: coinEvents.id });
+  return row?.id ?? null;
 }

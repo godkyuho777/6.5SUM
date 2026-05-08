@@ -20,7 +20,11 @@ import {
   getBacktestRuns,
   getBacktestRunDetail,
   getBacktestRunTrades,
+  listCoinEvents,
+  addCoinEvent,
 } from "./db";
+import { getCoinMeta } from "./coin-meta";
+import { computeRollingWinRate } from "./winrate-rolling";
 import { fetchMultiplePrices } from "./bybit";
 import { runBacktest } from "./backtest/runner";
 import { computeOnchainScore } from "./onchain/score";
@@ -769,6 +773,193 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
           inputValue: input.value,
           result,
         };
+      }),
+
+    /**
+     * Lite 단일 코인 카드 (Coin Detail Workstation 용 별칭).
+     *
+     * 기존 lite.coin 과 거의 동일하지만 입력 TF 가 대문자 ("1H","4H",...) 로
+     * 들어와도 받도록 설계 + LiteCoinCard shape 으로 정규화 응답.
+     * BBDX 시그널 산출은 scanForSignals 가 담당하고, 본 procedure 는 라벨 번역만.
+     */
+    translateCoin: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.enum(["1H", "4H", "1D", "1W", "1h", "4h", "1d", "1w"]).default("4H"),
+        })
+      )
+      .query(async ({ input }): Promise<LiteCoinCard | null> => {
+        const symbol = input.symbol.toUpperCase();
+        // 대문자 TF 를 시스템 표준 (소문자) 으로 정규화.
+        const tfMap: Record<string, TimeframeValue> = {
+          "1H": "1h", "4H": "4h", "1D": "1d", "1W": "1w",
+          "1h": "1h", "4h": "4h", "1d": "1d", "1w": "1w",
+        };
+        const interval = tfMap[input.tf];
+
+        // 1. BBDX 시그널 산출 (scanForSignals 단일 호출).
+        const scanned = (await scanForSignals([symbol], interval))[0] ?? null;
+        if (!scanned) return null;
+
+        // 2. 온체인 점수 (실패해도 graceful fallback).
+        const onchain = await computeOnchainScore(symbol).catch(() => null);
+
+        // 3. BBDX path 결과 + 온체인 multiplier 적용.
+        const adjusted =
+          scanned.entryDecision && onchain
+            ? applyOnchainToEntry(
+                { strength: scanned.signalStrength, path: scanned.entryDecision.path },
+                onchain
+              )
+            : null;
+
+        // 4. 라벨 번역 (deriveRecommendation / deriveRiskLevel / buildReasons).
+        const recommendation = deriveRecommendation(
+          adjusted,
+          scanned.entryDecision ?? null,
+          scanned.exitDecision ?? null
+        );
+        const recLabel = recommendationLabel(recommendation);
+        const risk = deriveRiskLevel(
+          adjusted?.finalStrength ?? scanned.signalStrength,
+          onchain?.regime ?? "neutral",
+          scanned.isFallingKnife ?? false
+        );
+        const reasons = buildReasons(
+          recommendation,
+          adjusted,
+          scanned.entryDecision ?? null,
+          scanned.exitDecision ?? null,
+          onchain
+        );
+
+        const card: LiteCoinCard = {
+          symbol,
+          base: symbol.replace(/USDT$/, ""),
+          price: scanned.price,
+          change24h: scanned.change24h,
+          recommendation,
+          recommendationLabel: recLabel.label,
+          recommendationTone: recLabel.tone,
+          riskLevel: risk,
+          riskLabel: riskLabel(risk).label,
+          reasons,
+          strength: adjusted?.finalStrength ?? scanned.signalStrength,
+        };
+        return card;
+      }),
+  }),
+
+  // ─── Coin Detail Workstation ─────────────────────────────
+  // C4 — CoinDetail 워크스테이션의 백엔드 라우트 묶음.
+  // 모두 append-only 추가, 기존 라우트 영향 X.
+
+  /** 단일 코인의 시총·거래량·도미넌스·SSR 등 메타. CoinGecko Free 기반. */
+  coin: router({
+    meta: publicProcedure
+      .input(z.object({ symbol: z.string() }))
+      .query(async ({ input }) => {
+        return getCoinMeta(input.symbol);
+      }),
+  }),
+
+  /** 캘린더 / 매크로 + 코인별 이벤트. */
+  events: router({
+    list: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string().optional(),
+          days: z.number().min(1).max(365).default(30),
+        })
+      )
+      .query(async ({ input }) => {
+        const events = await listCoinEvents({
+          symbol: input.symbol ? input.symbol.toUpperCase() : undefined,
+          days: input.days,
+          includeGlobal: true,
+        });
+        return {
+          events,
+          count: events.length,
+          horizonDays: input.days,
+          computedAt: new Date().toISOString(),
+        };
+      }),
+
+    /**
+     * 새 이벤트 추가. 인증 필요 (createBy 는 ctx.user.id 강제 주입).
+     * symbol === "GLOBAL" 은 매크로 / 시장 전체 이벤트.
+     */
+    add: protectedProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          eventType: z.enum([
+            "macro",
+            "unlock",
+            "fork",
+            "halving",
+            "listing",
+            "custom",
+          ]),
+          title: z.string().min(1).max(200),
+          description: z.string().max(2000).optional(),
+          scheduledAt: z.string(), // ISO timestamp
+          source: z.string().max(200).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const scheduledAt = new Date(input.scheduledAt);
+        if (Number.isNaN(scheduledAt.getTime())) {
+          throw new Error("scheduledAt must be a valid ISO timestamp");
+        }
+        const id = await addCoinEvent({
+          symbol: input.symbol.toUpperCase(),
+          eventType: input.eventType,
+          title: input.title,
+          description: input.description ?? null,
+          scheduledAt,
+          source: input.source ?? null,
+          createdBy: ctx.user.id,
+        });
+        return {
+          id,
+          symbol: input.symbol.toUpperCase(),
+          eventType: input.eventType,
+          title: input.title,
+          description: input.description ?? null,
+          scheduledAt: scheduledAt.toISOString(),
+          source: input.source ?? null,
+        };
+      }),
+  }),
+
+  /** 백테스트 기반 rolling 승률 + Wilson 95% CI. */
+  winRate: router({
+    rolling: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.enum(["1H", "4H", "1D", "1W", "1h", "4h", "1d", "1w"]).default("4H"),
+          windows: z
+            .array(z.number().min(1).max(3650))
+            .min(1)
+            .max(10)
+            .default([30, 90, 365]),
+        })
+      )
+      .query(async ({ input }) => {
+        const tfMap: Record<string, TimeframeValue> = {
+          "1H": "1h", "4H": "4h", "1D": "1d", "1W": "1w",
+          "1h": "1h", "4h": "4h", "1d": "1d", "1w": "1w",
+        };
+        const tf = tfMap[input.tf];
+        return computeRollingWinRate({
+          symbol: input.symbol.toUpperCase(),
+          tf,
+          windows: input.windows,
+        });
       }),
   }),
 });

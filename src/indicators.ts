@@ -716,56 +716,53 @@ function detectThreeBlackCrowsAt(
 }
 
 /**
- * 단일 캔들 인덱스에서 모든 패턴을 감지하고, 우선순위 기반으로 dedup 후 반환.
+ * 단일 캔들 인덱스에서 감지된 모든 패턴을 반환.
  *
- * 우선순위 (강세):
- *   engulfing > morningStar > threeWhiteSoldiers > hammer/invertedHammer/pinBar > doji
- * 우선순위 (약세):
- *   bearishEngulfing > eveningStar > threeBlackCrows
+ * PATTERN_SYSTEM_AUDIT.md 결함 #4 (중복 제거 임의) 해결:
+ *   - 이전: 우선순위 if/else if 체인 → 첫 매치만 유지, 나머지 정보 손실
+ *   - 현재: 모든 매치를 push → confluence 정보 보존
+ *
+ * 합산은 `src/patterns/aggregator.ts` 의 `aggregatePatternScore` 가
+ * max + bonus 모델로 수행하므로 여기서는 dedup 하지 않는다.
+ *
+ * 강세/약세 패턴은 동시에 감지될 수 있다 (예: 같은 캔들이 강세 인걸핑이면서
+ * 직전 3캔들 컨텍스트로는 이브닝스타가 형성될 가능성은 없지만,
+ * 일반적으로 강세/약세는 mutual exclusive). 그래도 alleged 매치는 모두 기록.
  */
 function detectAtIndex(candles: Candle[], idx: number): CandlePatternMatch[] {
   const out: CandlePatternMatch[] = [];
 
-  // Bullish path with priority dedup
+  // 강세 패턴 — 모두 기록 (이전 우선순위 dedup 제거)
   const bullEng = detectEngulfingAt(candles, idx, "bullish");
-  if (bullEng) {
-    out.push(bullEng);
-  } else {
-    const morningStar = detectMorningStarAt(candles, idx);
-    if (morningStar) {
-      out.push(morningStar);
-    } else {
-      const tws = detectThreeWhiteSoldiersAt(candles, idx);
-      if (tws) {
-        out.push(tws);
-      } else {
-        const hammer = detectHammerAt(candles, idx);
-        const inv = detectInvertedHammerAt(candles, idx);
-        const pin = detectPinBarAt(candles, idx);
-        if (hammer) out.push(hammer);
-        if (inv && !hammer) out.push(inv);
-        if (pin && !hammer && !inv) out.push(pin);
-        if (out.length === 0) {
-          const doji = detectDojiAt(candles, idx);
-          if (doji) out.push(doji);
-        }
-      }
-    }
-  }
+  if (bullEng) out.push(bullEng);
 
-  // Bearish path (independent of bullish) with priority
+  const morningStar = detectMorningStarAt(candles, idx);
+  if (morningStar) out.push(morningStar);
+
+  const tws = detectThreeWhiteSoldiersAt(candles, idx);
+  if (tws) out.push(tws);
+
+  const hammer = detectHammerAt(candles, idx);
+  if (hammer) out.push(hammer);
+
+  const inv = detectInvertedHammerAt(candles, idx);
+  if (inv) out.push(inv);
+
+  const pin = detectPinBarAt(candles, idx);
+  if (pin) out.push(pin);
+
+  const doji = detectDojiAt(candles, idx);
+  if (doji) out.push(doji);
+
+  // 약세 패턴 — 모두 기록
   const bearEng = detectEngulfingAt(candles, idx, "bearish");
-  if (bearEng) {
-    out.push(bearEng);
-  } else {
-    const eveningStar = detectEveningStarAt(candles, idx);
-    if (eveningStar) {
-      out.push(eveningStar);
-    } else {
-      const tbc = detectThreeBlackCrowsAt(candles, idx);
-      if (tbc) out.push(tbc);
-    }
-  }
+  if (bearEng) out.push(bearEng);
+
+  const eveningStar = detectEveningStarAt(candles, idx);
+  if (eveningStar) out.push(eveningStar);
+
+  const tbc = detectThreeBlackCrowsAt(candles, idx);
+  if (tbc) out.push(tbc);
 
   return out;
 }

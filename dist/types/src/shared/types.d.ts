@@ -56,6 +56,51 @@ export interface CandlePatternMatch {
     /** 패턴 강도 (60~100) */
     strength: number;
 }
+/**
+ * 패턴 컨텍스트 요약 (PATTERN_SYSTEM_AUDIT 권고 #4 #6 #7 #8 적용 결과).
+ *
+ * 강세/약세 별로 다중 패턴 max + bonus 합산 + 거래량/추세 컨텍스트 + TF 차등.
+ * 단독 시그널 X — BBDX 시그널 강도의 multiplier 로만 사용 (헌장 규칙 3 준수).
+ */
+export interface PatternConfluenceSummary {
+    /** 합산된 strong 0~1. clamp(primary + bonus, 0, 1). */
+    bullishScore: number;
+    bearishScore: number;
+    /** confluence 매치 개수 (UI 의 "n 개 동시 신호" 표시용) */
+    bullishCount: number;
+    bearishCount: number;
+    /** confluence 보너스 (0 ~ 0.20) */
+    bullishBonus: number;
+    bearishBonus: number;
+    /** 가장 강한 단일 매치의 이름 (UI 메인 표시용). null=매치 없음. */
+    bullishPrimaryName: CandlePatternName | null;
+    bearishPrimaryName: CandlePatternName | null;
+    /** 가장 강한 매치의 컨텍스트 정보 (사용자 공개용) */
+    bullishContext: PatternContextDetail | null;
+    bearishContext: PatternContextDetail | null;
+    /** 평가에 쓰인 TF (헌장 검증) */
+    tf: TimeframeValue;
+}
+export interface PatternContextDetail {
+    /** TF 별 base 신뢰도 (0~1) */
+    base: number;
+    /** 거래량 multiplier (0.80 ~ 1.40) */
+    volumeMultiplier: number;
+    /** 거래량 라벨 */
+    volumeLabel: "very_high" | "high" | "elevated" | "normal" | "low";
+    /** 거래량 비율 (실제값/baseline) */
+    volumeRatio: number;
+    /** 추세 multiplier (0.60 ~ 1.30) */
+    trendMultiplier: number;
+    /** 추세 라벨 */
+    trendLabel: "strong_down" | "mild_down" | "sideways" | "mild_up" | "strong_up";
+    /** 추세 누적 수익률 */
+    trendCumulativeReturn: number;
+    /** candlesAgo 지수 감쇠 */
+    ageDiscount: number;
+    /** 보정 후 컨텍스트 강도 (0~1) */
+    contextualStrength: number;
+}
 /** BB 구조 패턴 */
 export type BBStructure = "upperRiding" | "middleSupport" | "squeezeBreakout" | "lowerBounce";
 /** 매수 진입 경로 */
@@ -116,8 +161,14 @@ export interface CoinScanResult {
     volumeRatio: number;
     /** -5 / 0 / +15 — strength 점수 기여분 */
     volumeConfirmation: number;
-    /** dedup된, 최근 5캔들 윈도우 내 감지된 패턴들 */
+    /** 최근 5캔들 윈도우 내 감지된 모든 패턴 (dedup 없이 — confluence 정보 보존) */
     candlePatterns: CandlePatternMatch[];
+    /**
+     * Audit-권고 (multi-pattern + 거래량 + 추세 + TF) 적용한 합산 신뢰도.
+     * 강세/약세 별로 0~1 score, primary 패턴, 거래량/추세 컨텍스트 포함.
+     * 헌장 규칙 3 준수: BBDX multiplier 로만 사용, 단독 시그널 X.
+     */
+    patternConfluence: PatternConfluenceSummary | null;
     bbStructure: BBStructure | null;
     entryDecision: EntryDecision | null;
     exitDecision: ExitDecision | null;

@@ -515,17 +515,21 @@ describe("detectAllCandlePatterns — bullish", () => {
     expect(patterns.find((p) => p.name === "hammer")?.candlesAgo).toBe(0);
   });
 
-  it("detects a bullish engulfing and prefers it over a hammer", () => {
+  it("detects bullish engulfing alongside any concurrent matches (no priority dedup)", () => {
+    // PATTERN_SYSTEM_AUDIT.md 결함 #4: 다중 패턴 매치 = confluence 정보, 보존해야.
     const cs: Candle[] = [
       candle(100, 101, 95, 96, 1000, 0),    // bear
       candle(95, 102, 94, 101, 1500, 1),    // bull engulfs
     ];
     const patterns = detectAllCandlePatterns(cs);
     expect(patterns.find((p) => p.name === "engulfing")).toBeDefined();
-    // Hammer should NOT also appear at the same index due to dedup
-    const ago0 = patterns.filter((p) => p.candlesAgo === 0 && p.bias === "bullish");
-    expect(ago0.length).toBe(1);
-    expect(ago0[0].name).toBe("engulfing");
+    // 같은 idx 에 다른 강세 패턴 (해머/도지 등) 이 동시 감지되어도 모두 유지.
+    // 합산은 aggregator.ts 의 max + bonus 모델이 책임.
+    const ago0Bull = patterns.filter(
+      (p) => p.candlesAgo === 0 && p.bias === "bullish",
+    );
+    expect(ago0Bull.length).toBeGreaterThanOrEqual(1);
+    expect(ago0Bull.some((p) => p.name === "engulfing")).toBe(true);
   });
 
   it("detects three white soldiers", () => {

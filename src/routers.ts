@@ -29,6 +29,7 @@ import { fetchMultiplePrices } from "./bybit";
 import { runBacktest } from "./backtest/runner";
 import { computeOnchainScore } from "./onchain/score";
 import { applyOnchainToEntry, applyOnchainToExit } from "./onchain/bbdx-integration";
+import { computeWaveTrackerData } from "./sentiment";
 import {
   deriveRecommendation,
   deriveRiskLevel,
@@ -960,6 +961,37 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
           tf,
           windows: input.windows,
         });
+      }),
+  }),
+
+  // ─── Wave Tracker — Sentiment & Matrix (v4.1) ────────────
+  // Fear&Greed + CoinGecko Global + Bybit OI/Funding + Bybit L/S 4-신호 종합.
+  // 명세서 WAVE_SENTIMENT_MATRIX.md §3~§6. 4개 외부 API 모두 무료, 키 불필요.
+  wave: router({
+    /** Composite Sentiment + Wave Matrix 한 번에 받기 (가장 자주 쓰는 엔드포인트). */
+    combined: publicProcedure
+      .input(z.object({ symbol: z.string().default("BTCUSDT") }).optional())
+      .query(async ({ input }) => {
+        const symbol = (input?.symbol ?? "BTCUSDT").toUpperCase();
+        return computeWaveTrackerData(symbol);
+      }),
+
+    /** Composite Sentiment 만 (Fear&Greed gauge / 시장 단계 / 분석 근거). */
+    sentiment: publicProcedure
+      .input(z.object({ symbol: z.string().default("BTCUSDT") }).optional())
+      .query(async ({ input }) => {
+        const symbol = (input?.symbol ?? "BTCUSDT").toUpperCase();
+        const result = await computeWaveTrackerData(symbol);
+        return result.sentiment;
+      }),
+
+    /** 4-신호 Wave Matrix 만 (OI 복합 해석 + 종합 편향 + 신뢰도). */
+    matrix: publicProcedure
+      .input(z.object({ symbol: z.string().default("BTCUSDT") }).optional())
+      .query(async ({ input }) => {
+        const symbol = (input?.symbol ?? "BTCUSDT").toUpperCase();
+        const result = await computeWaveTrackerData(symbol);
+        return result.matrix;
       }),
   }),
 });

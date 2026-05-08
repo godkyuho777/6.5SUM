@@ -680,5 +680,36 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             meta: object;
         }>;
     }>>;
+    wave: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /** Composite Sentiment + Wave Matrix 한 번에 받기 (가장 자주 쓰는 엔드포인트). */
+        combined: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol?: string | undefined;
+            } | undefined;
+            output: import("./sentiment").CombinedSentiment;
+            meta: object;
+        }>;
+        /** Composite Sentiment 만 (Fear&Greed gauge / 시장 단계 / 분석 근거). */
+        sentiment: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol?: string | undefined;
+            } | undefined;
+            output: import("./sentiment").SentimentSnapshot;
+            meta: object;
+        }>;
+        /** 4-신호 Wave Matrix 만 (OI 복합 해석 + 종합 편향 + 신뢰도). */
+        matrix: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol?: string | undefined;
+            } | undefined;
+            output: import("./sentiment").WaveMatrixState;
+            meta: object;
+        }>;
+    }>>;
 }>>;
 export type AppRouter = typeof appRouter;

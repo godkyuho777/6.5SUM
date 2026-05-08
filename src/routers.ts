@@ -25,6 +25,22 @@ import { fetchMultiplePrices } from "./bybit";
 import { runBacktest } from "./backtest/runner";
 import { computeOnchainScore } from "./onchain/score";
 import { applyOnchainToEntry, applyOnchainToExit } from "./onchain/bbdx-integration";
+import {
+  deriveRecommendation,
+  deriveRiskLevel,
+  deriveMarketMood,
+  recommendationLabel,
+  riskLabel,
+  moodLabel,
+  buildReasons,
+  translateByKind,
+} from "./lite/translator";
+import type {
+  LiteCoinCard,
+  LitePositionCard,
+  LiteDashboard,
+  TranslateKind,
+} from "./lite/types";
 
 const intervalSchema = z.enum(["1h", "4h", "6h", "1d", "1w", "1M"]).default("4h");
 
@@ -466,6 +482,293 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
         const onchain = await computeOnchainScore(symbol);
         const exitAdj = applyOnchainToExit(input.baseReversalScore, onchain);
         return { onchain, exit: exitAdj };
+      }),
+  }),
+
+  // ─── Lite Mode (일반인 친화) ─────────────────────────────
+  // 헌장 규칙 3 준수: 모든 procedure 는 BBDX 시그널 결과를 *번역*만 한다.
+  // 새 시그널 산출 X. raw 지표는 응답에 포함하지 않고 자연어 라벨만 노출.
+  lite: router({
+    /**
+     * Lite 대시보드: top buy / top sell + 시장 분위기.
+     * scanForSignals → entryDecision/exitDecision 가진 코인만 골라
+     * deriveRecommendation 으로 라벨 변환.
+     */
+    dashboard: publicProcedure
+      .input(z.object({ interval: intervalSchema.optional() }).optional())
+      .query(async ({ input }): Promise<LiteDashboard> => {
+        const interval = (input?.interval ?? "4h") as TimeframeValue;
+        // BBDX 시그널이 발생한 코인만 (raw scan)
+        const coins = await scanForSignals(TOP_COINS, interval);
+
+        // BTC 기준 시장 regime 도 함께 (시장 분위기용)
+        const btcOnchain = await computeOnchainScore("BTCUSDT").catch(() => null);
+
+        // 각 코인의 onchain multiplier 적용 → recommendation 도출
+        // (성능: 7-modifier × N 코인 → 무거우면 캐시 권장. 우선 직렬 호출)
+        const cards: LiteCoinCard[] = [];
+        for (const coin of coins) {
+          if (!coin.entryDecision && !coin.exitDecision) continue;
+          let onchain = btcOnchain;
+          if (coin.symbol !== "BTCUSDT") {
+            onchain = await computeOnchainScore(coin.symbol).catch(() => btcOnchain);
+          }
+          if (!onchain) continue;
+
+          const adjusted = coin.entryDecision
+            ? applyOnchainToEntry(
+                { strength: coin.signalStrength, path: coin.entryDecision.path },
+                onchain
+              )
+            : null;
+          const recommendation = deriveRecommendation(
+            adjusted,
+            coin.entryDecision,
+            coin.exitDecision
+          );
+          const recLabel = recommendationLabel(recommendation);
+          const risk = deriveRiskLevel(
+            adjusted?.finalStrength ?? coin.signalStrength,
+            onchain.regime,
+            coin.isFallingKnife
+          );
+          const reasons = buildReasons(
+            recommendation,
+            adjusted,
+            coin.entryDecision,
+            coin.exitDecision,
+            onchain
+          );
+
+          cards.push({
+            symbol: coin.symbol,
+            base: coin.symbol.replace(/USDT$/, ""),
+            price: coin.price,
+            change24h: coin.change24h,
+            recommendation,
+            recommendationLabel: recLabel.label,
+            recommendationTone: recLabel.tone,
+            riskLevel: risk,
+            riskLabel: riskLabel(risk).label,
+            reasons,
+            strength: adjusted?.finalStrength ?? coin.signalStrength,
+          });
+        }
+
+        const buyKinds = new Set(["STRONG_BUY", "BUY", "WATCH"]);
+        const sellKinds = new Set(["STRONG_SELL", "SELL"]);
+        const buys = cards
+          .filter((c) => buyKinds.has(c.recommendation))
+          .sort((a, b) => b.strength - a.strength)
+          .slice(0, 5);
+        const sells = cards
+          .filter((c) => sellKinds.has(c.recommendation))
+          .sort((a, b) => b.strength - a.strength)
+          .slice(0, 5);
+
+        const avgStrength =
+          buys.length > 0
+            ? buys.reduce((s, c) => s + c.strength, 0) / buys.length
+            : 0;
+        const mood = btcOnchain
+          ? deriveMarketMood(avgStrength, btcOnchain.regime)
+          : "neutral";
+        const moodMeta = moodLabel(mood);
+
+        return {
+          topBuy: buys,
+          topSell: sells,
+          marketMood: mood,
+          marketMoodLabel: moodMeta.label,
+          marketMoodOneLiner: moodMeta.oneLiner,
+          computedAt: new Date().toISOString(),
+        };
+      }),
+
+    /** 단일 코인의 Lite 추천 카드 + 메타 (Pro chip 매핑용). */
+    coin: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          interval: intervalSchema.optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        const symbol = input.symbol.toUpperCase();
+        const interval = (input.interval ?? "4h") as TimeframeValue;
+        const detail = await getCoinDetail(symbol, interval, 100);
+        const onchain = await computeOnchainScore(symbol).catch(() => null);
+
+        if (!detail) {
+          return null;
+        }
+
+        // detail 은 candles + indicators 를 가지지만 BBDX 결과는 scan 에서만 옴.
+        // 단일 코인 호출이라 빠르게 즉석에서 다시 한 번 시그널 평가.
+        const scanned = (await scanForSignals([symbol], interval))[0] ?? null;
+
+        const adjusted =
+          scanned?.entryDecision && onchain
+            ? applyOnchainToEntry(
+                { strength: scanned.signalStrength, path: scanned.entryDecision.path },
+                onchain
+              )
+            : null;
+        const recommendation = deriveRecommendation(
+          adjusted,
+          scanned?.entryDecision ?? null,
+          scanned?.exitDecision ?? null
+        );
+        const recLabel = recommendationLabel(recommendation);
+        const risk = deriveRiskLevel(
+          adjusted?.finalStrength ?? scanned?.signalStrength ?? 0,
+          onchain?.regime ?? "neutral",
+          scanned?.isFallingKnife ?? false
+        );
+        const reasons = buildReasons(
+          recommendation,
+          adjusted,
+          scanned?.entryDecision ?? null,
+          scanned?.exitDecision ?? null,
+          onchain
+        );
+
+        const lastCandle = detail.candles[detail.candles.length - 1];
+        return {
+          symbol,
+          base: symbol.replace(/USDT$/, ""),
+          price: lastCandle?.close ?? 0,
+          change24h: scanned?.change24h ?? 0,
+          volume24h: scanned?.volume24h ?? 0,
+          recommendation,
+          recommendationLabel: recLabel,
+          riskLevel: risk,
+          riskLabel: riskLabel(risk),
+          reasons,
+          // 차트용 단순 캔들 (고가/저가/종가만)
+          chartCandles: detail.candles.slice(-60).map((c) => ({
+            time: c.openTime,
+            close: c.close,
+            high: c.high,
+            low: c.low,
+            volume: c.volume,
+          })),
+          bb: detail.indicators
+            ? {
+                upper: detail.indicators.bbUpper,
+                middle: detail.indicators.bbMiddle,
+                lower: detail.indicators.bbLower,
+              }
+            : null,
+          meta: {
+            finalStrength: adjusted?.finalStrength ?? scanned?.signalStrength ?? 0,
+            multiplier: adjusted?.multiplier ?? 1,
+            blocked: adjusted?.blocked ?? false,
+            regime: onchain?.regime ?? "neutral",
+            fallingKnife: scanned?.isFallingKnife ?? false,
+          },
+          computedAt: new Date().toISOString(),
+        };
+      }),
+
+    /** 사용자 포지션 요약 (Lite Portfolio). 인증 필요. */
+    portfolio: protectedProcedure.query(async ({ ctx }) => {
+      const positions = await getUserPositions(ctx.user.id, "open");
+      if (positions.length === 0) {
+        return {
+          totalEquity: 0,
+          pnl24h: 0,
+          pnl7d: 0,
+          positions: [] as LitePositionCard[],
+          pendingAlerts: 0,
+          computedAt: new Date().toISOString(),
+        };
+      }
+
+      // 최신 가격으로 PnL 갱신
+      const symbols = Array.from(new Set(positions.map((p) => p.symbol)));
+      const prices = await fetchMultiplePrices(symbols);
+
+      const cards: LitePositionCard[] = positions.map((pos) => {
+        const currentPrice = prices.get(pos.symbol) ?? null;
+        const pnlPercent =
+          currentPrice != null
+            ? ((currentPrice - pos.entryPrice) / pos.entryPrice) * 100 * pos.leverage
+            : null;
+        const pnlAmount =
+          currentPrice != null
+            ? (currentPrice - pos.entryPrice) * pos.quantity * pos.leverage
+            : null;
+
+        // 추천 액션 — PnL 기반 단순 룰
+        let suggestedAction = "계속 보유";
+        let suggestedActionTone: "good" | "caution" | "bad" | "neutral" | "muted" =
+          "neutral";
+        if (pnlPercent != null) {
+          if (pnlPercent <= -5) {
+            suggestedAction = "손절 고려";
+            suggestedActionTone = "bad";
+          } else if (pnlPercent >= 8) {
+            suggestedAction = "익절 고려";
+            suggestedActionTone = "good";
+          } else if (pnlPercent >= 3) {
+            suggestedAction = "관찰";
+            suggestedActionTone = "caution";
+          }
+        }
+
+        return {
+          positionId: pos.id,
+          symbol: pos.symbol,
+          base: pos.symbol.replace(/USDT$/, ""),
+          entryPrice: pos.entryPrice,
+          currentPrice,
+          pnlPercent,
+          pnlAmount,
+          suggestedAction,
+          suggestedActionTone,
+        };
+      });
+
+      const totalPnl = cards.reduce((s, c) => s + (c.pnlAmount ?? 0), 0);
+      const totalEntry = positions.reduce(
+        (s, p) => s + p.entryPrice * p.quantity * p.leverage,
+        0
+      );
+
+      return {
+        totalEquity: totalEntry + totalPnl,
+        pnl24h: totalPnl, // TODO: 실제 24h pnl 은 historical price 필요 — v1 stub
+        pnl7d: totalPnl, // TODO: 동일
+        positions: cards,
+        pendingAlerts: 0, // TODO: alert 시스템 통합
+        computedAt: new Date().toISOString(),
+      };
+    }),
+
+    /** 학습 카드용 — 단일 raw 값을 자연어 라벨로 변환. */
+    translate: publicProcedure
+      .input(
+        z.object({
+          kind: z.enum([
+            "strength",
+            "path",
+            "regime",
+            "phase",
+            "adx",
+            "rsi",
+            "bb_position",
+          ]),
+          value: z.union([z.number(), z.string()]),
+        })
+      )
+      .query(({ input }) => {
+        const result = translateByKind(input.kind as TranslateKind, input.value);
+        return {
+          kind: input.kind,
+          inputValue: input.value,
+          result,
+        };
       }),
   }),
 });

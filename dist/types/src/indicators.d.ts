@@ -1,4 +1,5 @@
-import type { BBStructure, Candle, CandlePatternMatch, EmaPosition, EntryDecision, ExitDecision, PressureLabel, TechnicalIndicators, VwapPosition, VwapSignal } from "@shared/types";
+import type { BBStructure, Candle, CandlePatternMatch, EmaPosition, EntryDecision, ExitDecision, PressureLabel, PullbackQuality, TechnicalIndicators, VwapBands, VwapPosition, VwapSignal } from "@shared/types";
+import type { VolumeProfile } from "./volume-profile";
 /**
  * RSI (Relative Strength Index) 계산
  * @param closes - 종가 배열
@@ -166,10 +167,61 @@ export declare function emaPosition(price: number, ema: number): EmaPosition;
  */
 export declare function detectPullback(candles: Candle[], vwap: number, ema9: number): boolean;
 /**
+ * VWAP 표준편차 밴드 (volume-weighted variance).
+ *
+ * VWAP_STRATEGY.md §6.3 — 1σ/2σ/3σ 밴드.
+ * variance = Σ((typical - vwap)² × vol) / Σvol
+ *
+ * 엣지: candles 비었거나 cumVol === 0 → sigma = 0, 모든 밴드 0.
+ */
+export declare function calculateVwapBands(candles: Candle[]): VwapBands;
+/**
+ * Pullback v2 — VWAP_STRATEGY.md §8 의 "터치 + 반등" 패턴 검증.
+ *
+ * 알고리즘:
+ *   1. 마지막 5 캔들 (lookback) 에서 low/high 가 vwap/ema9 의 0.5% 이내 터치
+ *   2. 터치 발견 시 다음 1~2 캔들의 종가가 추세 방향으로 반등 확인
+ *      LONG: next.close > next.open && next.close > touch.close
+ *      SHORT: next.close < next.open && next.close < touch.close
+ *
+ * 헌장 규칙 3 준수: standalone 시그널 X, decideVwapSignal 의 보조 점수로만 사용.
+ *
+ * 엣지: candles.length < 7 → detected: false (5 lookback + 2 confirm 필요).
+ */
+export declare function detectPullbackV2(candles: Candle[], vwap: number, ema9: number, side: "LONG" | "SHORT"): PullbackQuality;
+/**
+ * decideVwapSignal 의 5-컴포넌트 평가 옵션 (VWAP_STRATEGY.md §9.1).
+ *
+ * opts 미제공 시 기존 4-컴포넌트 (35/25/25/15) fallback — 호환성.
+ */
+export interface DecideVwapSignalOptions {
+    pullbackQuality?: PullbackQuality;
+    volumeProfile?: VolumeProfile;
+}
+/**
  * Decide LONG / SHORT / null per spec §6.3.
  *
  * LONG: price ABOVE both VWAP and EMA(9) (EMA can be AT).
  * SHORT: price BELOW both VWAP and EMA(9) (EMA can be AT).
  * Mixed → null.
+ *
+ * opts 제공 시 5-컴포넌트 (25/20/25/15/15) 명세서 §9.1 가중치.
+ * opts 미제공 시 기존 4-컴포넌트 (35/25/25/15) — legacy 호환.
  */
-export declare function decideVwapSignal(price: number, vwap: number, ema9: number, pullback: boolean, volRatio: number): VwapSignal | null;
+export declare function decideVwapSignal(price: number, vwap: number, ema9: number, pullback: boolean, volRatio: number, opts?: DecideVwapSignalOptions): VwapSignal | null;
+/**
+ * VwapSignal → BBDX confidence multiplier (헌장 규칙 3 준수).
+ *
+ * Standalone VwapSignal 발행은 deprecated — 본 헬퍼가 정식 통합 경로.
+ *
+ * Mapping:
+ *   - null signal: 1.00 (neutral)
+ *   - signal.side === bbdxSide:  1.0 + (strength - 50) / 50 × 0.30  → 1.0~1.30
+ *   - signal.side !== bbdxSide:  1.0 - (strength - 50) / 50 × 0.30  → 0.70~1.0
+ *
+ * Tradelab 은 현재 LONG-only — bbdxSide 기본값 "LONG".
+ *
+ * @param signal - decideVwapSignal 결과
+ * @param bbdxSide - BBDX 진입 path side
+ */
+export declare function vwapToMultiplier(signal: VwapSignal | null, bbdxSide?: "LONG"): number;

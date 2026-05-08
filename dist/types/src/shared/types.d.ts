@@ -114,6 +114,12 @@ export interface EntryDecision {
     patterns?: CandlePatternMatch[];
     /** BB 경로일 때 사용된 BB 구조 */
     bbStructure?: BBStructure;
+    /**
+     * v6.5 dimensions integration — VWAP modifier (헌장 규칙 3 준수).
+     * `final_confidence = base × confluence × wave × macro × onchain × (vwapMult ?? 1.0)`.
+     * 다른 차원 multiplier (macroMult / onchainMult 등) 는 후속 머지로 추가 예정.
+     */
+    vwapMult?: number;
 }
 /** 매도(EXIT) 결정 */
 export interface ExitDecision {
@@ -133,6 +139,46 @@ export interface VwapSignal {
     strength: number;
     /** Human-readable reasons (for click-detail dialogs) */
     reasons: string[];
+}
+/** VWAP 표준편차 밴드 (volume-weighted variance) — VWAP_STRATEGY.md §6.3 */
+export interface VwapBands {
+    vwap: number;
+    /** Volume-weighted standard deviation of typical-price */
+    sigma: number;
+    upper1: number;
+    upper2: number;
+    upper3: number;
+    lower1: number;
+    lower2: number;
+    lower3: number;
+}
+/**
+ * Pullback v2 검증 결과 — VWAP_STRATEGY.md §8 의 "터치 + 반등" 패턴.
+ * 헌장 규칙 3 준수: standalone 시그널 X, BBDX 보조 입력으로만 사용.
+ */
+export interface PullbackQuality {
+    detected: boolean;
+    /** Index in candles[] where the touch occurred (lookback window) */
+    touchCandleIdx: number | null;
+    /** Whether the next 1~2 candles after touch confirmed bounce in trend direction */
+    bounceConfirmed: boolean;
+    /** Closest distance to VWAP/EMA9 during the lookback window (0~1) */
+    proximityRatio: number;
+    /** Which line was touched */
+    touchedLine: "vwap" | "ema9" | null;
+}
+/** 멀티 TF 정합 결과 — `vwap-multi-tf.ts` */
+export type AlignmentLevel = "aligned" | "partial" | "mixed" | "neutral";
+export interface MultiTfAlignmentPerTf {
+    side: "LONG" | "SHORT" | null;
+    strength: number;
+}
+export interface MultiTfAlignment {
+    tfs: ("1h" | "4h" | "1d")[];
+    alignmentLevel: AlignmentLevel;
+    perTf: Record<string, MultiTfAlignmentPerTf>;
+    /** Multiplier suggestion for caller (aligned 1.15, partial 1.05, mixed 0.95, neutral 1.0) */
+    multiplier: number;
 }
 /** 스캔 결과 (개별 코인) */
 export interface CoinScanResult {

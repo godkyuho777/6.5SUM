@@ -30,6 +30,7 @@ import { runBacktest } from "./backtest/runner";
 import { computeOnchainScore } from "./onchain/score";
 import { applyOnchainToEntry, applyOnchainToExit } from "./onchain/bbdx-integration";
 import { computeWaveTrackerData } from "./sentiment";
+import { getVwapDetail } from "./vwap-detail";
 import {
   deriveRecommendation,
   deriveRiskLevel,
@@ -992,6 +993,71 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
         const symbol = (input?.symbol ?? "BTCUSDT").toUpperCase();
         const result = await computeWaveTrackerData(symbol);
         return result.matrix;
+      }),
+  }),
+
+  // ─── VWAP Detail (v6.5) ─────────────────────────────────
+  // 신규 VWAP 모듈 (Volume Profile, std-dev bands, Pullback v2, multi-TF,
+  // 5-component signal) 의 결과를 한 라우트에서 일괄 반환.
+  // 헌장 규칙 3 준수: vwapMult 만 BBDX 보조 multiplier 로 사용 (단독 시그널 X).
+  vwap: router({
+    detail: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.enum(["1h", "4h", "1d"]).default("4h"),
+        })
+      )
+      .query(async ({ input }) => {
+        try {
+          return await getVwapDetail(input.symbol, input.tf);
+        } catch (e: any) {
+          // graceful failure: return minimal stub.
+          // Modifier 계열 호출 체인을 깨지 않기 위해 throw 금지.
+          return {
+            symbol: input.symbol.toUpperCase(),
+            tf: input.tf,
+            candles: [],
+            vwap: 0,
+            ema9: 0,
+            bands: {
+              vwap: 0,
+              sigma: 0,
+              upper1: 0,
+              upper2: 0,
+              upper3: 0,
+              lower1: 0,
+              lower2: 0,
+              lower3: 0,
+            },
+            volumeProfile: {
+              bins: [],
+              poc: 0,
+              hvnList: [],
+              lvnList: [],
+              valueArea: { low: 0, high: 0, pct: 0 },
+              totalVolume: 0,
+            },
+            pullbackV2: {
+              detected: false,
+              touchCandleIdx: null,
+              bounceConfirmed: false,
+              proximityRatio: 1,
+              touchedLine: null,
+            },
+            signal: null,
+            signalV2: null,
+            vwapMult: 1.0,
+            multiTfAlignment: {
+              tfs: ["1h", "4h", "1d"] as ("1h" | "4h" | "1d")[],
+              alignmentLevel: "neutral" as const,
+              perTf: {},
+              multiplier: 1.0,
+            },
+            computedAt: Date.now(),
+            error: String(e?.message ?? e),
+          };
+        }
       }),
   }),
 });

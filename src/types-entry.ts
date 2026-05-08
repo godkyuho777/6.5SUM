@@ -11,7 +11,21 @@ export type {
   SignalDetail,
   PositionDetail,
   TimeframeValue,
+  VwapBands,
+  VwapSignal,
+  VwapPosition,
+  EmaPosition,
+  PullbackQuality,
+  AlignmentLevel,
+  MultiTfAlignment,
+  MultiTfAlignmentPerTf,
 } from "./shared/types";
+export type { VwapDetail } from "./vwap-detail";
+export type {
+  VolumeProfile,
+  VolumeProfileBin,
+  VolumeProfileValueArea,
+} from "./volume-profile";
 export {
   TOP_COINS,
   TIMEFRAMES,

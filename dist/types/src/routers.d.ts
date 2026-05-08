@@ -711,5 +711,66 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             meta: object;
         }>;
     }>>;
+    vwap: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        detail: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf?: "1h" | "4h" | "1d" | undefined;
+            };
+            output: import("./vwap-detail").VwapDetail | {
+                symbol: string;
+                tf: "1h" | "4h" | "1d";
+                candles: never[];
+                vwap: number;
+                ema9: number;
+                bands: {
+                    vwap: number;
+                    sigma: number;
+                    upper1: number;
+                    upper2: number;
+                    upper3: number;
+                    lower1: number;
+                    lower2: number;
+                    lower3: number;
+                };
+                volumeProfile: {
+                    bins: never[];
+                    poc: number;
+                    hvnList: never[];
+                    lvnList: never[];
+                    valueArea: {
+                        low: number;
+                        high: number;
+                        pct: number;
+                    };
+                    totalVolume: number;
+                };
+                pullbackV2: {
+                    detected: boolean;
+                    touchCandleIdx: null;
+                    bounceConfirmed: boolean;
+                    proximityRatio: number;
+                    touchedLine: null;
+                };
+                signal: null;
+                signalV2: null;
+                vwapMult: number;
+                multiTfAlignment: {
+                    tfs: ("1h" | "4h" | "1d")[];
+                    alignmentLevel: "neutral";
+                    perTf: {};
+                    multiplier: number;
+                };
+                computedAt: number;
+                error: string;
+            };
+            meta: object;
+        }>;
+    }>>;
 }>>;
 export type AppRouter = typeof appRouter;

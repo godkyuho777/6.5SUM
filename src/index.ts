@@ -40,7 +40,14 @@ async function startServer() {
   );
 
   app.get("/api/health", (_req, res) => {
-    res.json({ ok: true, timestamp: Date.now() });
+    // branch 는 Railway/Vercel 환경 변수에서 읽거나 (RAILWAY_GIT_BRANCH),
+    // 빌드 타임에 주입된 BACKEND_BRANCH 환경 변수에서 읽는다. 로컬에서는 "local".
+    const branch =
+      process.env.BACKEND_BRANCH ??
+      process.env.RAILWAY_GIT_BRANCH ??
+      process.env.VERCEL_GIT_COMMIT_REF ??
+      "local";
+    res.json({ ok: true, branch, timestamp: Date.now() });
   });
 
   app.get("/api/debug/connectivity", async (_req, res) => {

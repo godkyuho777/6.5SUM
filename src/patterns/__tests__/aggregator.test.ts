@@ -20,8 +20,8 @@ const candle = (
   low: number,
   close: number,
   volume = 1000,
-  ts = 0
-): Candle => ({ ts, open, high, low, close, volume });
+  openTime = 0
+): Candle => ({ openTime, closeTime: openTime, open, high, low, close, volume });
 
 describe("detectPatternsAtIndex — confluence", () => {
   test("returns multiple matches when more than one pattern fires", () => {

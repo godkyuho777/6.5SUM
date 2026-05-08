@@ -8,9 +8,9 @@ const candle = (
   high: number,
   low: number,
   close: number,
-  ts = 0,
+  openTime = 0,
   volume = 1000
-): Candle => ({ ts, open, high, low, close, volume });
+): Candle => ({ openTime, closeTime: openTime, open, high, low, close, volume });
 
 /** Build N strictly-trending candles with a step. step>0 = bullish, <0 = bearish. */
 function trendingCandles(n: number, start: number, step: number): Candle[] {

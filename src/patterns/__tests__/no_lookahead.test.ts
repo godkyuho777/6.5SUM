@@ -43,7 +43,8 @@ function generateCandles(count: number): Candle[] {
     const low = Math.min(open, close) - next() * 1.5;
     const volume = 1000 + Math.floor(next() * 2000);
     out.push({
-      ts: i * 60_000,
+      openTime: i * 60_000,
+      closeTime: i * 60_000 + 60_000,
       open,
       high,
       low,

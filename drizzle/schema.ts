@@ -225,3 +225,105 @@ export const onchainSnapshots = pgTable("onchain_snapshots", {
 
 export type OnchainSnapshot = typeof onchainSnapshots.$inferSelect;
 export type InsertOnchainSnapshot = typeof onchainSnapshots.$inferInsert;
+
+// ─────────────────────────────────────────────────────────
+// Backtesting Tables
+// ─────────────────────────────────────────────────────────
+
+/**
+ * Each backtest run metadata and aggregate stats.
+ */
+export const backtestRuns = pgTable("backtest_runs", {
+  id: serial("id").primaryKey(),
+  runName: varchar("run_name", { length: 100 }),
+  /** JSON array of symbol strings */
+  symbols: varchar("symbols", { length: 3000 }).notNull(),
+  tf: varchar("tf", { length: 10 }).notNull(),
+  startDate: timestamp("start_date", { withTimezone: true }).notNull(),
+  endDate: timestamp("end_date", { withTimezone: true }).notNull(),
+  totalTrades: integer("total_trades").default(0).notNull(),
+  winRate: doublePrecision("win_rate"),
+  avgReturn: doublePrecision("avg_return"),
+  sharpe: doublePrecision("sharpe"),
+  maxDrawdown: doublePrecision("max_drawdown"),
+  profitFactor: doublePrecision("profit_factor"),
+  /** running | complete | failed */
+  status: varchar("status", { length: 20 }).default("running").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+});
+
+export type BacktestRun = typeof backtestRuns.$inferSelect;
+export type InsertBacktestRun = typeof backtestRuns.$inferInsert;
+
+/**
+ * Individual trade results from a backtest run.
+ * runId → backtest_runs.id
+ */
+export const backtestTrades = pgTable("backtest_trades", {
+  id: serial("id").primaryKey(),
+  runId: integer("run_id").notNull(),
+  symbol: varchar("symbol", { length: 20 }).notNull(),
+  tf: varchar("tf", { length: 10 }).notNull(),
+  /** Signal candle openTime in ms */
+  signalTs: doublePrecision("signal_ts").notNull(),
+  entryPrice: doublePrecision("entry_price").notNull(),
+  exitPrice: doublePrecision("exit_price").notNull(),
+  stopLoss: doublePrecision("stop_loss").notNull(),
+  target: doublePrecision("target").notNull(),
+  rsi: doublePrecision("rsi").notNull(),
+  bbLower: doublePrecision("bb_lower").notNull(),
+  bbMiddle: doublePrecision("bb_middle").notNull(),
+  bbUpper: doublePrecision("bb_upper").notNull(),
+  adx: doublePrecision("adx").notNull(),
+  plusDi: doublePrecision("plus_di").notNull(),
+  minusDi: doublePrecision("minus_di").notNull(),
+  signalStrength: doublePrecision("signal_strength").notNull(),
+  /** target_hit | stop_loss | window_expired */
+  exitReason: varchar("exit_reason", { length: 30 }).notNull(),
+  returnPct: doublePrecision("return_pct").notNull(),
+  maxFavorable: doublePrecision("max_favorable").notNull(),
+  maxAdverse: doublePrecision("max_adverse").notNull(),
+  win: boolean("win").notNull(),
+  holdingCandles: integer("holding_candles").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type BacktestTradeRow = typeof backtestTrades.$inferSelect;
+export type InsertBacktestTradeRow = typeof backtestTrades.$inferInsert;
+
+// ─────────────────────────────────────────────────────────
+// Coin Detail Workstation — Calendar Events
+// ─────────────────────────────────────────────────────────
+
+/**
+ * Per-symbol or global market events (macro releases, token unlocks, forks,
+ * halvings, listings, custom user-added events). Powers the CoinDetail
+ * calendar/timeline panel.
+ *
+ * symbol: 'BTCUSDT' (specific) or 'GLOBAL' (macro events visible to all coins).
+ * event_type: macro | unlock | fork | halving | listing | custom
+ *
+ * createdBy is a Supabase auth.users(id) UUID — no FK because that schema lives
+ * outside this codebase (same convention as positions.userId).
+ */
+export const coinEvents = pgTable("coin_events", {
+  id: serial("id").primaryKey(),
+  symbol: text("symbol").notNull(),
+  eventType: text("event_type").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
+  source: text("source"),
+  createdBy: uuid("created_by"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type CoinEvent = typeof coinEvents.$inferSelect;
+export type InsertCoinEvent = typeof coinEvents.$inferInsert;

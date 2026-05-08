@@ -28,6 +28,7 @@ import {
   volumeConfirmationFromRatio,
   volumeRatio,
   vwapPosition,
+  vwapToMultiplier,
 } from "./indicators";
 import { aggregatePatternScore } from "./patterns/aggregator";
 
@@ -229,6 +230,12 @@ export async function scanCoin(
     const emaPos = emaPosition(price, ema9);
     const pullbackDetected = detectPullback(candles, vwap, ema9);
     const vwapSignal = decideVwapSignal(price, vwap, ema9, pullbackDetected, ratio);
+
+    // 헌장 규칙 3 — VwapSignal 을 BBDX EntryDecision 의 multiplier 로 통합.
+    // entryDecision 이 null 이면 multiplier 도 의미 없음 → skip.
+    if (entryDecision) {
+      entryDecision.vwapMult = vwapToMultiplier(vwapSignal);
+    }
 
     const result: CoinScanResult = {
       symbol,

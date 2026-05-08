@@ -1,5 +1,5 @@
 import postgres from "postgres";
-import { type InsertSignal, type InsertPosition, type InsertAlertSetting } from "../drizzle/schema";
+import { type InsertSignal, type InsertPosition, type InsertAlertSetting, type InsertCoinEvent, type CoinEvent } from "../drizzle/schema";
 export declare function getDb(): Promise<(import("drizzle-orm/postgres-js").PostgresJsDatabase<Record<string, unknown>> & {
     $client: postgres.Sql<{}>;
 }) | null>;
@@ -175,3 +175,9 @@ export declare function getBacktestRunTrades(input: {
     }[];
     total: number;
 }>;
+export declare function listCoinEvents(input: {
+    symbol?: string;
+    days?: number;
+    includeGlobal?: boolean;
+}): Promise<CoinEvent[]>;
+export declare function addCoinEvent(input: InsertCoinEvent): Promise<number | null>;

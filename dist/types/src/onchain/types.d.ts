@@ -20,8 +20,13 @@ export interface OnchainModifierResult {
     key: OnchainModifierKey;
     /** -0.25 ~ +0.20 범위. 0 이면 데이터 없음 또는 영향 없음. */
     value: number;
-    /** "ok" = 진짜 데이터, "stub" = API 키 없음 / 데이터 미가용, "error" = 호출 실패 */
-    status: "ok" | "stub" | "error";
+    /**
+     * "ok" = 진짜 데이터,
+     * "stub" = API 키 없음 / 데이터 미가용 (value=0, BBDX 점수에 영향 없음),
+     * "mock" = ONCHAIN_MOCK=1 결정론 시각화 mock (합산에 포함, 결정론적),
+     * "error" = 호출 실패
+     */
+    status: "ok" | "stub" | "mock" | "error";
     /** 한 줄 설명 (UI breakdown 용). */
     detail: string;
     /** 원시 메트릭 (디버깅·UI 보조). 모듈마다 자유 형식. */

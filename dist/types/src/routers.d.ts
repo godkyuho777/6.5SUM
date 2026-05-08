@@ -1,4 +1,4 @@
-import type { LitePositionCard, LiteDashboard } from "./lite/types";
+import type { LiteCoinCard, LitePositionCard, LiteDashboard } from "./lite/types";
 export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     ctx: import("./_core/context").TrpcContext;
     meta: object;
@@ -575,6 +575,108 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 inputValue: string | number;
                 result: import("./lite/types").TranslatedLabel;
             };
+            meta: object;
+        }>;
+        /**
+         * Lite 단일 코인 카드 (Coin Detail Workstation 용 별칭).
+         *
+         * 기존 lite.coin 과 거의 동일하지만 입력 TF 가 대문자 ("1H","4H",...) 로
+         * 들어와도 받도록 설계 + LiteCoinCard shape 으로 정규화 응답.
+         * BBDX 시그널 산출은 scanForSignals 가 담당하고, 본 procedure 는 라벨 번역만.
+         */
+        translateCoin: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf?: "1h" | "1H" | "4h" | "4H" | "1d" | "1D" | "1w" | "1W" | undefined;
+            };
+            output: LiteCoinCard | null;
+            meta: object;
+        }>;
+    }>>;
+    /** 단일 코인의 시총·거래량·도미넌스·SSR 등 메타. CoinGecko Free 기반. */
+    coin: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        meta: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+            };
+            output: import("./coin-meta").CoinMeta;
+            meta: object;
+        }>;
+    }>>;
+    /** 캘린더 / 매크로 + 코인별 이벤트. */
+    events: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        list: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol?: string | undefined;
+                days?: number | undefined;
+            };
+            output: {
+                events: {
+                    symbol: string;
+                    id: number;
+                    createdAt: Date;
+                    eventType: string;
+                    title: string;
+                    description: string | null;
+                    scheduledAt: Date;
+                    source: string | null;
+                    createdBy: string | null;
+                }[];
+                count: number;
+                horizonDays: number;
+                computedAt: string;
+            };
+            meta: object;
+        }>;
+        /**
+         * 새 이벤트 추가. 인증 필요 (createBy 는 ctx.user.id 강제 주입).
+         * symbol === "GLOBAL" 은 매크로 / 시장 전체 이벤트.
+         */
+        add: import("@trpc/server").TRPCMutationProcedure<{
+            input: {
+                symbol: string;
+                eventType: "custom" | "macro" | "unlock" | "fork" | "halving" | "listing";
+                title: string;
+                scheduledAt: string;
+                description?: string | undefined;
+                source?: string | undefined;
+            };
+            output: {
+                id: number | null;
+                symbol: string;
+                eventType: "custom" | "macro" | "unlock" | "fork" | "halving" | "listing";
+                title: string;
+                description: string | null;
+                scheduledAt: string;
+                source: string | null;
+            };
+            meta: object;
+        }>;
+    }>>;
+    /** 백테스트 기반 rolling 승률 + Wilson 95% CI. */
+    winRate: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        rolling: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf?: "1h" | "1H" | "4h" | "4H" | "1d" | "1D" | "1w" | "1W" | undefined;
+                windows?: number[] | undefined;
+            };
+            output: import("./winrate-rolling").RollingWinRateResult;
             meta: object;
         }>;
     }>>;

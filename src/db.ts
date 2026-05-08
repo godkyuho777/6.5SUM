@@ -1,13 +1,18 @@
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, asc, gte, lt, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
   signals,
   positions,
   alertSettings,
+  backtestRuns,
+  backtestTrades,
+  coinEvents,
   type InsertSignal,
   type InsertPosition,
   type InsertAlertSetting,
+  type InsertCoinEvent,
+  type CoinEvent,
 } from "../drizzle/schema";
 
 let _client: ReturnType<typeof postgres> | null = null;
@@ -188,4 +193,113 @@ export async function deleteAlertSetting(id: number) {
   const db = await getDb();
   if (!db) return;
   await db.delete(alertSettings).where(eq(alertSettings.id, id));
+}
+
+// ─── Backtest ──────────────────────────────────────────────
+
+/**
+ * 백테스트 실행 목록 조회 (최신순)
+ */
+export async function getBacktestRuns(limit = 20) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(backtestRuns)
+    .orderBy(desc(backtestRuns.createdAt))
+    .limit(limit);
+}
+
+/**
+ * 특정 백테스트 run 상세 조회
+ */
+export async function getBacktestRunDetail(runId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const [run] = await db
+    .select()
+    .from(backtestRuns)
+    .where(eq(backtestRuns.id, runId))
+    .limit(1);
+  return run ?? null;
+}
+
+/**
+ * 특정 run의 개별 트레이드 목록 조회
+ */
+export async function getBacktestRunTrades(input: {
+  runId: number;
+  symbol?: string;
+  win?: boolean;
+  limit: number;
+  offset: number;
+}) {
+  const db = await getDb();
+  if (!db) return { trades: [], total: 0 };
+
+  const conditions = [eq(backtestTrades.runId, input.runId)];
+  if (input.symbol) conditions.push(eq(backtestTrades.symbol, input.symbol));
+  if (input.win !== undefined) conditions.push(eq(backtestTrades.win, input.win));
+
+  const rows = await db
+    .select()
+    .from(backtestTrades)
+    .where(and(...conditions))
+    .orderBy(asc(backtestTrades.signalTs))
+    .limit(input.limit)
+    .offset(input.offset);
+
+  return { trades: rows, total: rows.length };
+}
+
+// ─── Coin Events ───────────────────────────────────────────
+// Calendar / timeline of macro and per-coin events.
+// symbol === "GLOBAL" 은 모든 코인에서 같이 보이는 매크로 이벤트.
+
+export async function listCoinEvents(input: {
+  symbol?: string;
+  days?: number;
+  includeGlobal?: boolean;
+}): Promise<CoinEvent[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const days = input.days ?? 30;
+  const now = new Date();
+  const horizon = new Date(now.getTime() + days * 86400 * 1000);
+
+  const conditions = [
+    gte(coinEvents.scheduledAt, now),
+    lt(coinEvents.scheduledAt, horizon),
+  ];
+
+  if (input.symbol) {
+    if (input.includeGlobal !== false) {
+      // 특정 symbol + GLOBAL 매크로 이벤트 함께.
+      const sf = or(
+        eq(coinEvents.symbol, input.symbol),
+        eq(coinEvents.symbol, "GLOBAL")
+      );
+      if (sf) conditions.push(sf);
+    } else {
+      conditions.push(eq(coinEvents.symbol, input.symbol));
+    }
+  }
+
+  return db
+    .select()
+    .from(coinEvents)
+    .where(and(...conditions))
+    .orderBy(asc(coinEvents.scheduledAt))
+    .limit(500);
+}
+
+export async function addCoinEvent(input: InsertCoinEvent): Promise<number | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const [row] = await db
+    .insert(coinEvents)
+    .values(input)
+    .returning({ id: coinEvents.id });
+  return row?.id ?? null;
 }

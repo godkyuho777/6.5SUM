@@ -28,3 +28,5 @@ export {
   type OnchainRegime,
   type OnchainScoreResult,
 } from "./score";
+
+export { fetchOnchainScore, classifyRegime } from "./score-fetch";

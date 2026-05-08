@@ -1,0 +1,86 @@
+/**
+ * 온체인 데이터 통합 — 타입 정의 (Tradelab 7번 차원)
+ *
+ * 명세서 ONCHAIN_INTEGRATION.md 의 타입 표현. 7개 modifier가 BBDX 시그널의
+ * 가중치(multiplier)로만 작동하며, 단독 시그널을 발행하지 않는다 (헌장 규칙 3).
+ *
+ * Modifier 임계값 요약 (각 -0.25 ~ +0.20 범위):
+ *   - exchange_netflow: z<-2 → +0.20, z>+2 → -0.25
+ *   - whale_alert:      net>+3 → +0.15, net<-3 → -0.20
+ *   - ssr:              z<-1.5 → +0.15, z>+1.5 → -0.20
+ *   - coinbase_premium: >+0.2% → +0.15, <-0.2% → -0.20
+ *   - etf_flow:         3d>+$1.5B → +0.20, 3d<-$1B → -0.25
+ *   - miner_outflow:    z>+2 → -0.15, z<-1.5 → +0.10
+ *   - lth_supply:       30d>+2% → +0.10, 30d<-2% → -0.15
+ */
+
+export type OnchainModifierKey =
+  | "exchange_netflow"
+  | "whale_alert"
+  | "ssr"
+  | "coinbase_premium"
+  | "etf_flow"
+  | "miner_outflow"
+  | "lth_supply";
+
+export type OnchainRegime =
+  | "strong_accumulation"
+  | "accumulation"
+  | "neutral"
+  | "distribution"
+  | "strong_distribution";
+
+/** 단일 modifier 결과. value 는 -0.25 ~ +0.20, status 는 데이터 가용성. */
+export interface OnchainModifierResult {
+  key: OnchainModifierKey;
+  /** -0.25 ~ +0.20 범위. 0 이면 데이터 없음 또는 영향 없음. */
+  value: number;
+  /** "ok" = 진짜 데이터, "stub" = API 키 없음 / 데이터 미가용, "error" = 호출 실패 */
+  status: "ok" | "stub" | "error";
+  /** 한 줄 설명 (UI breakdown 용). */
+  detail: string;
+  /** 원시 메트릭 (디버깅·UI 보조). 모듈마다 자유 형식. */
+  raw?: Record<string, unknown>;
+}
+
+/** 7개 modifier 합산 결과 + regime 분류. */
+export interface OnchainScore {
+  symbol: string;
+  /** -1.0 ~ +1.0 정규화 점수. */
+  score: number;
+  regime: OnchainRegime;
+  /** 7개 modifier 의 raw 결과. */
+  modifiers: OnchainModifierResult[];
+  /** UTC ISO timestamp. */
+  computedAt: string;
+}
+
+/** BBDX 진입 시그널이 온체인 가중치를 적용받은 결과. */
+export interface OnchainAdjustedEntry {
+  baseStrength: number;
+  /** 1 + score × 0.30 (range 0.70 ~ 1.30). */
+  multiplier: number;
+  /** baseStrength × multiplier, 100 cap. */
+  finalStrength: number;
+  /** strong_distribution + 평균회귀 진입 시 true → 자본 보호 차단. */
+  blocked: boolean;
+  blockReason: string | null;
+  regime: OnchainRegime;
+  modifiers: OnchainModifierResult[];
+}
+
+/** Modifier 한도 (헌장 규칙 검증 + UI 가시화 용). */
+export const MODIFIER_BOUNDS = {
+  min: -0.25,
+  max: +0.20,
+  /** 7개 합산 후 정규화 분모 (절대값 기준 ~1.4 범위 → -1.0 ~ +1.0). */
+  normalizationDenom: 1.4,
+} as const;
+
+/** Regime 분류 임계값. */
+export const REGIME_THRESHOLDS = {
+  strongAccumulation: 0.6,
+  accumulation: 0.2,
+  distribution: -0.2,
+  strongDistribution: -0.6,
+} as const;

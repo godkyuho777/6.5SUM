@@ -1,5 +1,6 @@
 import type {
   BBStructure,
+  BBStructureShort,
   Candle,
   CandlePatternMatch,
   CandlePatternName,
@@ -8,6 +9,7 @@ import type {
   ExitDecision,
   PressureLabel,
   PullbackQuality,
+  ShortEntryDecision,
   TechnicalIndicators,
   VwapBands,
   VwapPosition,
@@ -940,6 +942,217 @@ export function isFallingKnife(
 ): boolean {
   return minusDi > plusDi && adx > 25;
 }
+
+/**
+ * Rising Knife — `isFallingKnife` 의 SHORT 미러.
+ *   +DI > -DI AND ADX > 25 → SHORT 진입 차단 (강한 상승 추세).
+ *
+ * 의미: 가격이 강한 상승 추세 중일 때 SHORT 진입은 *역추세* 위험.
+ * 자본 보호 헌장에 따라 SHORT 평균회귀 path (upperRejection, middleResistance,
+ * squeezeBreakdown) 진입을 차단. lowerRiding (추세 추종 SHORT) 만 예외 허용.
+ */
+export function isRisingKnife(
+  plusDi: number,
+  minusDi: number,
+  adx: number
+): boolean {
+  return plusDi > minusDi && adx > 25;
+}
+
+// ── SHORT BB 구조 (4가지 미러) ─────────────────────────────────────────────
+
+/**
+ * SHORT 진입 BB 구조 패턴. LONG `detectBBStructure` 의 4가지 미러:
+ *   upperRejection    — 직전 고가 ≥ BB상단×1.02 + 반전 음봉 + 종가 < 직전 종가
+ *                       (LONG 의 lowerBounce 미러)
+ *   squeezeBreakdown  — BW 압축 후 음봉 + 종가 < 중간선
+ *                       (LONG 의 squeezeBreakout 미러)
+ *   middleResistance  — 5중 3 캔들이 중간선 ±1% 터치 + 종가 < 중간선
+ *                       (LONG 의 middleSupport 미러)
+ *   lowerRiding       — 연속 3 캔들이 BB 하단 ± 하위 20% + 모두 음봉 + 종가 < 중간선
+ *                       (LONG 의 upperRiding 미러, 추세 추종 SHORT)
+ *
+ * 헌장 규칙 3 준수: 단독 시그널 X. BBDX SHORT path 의 *위치 + 거동 + 변동성*
+ * 3차원 confluence 만 발견.
+ */
+export function detectBBStructureShort(
+  candles: Candle[],
+  bbSeries: { upper: number; middle: number; lower: number }[]
+): BBStructureShort | null {
+  if (candles.length < 5 || bbSeries.length < 5) return null;
+
+  const last = candles[candles.length - 1];
+  const prev = candles[candles.length - 2];
+  const lastBB = bbSeries[bbSeries.length - 1];
+  const prevBB = bbSeries[bbSeries.length - 2];
+
+  // ── Upper Rejection ──
+  // 직전 고가 ≥ BB상단×1.02 + 현재 음봉 + 반전 (긴 위 꼬리 또는 약세 엔글핑)
+  const prevTouchedUpper = prev.high >= prevBB.upper * 1.02;
+  const reversalCandle =
+    isBear(last) &&
+    (upperWick(last) >= bodySize(last) * 1.5 ||
+      (last.open >= prev.close && last.close <= prev.open && bodySize(last) > bodySize(prev)));
+  if (prevTouchedUpper && reversalCandle && last.close < prev.close) {
+    return "upperRejection";
+  }
+
+  // ── Squeeze Breakdown ──
+  const avgBW = averageBandWidth(bbSeries.slice(0, -1));
+  const recentBWs = bbSeries.slice(-6, -1).map(bandWidth);
+  const wasSqueezed = recentBWs.some((bw) => avgBW > 0 && bw < avgBW * 0.6);
+  const nowExpanded = avgBW > 0 && bandWidth(lastBB) > avgBW * 0.8;
+  if (wasSqueezed && nowExpanded && isBear(last) && last.close < lastBB.middle) {
+    return "squeezeBreakdown";
+  }
+
+  // ── Middle Resistance ──
+  // 최근 5캔들 중 3개 이상이 BB중간선 ±1% 터치 (위에서), 종가 < 중간선
+  let middleTouches = 0;
+  for (let i = candles.length - 5; i < candles.length; i++) {
+    const c = candles[i];
+    const bb = bbSeries[i];
+    if (!c || !bb) continue;
+    const lo = bb.middle * 0.99;
+    const hi = bb.middle * 1.01;
+    if (c.high >= lo && c.high <= hi) middleTouches++;
+  }
+  if (middleTouches >= 3 && last.close < lastBB.middle) {
+    return "middleResistance";
+  }
+
+  // ── Lower Riding ──
+  // 연속 3개 캔들이 BB하단 하위 20% + 종가 < 중간선 + 모두 음봉
+  if (candles.length >= 3) {
+    const ridingCandles = candles.slice(-3);
+    const ridingBBs = bbSeries.slice(-3);
+    let allRiding = true;
+    for (let i = 0; i < 3; i++) {
+      const c = ridingCandles[i];
+      const bb = ridingBBs[i];
+      const lower20 = bb.lower + (bb.middle - bb.lower) * 0.2;
+      if (!(c.close < lower20 && c.close < bb.middle && isBear(c))) {
+        allRiding = false;
+        break;
+      }
+    }
+    if (allRiding && bandWidth(lastBB) > avgBW * 0.7) {
+      return "lowerRiding";
+    }
+  }
+
+  return null;
+}
+
+// ── SHORT 진입 결정 (3가지 경로 미러) ──────────────────────────────────────
+
+const SHORT_NUM_RSI_LOW = 62;
+const SHORT_NUM_RSI_HIGH = 75;
+const SHORT_NUM_BB_TOLERANCE = 0.02;
+const SHORT_NUM_ADX_MAX = 20;
+const SHORT_PTN_BB_TOLERANCE = 0.05;
+const SHORT_PTN_ADX_MAX = 25;
+
+/**
+ * SHORT 진입 결정. LONG `decideEntry` 의 미러.
+ *
+ *   BB path  — `detectBBStructureShort` 결과 (4가지 SHORT 구조)
+ *   PTN path — bearish 패턴 + 가격 ≥ BB상단×0.95 + ADX < 25
+ *   NUM path — RSI 62~75 + 가격 ≥ BB상단×0.98 + ADX < 20
+ *
+ * Rising Knife (강한 상승 추세) 시 호출 측에서 미리 차단해야 함 (lowerRiding 외).
+ *
+ * 헌장 규칙 3 준수: SHORT 도 BBDX 차원 안. 단독 시그널 X.
+ * decideEntry 와 동일한 우선순위 (BB > PTN > NUM).
+ */
+export function decideShortEntry(
+  candles: Candle[],
+  ind: TechnicalIndicators,
+  patterns: CandlePatternMatch[],
+  bbStructureShort: BBStructureShort | null,
+  _volRatio: number
+): ShortEntryDecision | null {
+  if (candles.length === 0) return null;
+  const last = candles[candles.length - 1];
+  const price = last.close;
+
+  // ── BB 경로 ──
+  if (bbStructureShort != null) {
+    return {
+      path: "BB",
+      reasons: [`SHORT BB 구조: ${bbStructureShort}`],
+      bbStructure: bbStructureShort,
+    };
+  }
+
+  // ── PTN 경로 ──
+  const bearishPatterns = patterns.filter((p) => p.bias === "bearish");
+  if (bearishPatterns.length > 0) {
+    const nearUpper = price >= ind.bbUpper * (1 - SHORT_PTN_BB_TOLERANCE);
+    const adxOk = ind.adx < SHORT_PTN_ADX_MAX;
+    if (nearUpper && adxOk) {
+      return {
+        path: "PTN",
+        reasons: [
+          `${bearishPatterns.length}개 약세 패턴 감지`,
+          `현재가 ≥ BB상단 × ${1 - SHORT_PTN_BB_TOLERANCE}`,
+          `ADX ${ind.adx.toFixed(1)} < ${SHORT_PTN_ADX_MAX}`,
+        ],
+        patterns: bearishPatterns,
+      };
+    }
+  }
+
+  // ── NUM 경로 ──
+  const rsiOk = ind.rsi >= SHORT_NUM_RSI_LOW && ind.rsi <= SHORT_NUM_RSI_HIGH;
+  const nearUpper = price >= ind.bbUpper * (1 - SHORT_NUM_BB_TOLERANCE);
+  const adxOk = ind.adx < SHORT_NUM_ADX_MAX;
+  if (rsiOk && nearUpper && adxOk) {
+    return {
+      path: "NUM",
+      reasons: [
+        `RSI ${ind.rsi.toFixed(1)} ∈ [${SHORT_NUM_RSI_LOW}, ${SHORT_NUM_RSI_HIGH}]`,
+        `현재가 ≥ BB상단 × ${1 - SHORT_NUM_BB_TOLERANCE}`,
+        `ADX ${ind.adx.toFixed(1)} < ${SHORT_NUM_ADX_MAX}`,
+      ],
+    };
+  }
+
+  return null;
+}
+
+/** SHORT 진입 강도 (LONG 의 5-component 거울).
+ *   - RSI score: 75 에 가까울수록 ↑ (과매수)
+ *   - BB proximity: BB 상단에 가까울수록 ↑
+ *   - ADX reversal: ADX 낮을수록 ↑ (평균회귀 SHORT 환경)
+ *   - reversal prob: 동일
+ *   - volume confirm: 동일 (음봉 거래량 ↑ 면 강한 신호)
+ */
+export function calculateShortSignalStrength(
+  price: number,
+  ind: TechnicalIndicators,
+  volumeConfirmation: number
+): number {
+  const rsiScore = Math.max(
+    0,
+    Math.min(25, ((ind.rsi - SHORT_NUM_RSI_LOW) / (SHORT_NUM_RSI_HIGH - SHORT_NUM_RSI_LOW)) * 25)
+  );
+
+  const range = ind.bbUpper - ind.bbLower;
+  const bbProximity =
+    range > 0
+      ? Math.max(0, Math.min(25, ((price - ind.bbLower) / range) * 25))
+      : 0;
+
+  const adxReversal = Math.max(0, Math.min(20, ((20 - ind.adx) / 20) * 20));
+  const reversalProb = (reversalProbability(ind.adx) / 100) * 15;
+
+  const total = rsiScore + bbProximity + adxReversal + reversalProb + volumeConfirmation;
+  return Math.max(0, Math.min(100, Math.round(total)));
+}
+
+// SHORT BB structure 가 사용하는 helper (isBear, upperWick) 는 위쪽
+// LONG 패턴 모듈에서 이미 정의됨 — 재사용.
 
 // ── 진입 결정 (3가지 경로) ────────────────────────────────────────────────
 

@@ -7,7 +7,7 @@
  */
 import type { OnchainRegime } from "../onchain/types";
 /** 추천 액션 — Lite UI 의 핵심 라벨. */
-export type Recommendation = "STRONG_BUY" | "BUY" | "WATCH" | "HOLD" | "SELL" | "STRONG_SELL" | "BLOCKED";
+export type Recommendation = "STRONG_BUY" | "BUY" | "WATCH" | "HOLD" | "SELL" | "STRONG_SELL" | "SHORT" | "STRONG_SHORT" | "BLOCKED";
 /** 위험도 — 5단계 게이지. */
 export type RiskLevel = "very_low" | "low" | "medium" | "high" | "very_high";
 /** 시장 분위기 — 4-TF 종합 또는 종합 strength 기반 한 단어. */

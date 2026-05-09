@@ -14,14 +14,18 @@ import {
   calculateRSISeries,
   calculateADXSeries,
   calculateSignalStrengthV2,
+  calculateShortSignalStrength,
   decideEntry,
   decideExit,
+  decideShortEntry,
   decideVwapSignal,
   detectAllCandlePatterns,
   detectBBStructure,
+  detectBBStructureShort,
   detectPullback,
   emaPosition,
   isFallingKnife,
+  isRisingKnife,
   isInFibZone,
   pressureLabel,
   reversalProbability,
@@ -226,6 +230,25 @@ export async function scanCoin(
     const stopLossPrice = indicators.bbLower * 0.97;
     const isStopLossHit = price <= stopLossPrice;
 
+    // ── SHORT path (LONG 미러, 헌장 규칙 3 준수) ──
+    // SHORT 도 isRisingKnife 차단 (강한 상승 추세 중 평균회귀 SHORT 위험).
+    // lowerRiding (추세 추종 SHORT) 만 isRisingKnife 예외.
+    const bbStructureShort = detectBBStructureShort(candles, bbSeries);
+    const risingKnife = isRisingKnife(
+      indicators.plusDi,
+      indicators.minusDi,
+      indicators.adx
+    );
+    // RisingKnife 차단: lowerRiding 외 SHORT path 막음. lowerRiding 은 추세 추종이라 허용.
+    const shortAllowed = !risingKnife || bbStructureShort === "lowerRiding";
+    const shortDecision = shortAllowed
+      ? decideShortEntry(candles, indicators, candlePatterns, bbStructureShort, ratio)
+      : null;
+    const shortStopLossPrice = indicators.bbUpper * 1.03;
+    const shortSignalStrength = shortDecision
+      ? calculateShortSignalStrength(price, indicators, volConfirmation)
+      : 0;
+
     // Audit-권고 적용 패턴 합산 (multi-pattern + 거래량 + 추세 + TF 차등).
     const patternConfluence = buildPatternConfluence(
       candlePatterns,
@@ -295,11 +318,16 @@ export async function scanCoin(
       candlePatterns,
       patternConfluence,
       bbStructure,
+      bbStructureShort,
       entryDecision,
+      shortDecision,
+      shortStopLossPrice,
+      shortSignalStrength,
       exitDecision,
       stopLossPrice,
       isStopLossHit,
       isFallingKnife: fallingKnife,
+      isRisingKnife: risingKnife,
       // VWAP Strategy fields
       vwap,
       ema9,
@@ -380,11 +408,16 @@ export async function scanCoinsPage(
           candlePatterns: [],
           patternConfluence: null,
           bbStructure: null,
+          bbStructureShort: null,
           entryDecision: null,
+          shortDecision: null,
+          shortStopLossPrice: 0,
+          shortSignalStrength: 0,
           exitDecision: null,
           stopLossPrice: 0,
           isStopLossHit: false,
           isFallingKnife: false,
+          isRisingKnife: false,
           // VWAP Strategy — empty defaults
           vwap: 0,
           ema9: 0,

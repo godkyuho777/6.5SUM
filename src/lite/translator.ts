@@ -139,26 +139,55 @@ export function translatePhase(phase: string): TranslatedLabel {
  *   6. finalStrength >= 40 + path != null   → WATCH
  *   7. 그 외                                 → HOLD
  */
+/**
+ * v6.5 SHORT path 추가: shortAdjusted (SHORT × 온체인 multiplier 적용 결과) +
+ * shortEntry (BBDX SHORT 진입 결정) 가 있으면 LONG 시그널 우선순위 *후순위* 로
+ * SHORT 추천 산출. SHORT 차단 시 BLOCKED 반환.
+ *
+ * 우선순위 (높은 → 낮은):
+ *   1. LONG 자본 보호 차단 → BLOCKED
+ *   2. EXIT 4/4 → STRONG_SELL  (LONG 청산)
+ *   3. EXIT 3/4 → SELL          (LONG 청산)
+ *   4. LONG ENTRY finalStrength ≥ 80 → STRONG_BUY
+ *   5. LONG ENTRY finalStrength ≥ 60 → BUY
+ *   6. LONG ENTRY finalStrength ≥ 40 → WATCH
+ *   7. SHORT 자본 보호 차단 → BLOCKED
+ *   8. SHORT ENTRY finalStrength ≥ 80 → STRONG_SHORT
+ *   9. SHORT ENTRY finalStrength ≥ 60 → SHORT
+ *   10. 그 외                          → HOLD
+ */
 export function deriveRecommendation(
   adjusted: OnchainAdjustedEntry | null,
   entry: EntryDecision | null,
-  exit: ExitDecision | null
+  exit: ExitDecision | null,
+  shortAdjusted: OnchainAdjustedEntry | null = null,
+  shortEntry: { path: string } | null = null
 ): Recommendation {
-  // 1. 자본 보호
+  // 1. LONG 자본 보호
   if (adjusted?.blocked) return "BLOCKED";
 
-  // 2~3. EXIT 우선
+  // 2~3. EXIT 우선 (LONG 청산)
   if (exit) {
     if (exit.conditionsMet >= 4) return "STRONG_SELL";
     if (exit.conditionsMet >= 3) return "SELL";
   }
 
-  // 4~6. ENTRY (path 가 있어야 함)
+  // 4~6. LONG ENTRY (path 가 있어야 함)
   if (adjusted && entry) {
     const s = adjusted.finalStrength;
     if (s >= 80) return "STRONG_BUY";
     if (s >= 60) return "BUY";
     if (s >= 40) return "WATCH";
+  }
+
+  // 7. SHORT 자본 보호 (strong_accumulation + 평균회귀 SHORT)
+  if (shortAdjusted?.blocked) return "BLOCKED";
+
+  // 8~9. SHORT ENTRY (path 가 있어야 함)
+  if (shortAdjusted && shortEntry) {
+    const s = shortAdjusted.finalStrength;
+    if (s >= 80) return "STRONG_SHORT";
+    if (s >= 60) return "SHORT";
   }
 
   return "HOLD";
@@ -178,13 +207,21 @@ export function recommendationLabel(r: Recommendation): TranslatedLabel {
             ? "neon-yellow"
             : r === "STRONG_SELL"
               ? "neon-red"
-              : "muted";
+              : r === "SHORT"
+                ? "neon-orange"
+                : r === "STRONG_SHORT"
+                  ? "neon-red"
+                  : "muted";
   const oneLiner =
     r === "BLOCKED"
       ? "지금 시장 환경이 위험해서 진입을 보류하는 게 좋아요."
       : r === "HOLD"
         ? "특별히 추천할 신호가 없어요."
-        : meta.label;
+        : r === "SHORT"
+          ? "공매도 진입 신호 — 양방향 거래자만 참고."
+          : r === "STRONG_SHORT"
+            ? "강한 공매도 신호 — Perpetual 거래소에서만 가능, 위험."
+            : meta.label;
   return label(meta.label, color, meta.tone, oneLiner);
 }
 

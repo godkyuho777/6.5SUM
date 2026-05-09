@@ -1,4 +1,4 @@
-import type { BBStructure, Candle, CandlePatternMatch, EmaPosition, EntryDecision, ExitDecision, PressureLabel, PullbackQuality, TechnicalIndicators, VwapBands, VwapPosition, VwapSignal } from "@shared/types";
+import type { BBStructure, BBStructureShort, Candle, CandlePatternMatch, EmaPosition, EntryDecision, ExitDecision, PressureLabel, PullbackQuality, ShortEntryDecision, TechnicalIndicators, VwapBands, VwapPosition, VwapSignal } from "@shared/types";
 import type { VolumeProfile } from "./volume-profile";
 /**
  * RSI (Relative Strength Index) 계산
@@ -143,6 +143,55 @@ export declare function reversalProbability(adx: number): number;
 export declare function volumeRatio(candles: Candle[]): number;
 export declare function volumeConfirmationFromRatio(ratio: number): number;
 export declare function isFallingKnife(plusDi: number, minusDi: number, adx: number): boolean;
+/**
+ * Rising Knife — `isFallingKnife` 의 SHORT 미러.
+ *   +DI > -DI AND ADX > 25 → SHORT 진입 차단 (강한 상승 추세).
+ *
+ * 의미: 가격이 강한 상승 추세 중일 때 SHORT 진입은 *역추세* 위험.
+ * 자본 보호 헌장에 따라 SHORT 평균회귀 path (upperRejection, middleResistance,
+ * squeezeBreakdown) 진입을 차단. lowerRiding (추세 추종 SHORT) 만 예외 허용.
+ */
+export declare function isRisingKnife(plusDi: number, minusDi: number, adx: number): boolean;
+/**
+ * SHORT 진입 BB 구조 패턴. LONG `detectBBStructure` 의 4가지 미러:
+ *   upperRejection    — 직전 고가 ≥ BB상단×1.02 + 반전 음봉 + 종가 < 직전 종가
+ *                       (LONG 의 lowerBounce 미러)
+ *   squeezeBreakdown  — BW 압축 후 음봉 + 종가 < 중간선
+ *                       (LONG 의 squeezeBreakout 미러)
+ *   middleResistance  — 5중 3 캔들이 중간선 ±1% 터치 + 종가 < 중간선
+ *                       (LONG 의 middleSupport 미러)
+ *   lowerRiding       — 연속 3 캔들이 BB 하단 ± 하위 20% + 모두 음봉 + 종가 < 중간선
+ *                       (LONG 의 upperRiding 미러, 추세 추종 SHORT)
+ *
+ * 헌장 규칙 3 준수: 단독 시그널 X. BBDX SHORT path 의 *위치 + 거동 + 변동성*
+ * 3차원 confluence 만 발견.
+ */
+export declare function detectBBStructureShort(candles: Candle[], bbSeries: {
+    upper: number;
+    middle: number;
+    lower: number;
+}[]): BBStructureShort | null;
+/**
+ * SHORT 진입 결정. LONG `decideEntry` 의 미러.
+ *
+ *   BB path  — `detectBBStructureShort` 결과 (4가지 SHORT 구조)
+ *   PTN path — bearish 패턴 + 가격 ≥ BB상단×0.95 + ADX < 25
+ *   NUM path — RSI 62~75 + 가격 ≥ BB상단×0.98 + ADX < 20
+ *
+ * Rising Knife (강한 상승 추세) 시 호출 측에서 미리 차단해야 함 (lowerRiding 외).
+ *
+ * 헌장 규칙 3 준수: SHORT 도 BBDX 차원 안. 단독 시그널 X.
+ * decideEntry 와 동일한 우선순위 (BB > PTN > NUM).
+ */
+export declare function decideShortEntry(candles: Candle[], ind: TechnicalIndicators, patterns: CandlePatternMatch[], bbStructureShort: BBStructureShort | null, _volRatio: number): ShortEntryDecision | null;
+/** SHORT 진입 강도 (LONG 의 5-component 거울).
+ *   - RSI score: 75 에 가까울수록 ↑ (과매수)
+ *   - BB proximity: BB 상단에 가까울수록 ↑
+ *   - ADX reversal: ADX 낮을수록 ↑ (평균회귀 SHORT 환경)
+ *   - reversal prob: 동일
+ *   - volume confirm: 동일 (음봉 거래량 ↑ 면 강한 신호)
+ */
+export declare function calculateShortSignalStrength(price: number, ind: TechnicalIndicators, volumeConfirmation: number): number;
 /**
  * 3가지 진입 경로 중 가장 우선순위 높은 1개를 반환.
  * 우선순위: BB > PTN > NUM (스펙: BB가 가장 명확한 신호).

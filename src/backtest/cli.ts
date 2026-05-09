@@ -11,15 +11,21 @@
  */
 
 import "dotenv/config";
+import { writeFileSync } from "fs";
+import { join } from "path";
 import { runBacktest } from "./runner";
 import { saveReport } from "./report-generator";
+import {
+  runStandardCalibration,
+  formatCalibrationReport,
+} from "./calibration";
 import type { BacktestCliArgs } from "./types";
 import { TOP_COINS } from "@shared/types";
 
 // ─── 인자 파싱 ───────────────────────────────────────────
 
-function parseArgs(argv: string[]): BacktestCliArgs {
-  const args: BacktestCliArgs = {};
+function parseArgs(argv: string[]): BacktestCliArgs & { calibrate?: boolean } {
+  const args: BacktestCliArgs & { calibrate?: boolean } = {};
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     switch (arg) {
@@ -49,6 +55,10 @@ function parseArgs(argv: string[]): BacktestCliArgs {
         break;
       case "--name":
         args.runName = argv[++i];
+        break;
+      case "--calibrate":
+        // v6.5 Phase 3: 백테스트 후 자동 calibration 리포트 생성
+        args.calibrate = true;
         break;
     }
   }
@@ -102,6 +112,43 @@ async function main() {
 
   // 리포트 저장
   saveReport(result);
+
+  // ── v6.5 Phase 3: --calibrate 플래그 시 calibration 리포트 추가 ──
+  if (args.calibrate) {
+    console.log("\n🔬 Running v6.5 Phase 3 calibration (Wilson 95% CI)...");
+    const calibResults = runStandardCalibration(result.trades);
+    const md = formatCalibrationReport(calibResults);
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    const calibPath = join(
+      process.cwd(),
+      `backtest-reports/calibration_${args.runName ?? "run"}_${stamp}.md`,
+    );
+    try {
+      writeFileSync(calibPath, md, "utf-8");
+      console.log(`   Calibration report → ${calibPath}`);
+    } catch (e) {
+      console.warn("   Failed to write calibration report:", e);
+    }
+
+    // 콘솔에 권고 임계값 요약
+    console.log("\n📊 Recommended thresholds:");
+    for (const r of calibResults) {
+      if (r.recommendedThreshold != null) {
+        const flag = r.significantChange ? "🚨" : "✓";
+        console.log(
+          `  ${flag} ${r.param.name}: current=${r.param.currentThreshold.toFixed(3)} → ` +
+            `recommended=${r.recommendedThreshold.toFixed(3)} ` +
+            `(expected winRate ≥ ${((r.expectedWinRate ?? 0) * 100).toFixed(1)}%)`,
+        );
+      } else {
+        console.log(
+          `  ⚠ ${r.param.name}: 권고 없음 ` +
+            `(${r.sampleSufficient ? "통계적 유의성 부재" : "표본 부족"})`,
+        );
+      }
+    }
+  }
 
   // 프로세스 종료
   process.exit(0);

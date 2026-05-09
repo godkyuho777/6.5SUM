@@ -35,7 +35,26 @@ export declare function translatePhase(phase: string): TranslatedLabel;
  *   6. finalStrength >= 40 + path != null   → WATCH
  *   7. 그 외                                 → HOLD
  */
-export declare function deriveRecommendation(adjusted: OnchainAdjustedEntry | null, entry: EntryDecision | null, exit: ExitDecision | null): Recommendation;
+/**
+ * v6.5 SHORT path 추가: shortAdjusted (SHORT × 온체인 multiplier 적용 결과) +
+ * shortEntry (BBDX SHORT 진입 결정) 가 있으면 LONG 시그널 우선순위 *후순위* 로
+ * SHORT 추천 산출. SHORT 차단 시 BLOCKED 반환.
+ *
+ * 우선순위 (높은 → 낮은):
+ *   1. LONG 자본 보호 차단 → BLOCKED
+ *   2. EXIT 4/4 → STRONG_SELL  (LONG 청산)
+ *   3. EXIT 3/4 → SELL          (LONG 청산)
+ *   4. LONG ENTRY finalStrength ≥ 80 → STRONG_BUY
+ *   5. LONG ENTRY finalStrength ≥ 60 → BUY
+ *   6. LONG ENTRY finalStrength ≥ 40 → WATCH
+ *   7. SHORT 자본 보호 차단 → BLOCKED
+ *   8. SHORT ENTRY finalStrength ≥ 80 → STRONG_SHORT
+ *   9. SHORT ENTRY finalStrength ≥ 60 → SHORT
+ *   10. 그 외                          → HOLD
+ */
+export declare function deriveRecommendation(adjusted: OnchainAdjustedEntry | null, entry: EntryDecision | null, exit: ExitDecision | null, shortAdjusted?: OnchainAdjustedEntry | null, shortEntry?: {
+    path: string;
+} | null): Recommendation;
 /** Recommendation → 한국어 라벨 + 색조. */
 export declare function recommendationLabel(r: Recommendation): TranslatedLabel;
 /**

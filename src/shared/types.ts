@@ -146,14 +146,27 @@ export interface PatternContextDetail {
   contextualStrength: number;
 }
 
-/** BB 구조 패턴 */
+/** BB 구조 패턴 (LONG 진입용) */
 export type BBStructure =
   | "upperRiding"
   | "middleSupport"
   | "squeezeBreakout"
   | "lowerBounce";
 
-/** 매수 진입 경로 */
+/**
+ * BB 구조 패턴 (SHORT 진입용). LONG 의 4가지 미러:
+ *   lowerRiding       — 연속 3 캔들이 BB 하단 *아래* + 음봉 (long upperRiding 미러)
+ *   middleResistance  — 5중 3 캔들이 중간선 ±1% 터치 + 종가 < 중간선 (middleSupport 미러)
+ *   squeezeBreakdown  — BW 압축 후 음봉 + 종가 < 중간선 (squeezeBreakout 미러)
+ *   upperRejection    — 직전 고가 ≥ BB상단×1.02 + 반전 음봉 (lowerBounce 미러)
+ */
+export type BBStructureShort =
+  | "lowerRiding"
+  | "middleResistance"
+  | "squeezeBreakdown"
+  | "upperRejection";
+
+/** 매수/매도 진입 경로 */
 export type EntryPath = "NUM" | "PTN" | "BB";
 
 /** 매수 진입 결정 */
@@ -187,6 +200,31 @@ export interface EntryDecision {
   /** CVD Divergence (4차원: volume/liquidity, 베타) — 0.80~1.20 */
   cvdDivergenceMult?: number;
   /** Order Block (5차원: structure, 베타) — 0.95~1.05 */
+  orderBlockMult?: number;
+}
+
+/**
+ * 매도(SHORT) 진입 결정. LONG `EntryDecision` 의 미러.
+ *
+ * 헌장 규칙 3 준수: SHORT 시그널도 BBDX 차원 안에서 작동, 단독 시그널 X.
+ * 동일한 multiplier 체인을 통과하지만 자본 보호 분기는 LONG 의 *반대* —
+ * `strong_accumulation` 환경에서 *평균회귀 SHORT* 진입 차단 (lowerRiding 외).
+ */
+export interface ShortEntryDecision {
+  path: EntryPath;
+  /** 사람이 읽을 수 있는 충족 조건 목록 */
+  reasons: string[];
+  /** PTN 경로일 때 사용된 약세 패턴들 */
+  patterns?: CandlePatternMatch[];
+  /** BB 경로일 때 사용된 BB 구조 (SHORT 용) */
+  bbStructure?: BBStructureShort;
+  /** v6.5 multiplier 체인 (long 과 동일 — 부호만 반대) */
+  vwapMult?: number;
+  emaRibbonMult?: number;
+  marketBreadthMult?: number;
+  macdDivergenceMult?: number;
+  fundingExtremeMult?: number;
+  cvdDivergenceMult?: number;
   orderBlockMult?: number;
 }
 
@@ -351,7 +389,15 @@ export interface CoinScanResult {
    */
   patternConfluence: PatternConfluenceSummary | null;
   bbStructure: BBStructure | null;
+  /** SHORT BB 구조 (4가지 미러). null = 미감지. */
+  bbStructureShort: BBStructureShort | null;
   entryDecision: EntryDecision | null;
+  /** SHORT 진입 결정 (LONG 시그널 없을 때 평가). */
+  shortDecision: ShortEntryDecision | null;
+  /** SHORT 진입 시 손절 = BB상단 × 1.03 */
+  shortStopLossPrice: number;
+  /** SHORT 진입 시그널 강도 (0~100, LONG 과 분리) */
+  shortSignalStrength: number;
   exitDecision: ExitDecision | null;
   /** BB하단 × 0.97 */
   stopLossPrice: number;
@@ -359,6 +405,8 @@ export interface CoinScanResult {
   isStopLossHit: boolean;
   /** -DI > +DI AND ADX > 25 — LONG 진입 차단 */
   isFallingKnife: boolean;
+  /** +DI > -DI AND ADX > 25 — SHORT 진입 차단 (Rising Knife) */
+  isRisingKnife: boolean;
 
   // ─── VWAP Strategy fields ───────────────────────────────────────────────
   /** Volume-weighted average price across the loaded candle range. */

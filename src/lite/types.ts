@@ -14,8 +14,10 @@ export type Recommendation =
   | "BUY"
   | "WATCH"      // 진입 path 있지만 강도 약함, 관찰만
   | "HOLD"       // 진입/청산 시그널 없음
-  | "SELL"
-  | "STRONG_SELL"
+  | "SELL"       // LONG 청산 (기존 보유자 익절/손절)
+  | "STRONG_SELL"// LONG 청산 4/4 또는 강한 reversal
+  | "SHORT"      // SHORT 진입 시그널 (기본 강도)
+  | "STRONG_SHORT" // SHORT 진입 시그널 (강한 강도, finalStrength ≥ 80)
   | "BLOCKED";   // 자본 보호 차단 (strong_distribution + mean reversion)
 
 /** 위험도 — 5단계 게이지. */
@@ -110,6 +112,8 @@ export const RECOMMENDATION_LABEL: Record<Recommendation, { label: string; tone:
   HOLD: { label: "지금은 추천 없음", tone: "muted" },
   SELL: { label: "매도 고려", tone: "caution" },
   STRONG_SELL: { label: "강한 매도", tone: "bad" },
+  SHORT: { label: "공매도 추천", tone: "caution" },
+  STRONG_SHORT: { label: "강한 공매도", tone: "bad" },
   BLOCKED: { label: "지금은 추천 없음", tone: "muted" },
 };
 

@@ -60,6 +60,54 @@ export function applyOnchainToEntry(
   };
 }
 
+/**
+ * BBDX SHORT 진입에 온체인 multiplier 적용 — `applyOnchainToEntry` 의 미러.
+ *
+ *   진입 multiplier = 1 - onchain.score × 0.30   (LONG 과 부호 반대)
+ *     score +1.0 → ×0.70 (강한 매집 환경에서 SHORT 약화)
+ *     score  0   → ×1.00
+ *     score -1.0 → ×1.30 (강한 분배 환경에서 SHORT 강화)
+ *
+ *   strong_accumulation + 평균회귀 SHORT path → 차단 (자본 보호 미러)
+ *   (lowerRiding = 추세 추종 SHORT 만 예외 허용)
+ *
+ * SHORT path 인자 매핑:
+ *   "BB:lowerRiding" → 추세 추종 (자본 보호 차단 면제)
+ *   그 외             → 평균회귀 (strong_accumulation 차단)
+ */
+export function applyOnchainShortToEntry(
+  signal: BbdxSignalLike,
+  onchain: OnchainScore
+): OnchainAdjustedEntry {
+  const multiplier = 1 - onchain.score * 0.30;
+
+  // 자본 보호 미러: strong_accumulation 환경에서 lowerRiding 외 SHORT 차단
+  const isMeanReversion = signal.path !== "BB:lowerRiding";
+  if (onchain.regime === "strong_accumulation" && isMeanReversion) {
+    return {
+      baseStrength: signal.strength,
+      multiplier,
+      finalStrength: 0,
+      blocked: true,
+      blockReason:
+        "온체인 strong_accumulation 환경에서 평균회귀 SHORT 진입은 자본 보호 위해 차단",
+      regime: onchain.regime,
+      modifiers: onchain.modifiers,
+    };
+  }
+
+  const final = Math.min(100, Math.max(0, signal.strength * multiplier));
+  return {
+    baseStrength: signal.strength,
+    multiplier,
+    finalStrength: final,
+    blocked: false,
+    blockReason: null,
+    regime: onchain.regime,
+    modifiers: onchain.modifiers,
+  };
+}
+
 /** BBDX EXIT reversal_score (v6.3 [EXIT-B]) 에 온체인 regime 보정 적용. */
 export function applyOnchainToExit(
   baseReversalScore: number,

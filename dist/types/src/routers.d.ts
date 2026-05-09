@@ -791,5 +791,90 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             meta: object;
         }>;
     }>>;
+    modifiers: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /** EMA Ribbon (3차원: trend) — 정렬 + expansion 기반 multiplier */
+        emaRibbon: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf?: "1h" | "4h" | "1d" | undefined;
+            };
+            output: import("./modifiers").EmaRibbonResult;
+            meta: object;
+        }>;
+        /** Market Breadth (6차원: macro/sentiment) — 96 코인 일괄 RSI 분포 */
+        marketBreadth: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbols?: string[] | undefined;
+                tf?: "1h" | "4h" | "1d" | undefined;
+            };
+            output: import("./modifiers").MarketBreadthResult;
+            meta: object;
+        }>;
+        /** MACD Divergence (1차원: momentum, RSI 와 다른 각도) */
+        macdDivergence: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf?: "1h" | "4h" | "1d" | undefined;
+                lookback?: number | undefined;
+            };
+            output: import("./modifiers").MacdDivergenceResult;
+            meta: object;
+        }>;
+        /** Funding Extreme (6차원: macro/perp positioning) */
+        fundingExtreme: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+            };
+            output: import("./modifiers").FundingExtremeResult;
+            meta: object;
+        }>;
+        /** Order Block (5차원: structure, 베타) */
+        orderBlock: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf?: "1h" | "4h" | "1d" | undefined;
+            };
+            output: import("./modifiers").OrderBlockResult;
+            meta: object;
+        }>;
+        /** CVD Divergence (4차원: volume, 베타 stub) */
+        cvdDivergence: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf?: "1h" | "4h" | "1d" | undefined;
+            };
+            output: import("./modifiers").CvdDivergenceResult;
+            meta: object;
+        }>;
+        /**
+         * 통합 — 모든 modifier 한 번에. 가장 자주 쓰는 endpoint.
+         * Market Breadth 는 30개 universe 호출이라 병렬 하지만 시간이 좀 걸림 (~3s).
+         */
+        all: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf?: "1h" | "4h" | "1d" | undefined;
+                includeBreadth?: boolean | undefined;
+            };
+            output: {
+                symbol: string;
+                tf: "1h" | "4h" | "1d";
+                emaRibbon: import("./modifiers").EmaRibbonResult | null;
+                marketBreadth: import("./modifiers").MarketBreadthResult | null;
+                macdDivergence: import("./modifiers").MacdDivergenceResult | null;
+                fundingExtreme: import("./modifiers").FundingExtremeResult | null;
+                orderBlock: import("./modifiers").OrderBlockResult | null;
+                cvdDivergence: import("./modifiers").CvdDivergenceResult;
+                combinedMultiplier: number;
+                computedAt: number;
+            };
+            meta: object;
+        }>;
+    }>>;
 }>>;
 export type AppRouter = typeof appRouter;

@@ -29,3 +29,16 @@ export interface IndicatorMeta {
 }
 export declare const INDICATOR_REGISTRY: Readonly<Record<string, IndicatorMeta>>;
 export declare function getIndicatorMeta(name: string): IndicatorMeta | undefined;
+/** 추가 modifier 별 dimension 번호 (1~7) + 헌장 규칙 1 면제 여부. */
+export interface AdditionalModifierMeta {
+    dimension: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+    /**
+     * 같은 dimension 의 다른 indicator 와 동시 사용 허용 (헌장 규칙 1 예외).
+     * 측정 각도가 명확히 다를 때만 true.
+     */
+    rule1Exempt: boolean;
+    /** 베타 (정량화 미숙성). UI 에서 "베타" 라벨 표시. */
+    beta: boolean;
+}
+export declare const ADDITIONAL_MODIFIER_DIMENSIONS: Readonly<Record<string, AdditionalModifierMeta>>;
+export declare function getAdditionalModifierMeta(name: string): AdditionalModifierMeta | undefined;

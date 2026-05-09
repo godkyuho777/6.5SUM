@@ -91,3 +91,42 @@ export const INDICATOR_REGISTRY: Readonly<Record<string, IndicatorMeta>> = {
 export function getIndicatorMeta(name: string): IndicatorMeta | undefined {
   return INDICATOR_REGISTRY[name];
 }
+
+// ─── Additional Strategies (03_ADDITIONAL_STRATEGIES.md) ──────────────
+// 6개 추가 modifier 의 7차원 매핑. 헌장 검증 + UI 시각화용.
+// 모든 modifier 는 multiplier-only (헌장 규칙 3) — standalone 시그널 X.
+
+/** 추가 modifier 별 dimension 번호 (1~7) + 헌장 규칙 1 면제 여부. */
+export interface AdditionalModifierMeta {
+  dimension: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  /**
+   * 같은 dimension 의 다른 indicator 와 동시 사용 허용 (헌장 규칙 1 예외).
+   * 측정 각도가 명확히 다를 때만 true.
+   */
+  rule1Exempt: boolean;
+  /** 베타 (정량화 미숙성). UI 에서 "베타" 라벨 표시. */
+  beta: boolean;
+}
+
+export const ADDITIONAL_MODIFIER_DIMENSIONS: Readonly<
+  Record<string, AdditionalModifierMeta>
+> = {
+  // 1차원 momentum — RSI 와 다른 각도 (level vs momentum-of-momentum)
+  macdDivergence: { dimension: 1, rule1Exempt: true, beta: false },
+  // 3차원 trend — ADX 와 다른 각도 (강도 vs 정렬 상태)
+  emaRibbon: { dimension: 3, rule1Exempt: true, beta: false },
+  // 4차원 volume — OBV/Vol_zscore 와 다른 각도 (matched volume vs aggressive direction)
+  cvdDivergence: { dimension: 4, rule1Exempt: true, beta: true },
+  // 5차원 structure — Fib/Trendline 과 다른 각도 (확정 레벨 vs 유동성 sweep)
+  orderBlock: { dimension: 5, rule1Exempt: true, beta: true },
+  // 6차원 macro — Wave Tracker 와 다른 각도 (composite vs single-symbol perp)
+  fundingExtreme: { dimension: 6, rule1Exempt: true, beta: false },
+  // 6차원 macro — Wave Tracker 와 다른 각도 (펀딩/OI vs RSI 분포)
+  marketBreadth: { dimension: 6, rule1Exempt: true, beta: false },
+} as const;
+
+export function getAdditionalModifierMeta(
+  name: string
+): AdditionalModifierMeta | undefined {
+  return ADDITIONAL_MODIFIER_DIMENSIONS[name];
+}

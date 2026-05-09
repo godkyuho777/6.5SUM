@@ -52,7 +52,27 @@ export const DEFAULT_BACKTEST_CONFIG: Omit<BacktestConfig, "symbols" | "startDat
 // Individual Trade
 // ─────────────────────────────────────────────────────────
 
-export type ExitReason = "target_hit" | "stop_loss" | "window_expired";
+export type ExitReason =
+  | "target_hit"          // legacy v6.1 (Tier 1 만 도달 → window 만료) — backward compat
+  | "stop_loss"
+  | "window_expired"
+  | "tier1_then_window"   // v6.5 phase1: Tier 1 부분 청산 후 잔여분 윈도우 만료
+  | "tier2_full"          // v6.5 phase1: Tier 1 (50%) → Tier 2 (50%) 모두 도달
+  | "tier1_then_stop";    // v6.5 phase1: Tier 1 부분 청산 후 잔여분 손절
+
+/** v6.5 phase1: 부분 청산 한 단계 */
+export interface PartialExit {
+  /** 1=Tier 1 (50% partial), 2=Tier 2 (full) */
+  tier: 1 | 2;
+  /** 부분 청산 시점 캔들 인덱스 (signalIdx 부터의 offset) */
+  candleOffset: number;
+  /** 부분 청산 가격 */
+  price: number;
+  /** 청산 비율 (0~1, 누적이 1.0 이 되어야 함) */
+  ratio: number;
+  /** 이 부분의 수익률 % (entryPrice 대비) */
+  returnPct: number;
+}
 
 export interface BacktestTrade {
   /** 시그널 발생 캔들의 openTime (ms) */
@@ -63,9 +83,11 @@ export interface BacktestTrade {
   // ── 진입 정보 ─────────────────────────────────────────
   /** 진입 가격 (시그널 발생 캔들 close) */
   entryPrice: number;
-  /** 목표가 (시그널 시점의 BB-middle) */
+  /** Tier 1 목표가 (BB-middle, 50% 부분 청산) */
   target: number;
-  /** 손절가 (시그널 시점의 BB-lower × 0.97) */
+  /** Tier 2 목표가 (BB-upper 또는 entry×1.05, 잔여 50% 청산) */
+  target2?: number;
+  /** 손절가 (max(BB-lower × 0.97, entry × 0.98)) */
   stopLoss: number;
 
   // ── 시그널 발생 시점 지표 ─────────────────────────────
@@ -78,20 +100,30 @@ export interface BacktestTrade {
   plusDi: number;
   minusDi: number;
 
-  // ── 결과 ─────────────────────────────────────────────
+  // ── v6.5 phase1: 진입 게이트 메타 ─────────────────────
+  /** Pattern Confluence score (0~1, 게이트: ≥ 0.4) */
+  patternConfluenceScore?: number;
+  /** Higher-TF SMA(50) 통과 여부 (price > SMA50 + slope > 0) */
+  higherTfBullish?: boolean;
+
+  // ── 결과 (legacy + v6.5 둘 다 호환) ──────────────────
+  /** 가중 평균 청산 가격 (Tier 1 + Tier 2 weighted) */
   exitPrice: number;
+  /** 마지막 청산 시점 ts */
   exitTs: number;
   exitReason: ExitReason;
-  /** (exitPrice − entryPrice) / entryPrice × 100 */
+  /** 가중 평균 수익률 % (= 50%*tier1Return + 50%*tier2Return) */
   returnPct: number;
   /** 보유 기간 중 최대 순방향 수익률 % */
   maxFavorable: number;
   /** 보유 기간 중 최대 역방향 손실률 % */
   maxAdverse: number;
-  /** 목표가 도달 = true (손절 or 만료 = false) */
+  /** 가중 평균 수익률 > 0 = win */
   win: boolean;
-  /** 보유한 캔들 수 */
+  /** 마지막 청산까지 보유한 캔들 수 */
   holdingCandles: number;
+  /** v6.5 phase1: 부분 청산 단계들 (1~2 개) */
+  partialExits?: PartialExit[];
 }
 
 // ─────────────────────────────────────────────────────────

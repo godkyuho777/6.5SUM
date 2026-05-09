@@ -82,15 +82,26 @@ function symbolTable(bySymbol: Record<string, BacktestMetrics>): string {
 // ─── Exit reason 분포 ────────────────────────────────────
 
 function exitReasonSummary(result: BacktestResult): string {
-  const counts = { target_hit: 0, stop_loss: 0, window_expired: 0 };
+  const counts: Record<string, number> = {
+    target_hit: 0,
+    stop_loss: 0,
+    window_expired: 0,
+    tier1_then_window: 0,
+    tier2_full: 0,
+    tier1_then_stop: 0,
+  };
   for (const t of result.trades) {
-    counts[t.exitReason]++;
+    counts[t.exitReason] = (counts[t.exitReason] ?? 0) + 1;
   }
   const n = result.trades.length || 1;
+  const pct = (k: string) => ((counts[k] / n) * 100).toFixed(1);
   return [
-    `- 목표가 도달 (target_hit): **${counts.target_hit}** (${((counts.target_hit / n) * 100).toFixed(1)}%)`,
-    `- 손절 (stop_loss): **${counts.stop_loss}** (${((counts.stop_loss / n) * 100).toFixed(1)}%)`,
-    `- 윈도우 만료 (window_expired): **${counts.window_expired}** (${((counts.window_expired / n) * 100).toFixed(1)}%)`,
+    `- Tier 2 도달 (tier2_full, 50%+50% 둘 다): **${counts.tier2_full}** (${pct("tier2_full")}%)`,
+    `- 목표가 단독 도달 (target_hit, Tier 1 only): **${counts.target_hit}** (${pct("target_hit")}%)`,
+    `- Tier 1 → 만료 (tier1_then_window, 50% 청산 + 잔여 close): **${counts.tier1_then_window}** (${pct("tier1_then_window")}%)`,
+    `- Tier 1 → 손절 (tier1_then_stop, 50% 청산 + 잔여 stop): **${counts.tier1_then_stop}** (${pct("tier1_then_stop")}%)`,
+    `- 손절 (stop_loss, Tier 1 못 도달): **${counts.stop_loss}** (${pct("stop_loss")}%)`,
+    `- 윈도우 만료 (window_expired, Tier 1 못 도달): **${counts.window_expired}** (${pct("window_expired")}%)`,
   ].join("\n");
 }
 

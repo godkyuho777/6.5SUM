@@ -73,6 +73,16 @@ export interface BacktestTrade {
     patternConfluenceScore?: number;
     /** Higher-TF SMA(50) 통과 여부 (price > SMA50 + slope > 0) */
     higherTfBullish?: boolean;
+    /** EMA Ribbon multiplier (3번 trend, 0.30~1.15) */
+    emaRibbonMult?: number;
+    /** MACD Divergence multiplier (1번 momentum, 0.80~1.20) */
+    macdDivergenceMult?: number;
+    /** Order Block multiplier (5번 structure, 0.95~1.05) */
+    orderBlockMult?: number;
+    /** 곱셈 합산 modifier (= emaRibbon × macd × ob) */
+    modifiersProduct?: number;
+    /** signalStrength × modifiersProduct = adjustedConfidence */
+    adjustedConfidence?: number;
     /** 가중 평균 청산 가격 (Tier 1 + Tier 2 weighted) */
     exitPrice: number;
     /** 마지막 청산 시점 ts */

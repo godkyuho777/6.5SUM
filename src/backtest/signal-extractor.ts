@@ -20,6 +20,11 @@ import {
   detectAllCandlePatterns,
 } from "../indicators";
 import { aggregatePatternScore } from "../patterns/aggregator";
+import {
+  computeEmaRibbon,
+  detectMacdDivergence,
+  detectOrderBlock,
+} from "../modifiers";
 import type { BacktestConfig, BacktestTrade, ExitReason, PartialExit } from "./types";
 
 // ─────────────────────────────────────────────────────────
@@ -293,6 +298,22 @@ export function extractSignalsFromCandles(
     const stopLoss = Math.max(indicators.bbLower * 0.97, entryPrice * 0.98);
     const signalStrength = calculateSignalStrength(price, indicators);
 
+    // ── v6.5 Phase 2: Modifier multipliers (헌장 규칙 3) ──
+    // 헌장 규칙 3 준수: 차단 X. 추적만 해서 calibration 데이터로 활용.
+    // 향후 Phase 3 calibration 결과로 곱셈 통합 임계값 자동 도출.
+    let emaRibbonMult = 1.0;
+    let macdDivergenceMult = 1.0;
+    let orderBlockMult = 1.0;
+    try {
+      emaRibbonMult = computeEmaRibbon(windowCandles).multiplier;
+      macdDivergenceMult = detectMacdDivergence(windowCandles).multiplier;
+      orderBlockMult = detectOrderBlock(windowCandles).multiplier;
+    } catch {
+      // graceful — modifier 실패가 백테스트를 깨지 않도록
+    }
+    const modifiersProduct = emaRibbonMult * macdDivergenceMult * orderBlockMult;
+    const adjustedConfidence = signalStrength * modifiersProduct;
+
     // ── Outcome 측정 (candles[i+1..] 만 사용) ─────────────
     const outcome = measureOutcomeTiered(
       candles,
@@ -322,6 +343,11 @@ export function extractSignalsFromCandles(
       minusDi: indicators.minusDi,
       patternConfluenceScore,
       higherTfBullish,
+      emaRibbonMult,
+      macdDivergenceMult,
+      orderBlockMult,
+      modifiersProduct,
+      adjustedConfidence,
       ...outcome,
     };
 

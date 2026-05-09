@@ -21,7 +21,21 @@ export declare function getActiveSignals(): Promise<{
     detectedAt: Date;
     targetHitAt: Date | null;
     closedAt: Date | null;
+    exitCategory: string | null;
+    exitAction: string | null;
+    exitRatio: number | null;
+    exitReversalScore: number | null;
     exitReason: string | null;
+    macroScore: number | null;
+    macroRegime: string | null;
+    macroMult: number | null;
+    onchainScore: number | null;
+    onchainRegime: string | null;
+    onchainMult: number | null;
+    confluenceMult: number | null;
+    waveMult: number | null;
+    finalConfidence: number | null;
+    sizeFactor: string | null;
     createdAt: Date;
 }[]>;
 export declare function getSignalHistory(limit?: number): Promise<{
@@ -41,7 +55,21 @@ export declare function getSignalHistory(limit?: number): Promise<{
     detectedAt: Date;
     targetHitAt: Date | null;
     closedAt: Date | null;
+    exitCategory: string | null;
+    exitAction: string | null;
+    exitRatio: number | null;
+    exitReversalScore: number | null;
     exitReason: string | null;
+    macroScore: number | null;
+    macroRegime: string | null;
+    macroMult: number | null;
+    onchainScore: number | null;
+    onchainRegime: string | null;
+    onchainMult: number | null;
+    confluenceMult: number | null;
+    waveMult: number | null;
+    finalConfidence: number | null;
+    sizeFactor: string | null;
     createdAt: Date;
 }[]>;
 export declare function updateSignalStatus(id: number, status: "active" | "target_hit" | "expired" | "closed", extra?: {
@@ -67,6 +95,11 @@ export declare function getUserPositions(userId: string, status?: "open" | "clos
     openedAt: Date;
     closedAt: Date | null;
     closePrice: number | null;
+    entryBarIndex: number | null;
+    currentStop: number | null;
+    stopMovedToBreakeven: boolean;
+    partialExitsTaken: unknown;
+    tier1PartialExitTaken: boolean;
     createdAt: Date;
     updatedAt: Date;
 }[]>;

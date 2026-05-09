@@ -533,10 +533,12 @@ describe("detectAllCandlePatterns — bullish", () => {
   });
 
   it("detects three white soldiers", () => {
+    // Each candle has body/range ≥ 0.5 per Pattern Audit Part III.1 §5.1
+    // (spec-compliant strict definition replaces the prior loose form).
     const cs: Candle[] = [
-      candle(100, 102, 99, 101, 1000, 0),
-      candle(101, 103, 100, 102, 1000, 1),
-      candle(102, 104, 101.5, 103, 1000, 2),
+      candle(100, 101.5, 99.5, 101, 1000, 0),
+      candle(101, 102.5, 100.5, 102, 1000, 1),
+      candle(102, 103.5, 101.5, 103, 1000, 2),
     ];
     const patterns = detectAllCandlePatterns(cs);
     expect(patterns.find((p) => p.name === "threeWhiteSoldiers")).toBeDefined();
@@ -576,10 +578,12 @@ describe("detectAllCandlePatterns — bearish", () => {
   });
 
   it("detects three black crows", () => {
+    // Each candle has body/range ≥ 0.5 per Pattern Audit Part III.1 §5.1
+    // (spec-compliant strict definition replaces the prior loose form).
     const cs: Candle[] = [
-      candle(103, 104, 101, 102, 1000, 0),
-      candle(102, 103, 100, 101, 1000, 1),
-      candle(101, 102, 99, 100, 1000, 2),
+      candle(103, 103.5, 101.5, 102, 1000, 0),
+      candle(102, 102.5, 100.5, 101, 1000, 1),
+      candle(101, 101.5, 99.5, 100, 1000, 2),
     ];
     const patterns = detectAllCandlePatterns(cs);
     expect(patterns.find((p) => p.name === "threeBlackCrows")).toBeDefined();

@@ -118,7 +118,21 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 detectedAt: Date;
                 targetHitAt: Date | null;
                 closedAt: Date | null;
+                exitCategory: string | null;
+                exitAction: string | null;
+                exitRatio: number | null;
+                exitReversalScore: number | null;
                 exitReason: string | null;
+                macroScore: number | null;
+                macroRegime: string | null;
+                macroMult: number | null;
+                onchainScore: number | null;
+                onchainRegime: string | null;
+                onchainMult: number | null;
+                confluenceMult: number | null;
+                waveMult: number | null;
+                finalConfidence: number | null;
+                sizeFactor: string | null;
                 createdAt: Date;
             }[];
             meta: object;
@@ -179,6 +193,11 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 openedAt: Date;
                 closedAt: Date | null;
                 closePrice: number | null;
+                entryBarIndex: number | null;
+                currentStop: number | null;
+                stopMovedToBreakeven: boolean;
+                partialExitsTaken: unknown;
+                tier1PartialExitTaken: boolean;
                 createdAt: Date;
                 updatedAt: Date;
             }[];
@@ -567,11 +586,11 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
         /** 학습 카드용 — 단일 raw 값을 자연어 라벨로 변환. */
         translate: import("@trpc/server").TRPCQueryProcedure<{
             input: {
-                kind: "rsi" | "adx" | "path" | "strength" | "regime" | "phase" | "bb_position";
+                kind: "regime" | "rsi" | "adx" | "path" | "strength" | "phase" | "bb_position";
                 value: string | number;
             };
             output: {
-                kind: "rsi" | "adx" | "path" | "strength" | "regime" | "phase" | "bb_position";
+                kind: "regime" | "rsi" | "adx" | "path" | "strength" | "phase" | "bb_position";
                 inputValue: string | number;
                 result: import("./lite/types").TranslatedLabel;
             };

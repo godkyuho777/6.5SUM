@@ -173,14 +173,62 @@ export interface EntryDecision {
   vwapMult?: number;
 }
 
-/** 매도(EXIT) 결정 */
+/** v6.3 EXIT 카테고리 (Part II.1 §1.1). */
+export type ExitCategory = "A" | "B" | "C" | "D" | "STOP";
+
+/** v6.3 EXIT 액션. */
+export type ExitAction = "full_exit" | "partial_exit" | "move_stop";
+
+/**
+ * v6.3 EXIT-B 반전 점수 컴포넌트 (debug/UI 표시용).
+ *
+ * v6.5 추가 필드: macroBoost / onchainBoost — 거시·온체인 환경
+ * 가중. 기존 5개 컴포넌트 합 + 두 boost 의 부호 있는 가산.
+ */
+export interface ReversalScoreBreakdown {
+  diCross: number;
+  adxConfirmation: number;
+  bearishPattern: number;
+  trendlineBreak: number;
+  macdDivergence: number;
+  /** v6.5 §5.2 — non-zero when macroRegime ∈ {crisis, tight, flooded}. */
+  macroBoost: number;
+  /** v6.5 §5.2 — non-zero when onchainRegime ∈ {distribution, strong_distribution}; multiplicative damp via strong_accumulation. */
+  onchainBoost: number;
+  total: number;
+}
+
+/**
+ * 매도(EXIT) 결정.
+ *
+ * v6.3 (Part II.1) 4-카테고리 분리:
+ *   A = 목표 도달 (profit target)
+ *   B = 방향성 반전 (reversal score)
+ *   C = 수익 보호 (trailing/breakeven)
+ *   D = 시간 손절 (time stop)
+ *   STOP = 손절선 도달
+ *
+ * Legacy v6.1 4-조건 필드는 FE 호환을 위해 유지하며, v6.3 결과로부터
+ * 도출. 새 코드는 category/action/ratio 를 사용.
+ */
 export interface ExitDecision {
-  /** 4개 조건 중 충족된 개수 */
+  // ── v6.3 primary fields ──
+  category: ExitCategory;
+  action: ExitAction;
+  /** 청산 비율 (1.0 = 전체 / 0.5 = 50% partial / 0 = stop 이동만). */
+  ratio: number;
+  reasons: string[];
+  /** category=B 일 때만 의미 있음. [0, 1] 범위. */
+  reversalScore?: number;
+  reversalBreakdown?: ReversalScoreBreakdown;
+
+  // ── v6.1 legacy compatibility (FE backward compat) ──
+  /** 4개 조건 중 충족된 개수. v6.3 이후엔 reversal-score 의 트리거 카운트로 대체. */
   conditionsMet: number;
   total: 4;
-  /** 약세 패턴 감지로 2/4 완화 적용 여부 */
+  /** 약세 패턴 감지로 2/4 완화 적용 여부 (v6.1 호환). */
   relaxedToBearish: boolean;
-  /** 어떤 조건들이 충족되었는지 */
+  /** 어떤 조건들이 충족되었는지 (v6.1 호환). */
   triggers: ("bbMiddle" | "rsi65" | "adx30" | "plusDi25")[];
 }
 

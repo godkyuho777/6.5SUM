@@ -114,8 +114,19 @@ export declare function calculateBollingerBandsSeries(closes: number[], period?:
     lower: number;
 }[];
 /**
- * 최근 5개 캔들 윈도우 내에서 감지된 모든 패턴을 dedup해서 반환.
+ * 최근 5개 캔들 윈도우 내에서 감지된 모든 패턴을 반환.
  * candlesAgo 0~4 범위의 패턴만 포함.
+ *
+ * Per Pattern Audit (Part III.1 §5.3 / §5.4) defects #3 and #4:
+ *   - look-ahead safe: predicates only read candles[j ≤ currentIdx]
+ *   - no priority dedup; aggregator uses max + bonus instead so
+ *     multi-pattern confluence is preserved.
+ *
+ * Delegates to the modular implementation in `./patterns/`. Strength
+ * values are now produced from `patternBase × volumeMultiplier ×
+ * priorTrendMultiplier × 100`, replacing the previous intuited
+ * `PATTERN_STRENGTH` table (still kept above as a legacy reference for
+ * `detectAtIndex`, which is no longer used).
  */
 export declare function detectAllCandlePatterns(candles: Candle[]): CandlePatternMatch[];
 /**
@@ -138,6 +149,22 @@ export declare function isFallingKnife(plusDi: number, minusDi: number, adx: num
  * Falling Knife일 때는 호출 측에서 미리 차단해야 함.
  */
 export declare function decideEntry(candles: Candle[], ind: TechnicalIndicators, patterns: CandlePatternMatch[], bbStructure: BBStructure | null, _volRatio: number): EntryDecision | null;
+/**
+ * v6.3 EXIT decision (Part II.1).
+ *
+ * Replaces the defective v6.1 4-of-4 rule. Per spec:
+ *   - ADX ≥ 30 standalone trigger → DELETED
+ *   - +DI ≥ 25 standalone trigger → DELETED
+ *   - Reversal is now a 5-component weighted score (DI cross,
+ *     ADX+−DI confirmation, bearish pattern, trendline break,
+ *     MACD divergence).
+ *   - BB middle recovery → 50% partial exit (Tier 1 of EXIT-A).
+ *
+ * Position-state-dependent categories (C protection, D time stop)
+ * require an open position record and are exposed via
+ * decideExitForPosition() in src/exits/index.ts. The scanner uses
+ * this thin wrapper which only runs EXIT-A and EXIT-B.
+ */
 export declare function decideExit(price: number, ind: TechnicalIndicators, bearishPatterns: CandlePatternMatch[]): ExitDecision | null;
 /**
  * BBDX-PATTERN v6.1 시그널 강도. 0~100.

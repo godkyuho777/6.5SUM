@@ -15,6 +15,9 @@ import type {
 } from "@shared/types";
 import type { VolumeProfile } from "./volume-profile";
 
+import { detectPatternsAtIndex } from "./patterns";
+import { decideExitForScanner } from "./exits";
+
 /**
  * RSI (Relative Strength Index) 계산
  * @param closes - 종가 배열
@@ -771,22 +774,25 @@ function detectAtIndex(candles: Candle[], idx: number): CandlePatternMatch[] {
 }
 
 /**
- * 최근 5개 캔들 윈도우 내에서 감지된 모든 패턴을 dedup해서 반환.
+ * 최근 5개 캔들 윈도우 내에서 감지된 모든 패턴을 반환.
  * candlesAgo 0~4 범위의 패턴만 포함.
+ *
+ * Per Pattern Audit (Part III.1 §5.3 / §5.4) defects #3 and #4:
+ *   - look-ahead safe: predicates only read candles[j ≤ currentIdx]
+ *   - no priority dedup; aggregator uses max + bonus instead so
+ *     multi-pattern confluence is preserved.
+ *
+ * Delegates to the modular implementation in `./patterns/`. Strength
+ * values are now produced from `patternBase × volumeMultiplier ×
+ * priorTrendMultiplier × 100`, replacing the previous intuited
+ * `PATTERN_STRENGTH` table (still kept above as a legacy reference for
+ * `detectAtIndex`, which is no longer used).
  */
 export function detectAllCandlePatterns(
   candles: Candle[]
 ): CandlePatternMatch[] {
   if (candles.length < 1) return [];
-  const out: CandlePatternMatch[] = [];
-  const start = Math.max(0, candles.length - 5);
-  for (let i = candles.length - 1; i >= start; i--) {
-    const matches = detectAtIndex(candles, i);
-    for (const m of matches) {
-      out.push(m);
-    }
-  }
-  return out;
+  return detectPatternsAtIndex(candles, candles.length - 1, 5);
 }
 
 // ── BB 구조 패턴 ───────────────────────────────────────────────────────────
@@ -1011,30 +1017,28 @@ const EXIT_RSI_THRESHOLD = 65;
 const EXIT_ADX_THRESHOLD = 30;
 const EXIT_PLUSDI_THRESHOLD = 25;
 
+/**
+ * v6.3 EXIT decision (Part II.1).
+ *
+ * Replaces the defective v6.1 4-of-4 rule. Per spec:
+ *   - ADX ≥ 30 standalone trigger → DELETED
+ *   - +DI ≥ 25 standalone trigger → DELETED
+ *   - Reversal is now a 5-component weighted score (DI cross,
+ *     ADX+−DI confirmation, bearish pattern, trendline break,
+ *     MACD divergence).
+ *   - BB middle recovery → 50% partial exit (Tier 1 of EXIT-A).
+ *
+ * Position-state-dependent categories (C protection, D time stop)
+ * require an open position record and are exposed via
+ * decideExitForPosition() in src/exits/index.ts. The scanner uses
+ * this thin wrapper which only runs EXIT-A and EXIT-B.
+ */
 export function decideExit(
   price: number,
   ind: TechnicalIndicators,
   bearishPatterns: CandlePatternMatch[]
 ): ExitDecision | null {
-  const triggers: ExitDecision["triggers"] = [];
-  if (price >= ind.bbMiddle) triggers.push("bbMiddle");
-  if (ind.rsi >= EXIT_RSI_THRESHOLD) triggers.push("rsi65");
-  if (ind.adx >= EXIT_ADX_THRESHOLD) triggers.push("adx30");
-  if (ind.plusDi >= EXIT_PLUSDI_THRESHOLD) triggers.push("plusDi25");
-
-  const conditionsMet = triggers.length;
-  const hasBearish = bearishPatterns.length > 0;
-  const required = hasBearish ? 2 : 3;
-
-  if (conditionsMet >= required) {
-    return {
-      conditionsMet,
-      total: 4,
-      relaxedToBearish: hasBearish && conditionsMet < 3,
-      triggers,
-    };
-  }
-  return null;
+  return decideExitForScanner({ price, indicators: ind, bearishPatterns });
 }
 
 // ── 시그널 강도 (5-component formula per spec) ────────────────────────────

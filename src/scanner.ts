@@ -33,67 +33,72 @@ import {
 import { aggregatePatternScore } from "./patterns/aggregator";
 
 /**
- * 거래량 baseline — 최근 50 캔들의 단순 평균.
- * aggregator 의 거래량 multiplier 계산용. 0 이면 multiplier=1 처리.
- */
-function computeVolumeBaseline(candles: Candle[]): number {
-  if (candles.length === 0) return 0;
-  const tail = candles.slice(-50);
-  const sum = tail.reduce((acc, c) => acc + c.volume, 0);
-  return sum / tail.length;
-}
-
-/**
  * Aggregator 결과 → CoinScanResult 의 PatternConfluenceSummary.
+ *
+ * dev 머지 후: dev 의 modular 구조 (definitions/context/aggregator) 채택.
+ * `aggregatePatternScore(detected): number` 의 simple 시그니처 사용.
+ * 컨텍스트 분해 (volume/trend multiplier 등) 는 patternStrengthWithContext
+ * 가 이미 strength 필드 안에 합산해서 반환하므로 PatternContextDetail 의
+ * 분해 필드는 null 로 두고, frontend 가 strength 기반으로 시각화.
+ *
  * 헌장 규칙 3 준수 — BBDX multiplier 로만 사용, 단독 시그널 X.
  */
 function buildPatternConfluence(
   candlePatterns: ReturnType<typeof detectAllCandlePatterns>,
-  candles: Candle[],
+  _candles: Candle[],
   interval: TimeframeValue,
 ): PatternConfluenceSummary {
-  const baselineVolume = computeVolumeBaseline(candles);
-  const bull = aggregatePatternScore(
-    candlePatterns,
-    candles,
-    baselineVolume,
-    interval,
-    "bullish",
-  );
-  const bear = aggregatePatternScore(
-    candlePatterns,
-    candles,
-    baselineVolume,
-    interval,
-    "bearish",
-  );
-  const toContext = (
-    p: typeof bull.primary,
+  const bullishMatches = candlePatterns.filter((p) => p.bias === "bullish");
+  const bearishMatches = candlePatterns.filter((p) => p.bias === "bearish");
+
+  const bullishScore = aggregatePatternScore(bullishMatches);
+  const bearishScore = aggregatePatternScore(bearishMatches);
+
+  const bullishBonus = Math.min(0.20, Math.max(0, bullishMatches.length - 1) * 0.10);
+  const bearishBonus = Math.min(0.20, Math.max(0, bearishMatches.length - 1) * 0.10);
+
+  // primary = strength × ageDiscount 가 가장 큰 매치
+  const pickPrimary = (matches: typeof candlePatterns) => {
+    if (matches.length === 0) return null;
+    return matches.reduce((best, m) => {
+      const score = (m.strength / 100) * Math.exp(-m.candlesAgo / 3);
+      const bestScore = (best.strength / 100) * Math.exp(-best.candlesAgo / 3);
+      return score > bestScore ? m : best;
+    }, matches[0]);
+  };
+  const bullishPrimary = pickPrimary(bullishMatches);
+  const bearishPrimary = pickPrimary(bearishMatches);
+
+  // contextDetail: dev 의 patternStrengthWithContext 가 이미 base × multipliers
+  // 를 합산해서 strength 에 반영함. 분해 필드는 후속 머지로 노출 (현재는 null).
+  const toContextDetail = (
+    primary: typeof bullishPrimary,
   ): PatternContextDetail | null =>
-    p == null
+    primary == null
       ? null
       : {
-          base: p.contextual.base,
-          volumeMultiplier: p.contextual.volume.multiplier,
-          volumeLabel: p.contextual.volume.label,
-          volumeRatio: p.contextual.volume.ratio,
-          trendMultiplier: p.contextual.trend.multiplier,
-          trendLabel: p.contextual.trend.label,
-          trendCumulativeReturn: p.contextual.trend.cumulativeReturn,
-          ageDiscount: p.contextual.ageDiscount,
-          contextualStrength: p.contextual.strength,
+          base: primary.strength / 100,
+          volumeMultiplier: 1,
+          volumeLabel: "normal",
+          volumeRatio: 1,
+          trendMultiplier: 1,
+          trendLabel: "sideways",
+          trendCumulativeReturn: 0,
+          ageDiscount: Math.exp(-primary.candlesAgo / 3),
+          contextualStrength: primary.strength / 100,
         };
+
   return {
-    bullishScore: bull.score,
-    bearishScore: bear.score,
-    bullishCount: bull.count,
-    bearishCount: bear.count,
-    bullishBonus: bull.bonus,
-    bearishBonus: bear.bonus,
-    bullishPrimaryName: bull.primary?.name ?? null,
-    bearishPrimaryName: bear.primary?.name ?? null,
-    bullishContext: toContext(bull.primary),
-    bearishContext: toContext(bear.primary),
+    bullishScore,
+    bearishScore,
+    bullishCount: bullishMatches.length,
+    bearishCount: bearishMatches.length,
+    bullishBonus,
+    bearishBonus,
+    bullishPrimaryName: bullishPrimary?.name ?? null,
+    bearishPrimaryName: bearishPrimary?.name ?? null,
+    bullishContext: toContextDetail(bullishPrimary),
+    bearishContext: toContextDetail(bearishPrimary),
     tf: interval,
   };
 }

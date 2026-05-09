@@ -25,12 +25,21 @@ import {
 } from "./db";
 import { getCoinMeta } from "./coin-meta";
 import { computeRollingWinRate } from "./winrate-rolling";
-import { fetchMultiplePrices } from "./bybit";
+import { fetchMultiplePrices, fetchKlines } from "./bybit";
 import { runBacktest } from "./backtest/runner";
 import { fetchOnchainScore } from "./onchain/score-fetch";
 import { applyOnchainToEntry, applyOnchainToExit } from "./onchain/bbdx-integration";
 import { computeWaveTrackerData } from "./sentiment";
 import { getVwapDetail } from "./vwap-detail";
+import {
+  computeEmaRibbon,
+  computeMarketBreadth,
+  detectMacdDivergence,
+  computeFundingExtreme,
+  detectCvdDivergence,
+  detectOrderBlock,
+  combineAdditionalModifiers,
+} from "./modifiers";
 import {
   deriveRecommendation,
   deriveRiskLevel,
@@ -1058,6 +1067,164 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
             error: String(e?.message ?? e),
           };
         }
+      }),
+  }),
+
+  // ─── Additional Strategies modifiers (03_ADDITIONAL_STRATEGIES.md) ─────
+  // 6개 추가 modifier — BBDX 코어의 multiplier 보강 (헌장 규칙 3, modifier-only).
+  // 각 modifier 는 외부 호출 실패 시 multiplier=1.0 graceful neutral 반환 (throw X).
+  modifiers: router({
+    /** EMA Ribbon (3차원: trend) — 정렬 + expansion 기반 multiplier */
+    emaRibbon: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.enum(["1h", "4h", "1d"]).default("4h"),
+        })
+      )
+      .query(async ({ input }) => {
+        const symbol = input.symbol.toUpperCase();
+        try {
+          const candles = await fetchKlines(symbol, input.tf, 250);
+          return computeEmaRibbon(candles);
+        } catch (err: any) {
+          return computeEmaRibbon([]);
+        }
+      }),
+
+    /** Market Breadth (6차원: macro/sentiment) — 96 코인 일괄 RSI 분포 */
+    marketBreadth: publicProcedure
+      .input(
+        z.object({
+          symbols: z.array(z.string()).optional(),
+          tf: z.enum(["1h", "4h", "1d"]).default("4h"),
+        })
+      )
+      .query(async ({ input }) => {
+        // 미지정 시 TOP_COINS 의 상위 30개 (성능 — 96 전체는 너무 무거움)
+        const universe =
+          input.symbols && input.symbols.length > 0
+            ? input.symbols
+            : TOP_COINS.slice(0, 30);
+        return computeMarketBreadth(universe, input.tf);
+      }),
+
+    /** MACD Divergence (1차원: momentum, RSI 와 다른 각도) */
+    macdDivergence: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.enum(["1h", "4h", "1d"]).default("4h"),
+          lookback: z.number().min(20).max(200).default(50),
+        })
+      )
+      .query(async ({ input }) => {
+        const symbol = input.symbol.toUpperCase();
+        try {
+          const candles = await fetchKlines(symbol, input.tf, 200);
+          return detectMacdDivergence(candles, input.lookback);
+        } catch (err: any) {
+          return detectMacdDivergence([]);
+        }
+      }),
+
+    /** Funding Extreme (6차원: macro/perp positioning) */
+    fundingExtreme: publicProcedure
+      .input(z.object({ symbol: z.string() }))
+      .query(async ({ input }) => {
+        return computeFundingExtreme(input.symbol.toUpperCase());
+      }),
+
+    /** Order Block (5차원: structure, 베타) */
+    orderBlock: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.enum(["1h", "4h", "1d"]).default("4h"),
+        })
+      )
+      .query(async ({ input }) => {
+        const symbol = input.symbol.toUpperCase();
+        try {
+          const candles = await fetchKlines(symbol, input.tf, 100);
+          return detectOrderBlock(candles);
+        } catch (err: any) {
+          return detectOrderBlock([]);
+        }
+      }),
+
+    /** CVD Divergence (4차원: volume, 베타 stub) */
+    cvdDivergence: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.enum(["1h", "4h", "1d"]).default("4h"),
+        })
+      )
+      .query(async ({ input }) => {
+        const symbol = input.symbol.toUpperCase();
+        try {
+          const candles = await fetchKlines(symbol, input.tf, 100);
+          return await detectCvdDivergence(symbol, candles);
+        } catch (err: any) {
+          return await detectCvdDivergence(symbol, []);
+        }
+      }),
+
+    /**
+     * 통합 — 모든 modifier 한 번에. 가장 자주 쓰는 endpoint.
+     * Market Breadth 는 30개 universe 호출이라 병렬 하지만 시간이 좀 걸림 (~3s).
+     */
+    all: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.enum(["1h", "4h", "1d"]).default("4h"),
+          /** marketBreadth 를 포함할지 (false 시 빠른 응답 — 단일 코인용) */
+          includeBreadth: z.boolean().default(true),
+        })
+      )
+      .query(async ({ input }) => {
+        const symbol = input.symbol.toUpperCase();
+        // 병렬 호출 — 각 modifier 가 throw 하지 않으므로 Promise.all 안전.
+        const [candles, breadth, funding] = await Promise.all([
+          fetchKlines(symbol, input.tf, 250).catch(() => [] as Awaited<
+            ReturnType<typeof fetchKlines>
+          >),
+          input.includeBreadth
+            ? computeMarketBreadth(TOP_COINS.slice(0, 30), input.tf).catch(
+                () => null
+              )
+            : Promise.resolve(null),
+          computeFundingExtreme(symbol).catch(() => null),
+        ]);
+
+        const ribbon = candles.length ? computeEmaRibbon(candles) : null;
+        const macd = candles.length ? detectMacdDivergence(candles) : null;
+        const orderBlock = candles.length ? detectOrderBlock(candles) : null;
+        const cvdResult = await detectCvdDivergence(symbol, candles);
+
+        const combinedMultiplier = combineAdditionalModifiers({
+          emaRibbonMult: ribbon?.multiplier,
+          marketBreadthMult: breadth?.multiplier,
+          macdDivergenceMult: macd?.multiplier,
+          fundingExtremeMult: funding?.multiplier,
+          cvdDivergenceMult: cvdResult.multiplier,
+          orderBlockMult: orderBlock?.multiplier,
+        });
+
+        return {
+          symbol,
+          tf: input.tf,
+          emaRibbon: ribbon,
+          marketBreadth: breadth,
+          macdDivergence: macd,
+          fundingExtreme: funding,
+          orderBlock,
+          cvdDivergence: cvdResult,
+          combinedMultiplier,
+          computedAt: Date.now(),
+        };
       }),
   }),
 });

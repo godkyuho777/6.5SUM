@@ -31,6 +31,11 @@ import {
   vwapToMultiplier,
 } from "./indicators";
 import { aggregatePatternScore } from "./patterns/aggregator";
+import {
+  computeEmaRibbon,
+  detectMacdDivergence,
+  detectOrderBlock,
+} from "./modifiers";
 
 /**
  * Aggregator 결과 → CoinScanResult 의 PatternConfluenceSummary.
@@ -240,6 +245,33 @@ export async function scanCoin(
     // entryDecision 이 null 이면 multiplier 도 의미 없음 → skip.
     if (entryDecision) {
       entryDecision.vwapMult = vwapToMultiplier(vwapSignal);
+    }
+
+    // 03_ADDITIONAL_STRATEGIES.md — 추가 modifier 통합 (헌장 규칙 3, multiplier-only).
+    // 외부 호출 없이 candles 만으로 산출 가능한 modifier 만 인라인:
+    //   emaRibbon (3rd dim, trend), macdDivergence (1st dim, momentum, rule1Exempt),
+    //   orderBlock (5th dim, structure, rule1Exempt).
+    //
+    // 비용 큰 modifier (marketBreadth = 30 코인 일괄 fetch, fundingExtreme = perp API 호출)
+    // 는 scanner hot path 에서 제외 → routers `modifiers.all` / `modifiers.fundingExtreme`
+    // endpoint 로 별도 호출.
+    //
+    // TODO(v6.5 머지 후): combineAdditionalModifiers() 결과를 final_confidence
+    // 곱셈 체인 (`signals/confidence.ts`) 마지막에 합쳐 통합.
+    if (entryDecision) {
+      try {
+        const ribbon = computeEmaRibbon(candles);
+        const macd = detectMacdDivergence(candles);
+        const ob = detectOrderBlock(candles);
+        entryDecision.emaRibbonMult = ribbon.multiplier;
+        entryDecision.macdDivergenceMult = macd.multiplier;
+        entryDecision.orderBlockMult = ob.multiplier;
+      } catch (err: any) {
+        // graceful — 추가 modifier 실패가 BBDX 시그널을 깨지 않도록.
+        console.warn(
+          `[Scanner] Additional modifiers failed for ${symbol}: ${String(err?.message ?? err)}`
+        );
+      }
     }
 
     const result: CoinScanResult = {

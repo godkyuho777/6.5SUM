@@ -121,6 +121,26 @@ export declare function calibrate(trades: BacktestTrade[], param: CalibrationPar
  */
 export declare const STANDARD_CALIBRATION_PARAMS: CalibrationParam[];
 /**
+ * SHORT-specific calibration params (P1-#3, 2026-05-10).
+ *
+ * Audit `01-BBDX-AUDIT.md` S1 권고: SHORT RSI 비대칭 미러 회복.
+ * SHORT path 의 RSI [62, 75], BB upper proximity, ADX 영역을 측정.
+ *
+ * 사용법:
+ *   const shortTrades = trades.filter((t) => t.side === "short");
+ *   const results = SHORT_CALIBRATION_PARAMS.map((p) => calibrate(shortTrades, p));
+ */
+export declare const SHORT_CALIBRATION_PARAMS: CalibrationParam[];
+/**
+ * Phase 3 SHORT calibration — SHORT trades 만 추출 후 5 파라미터 검증.
+ *
+ * Audit S2 (01-BBDX-AUDIT.md) 의 헌장 R2 위반 시정 — SHORT path 알파 측정.
+ *
+ * @param trades 백테스트 trade 배열 (`side: "short"` 필터 자동 적용)
+ * @returns 5개 CalibrationResult (SHORT 전용)
+ */
+export declare function runShortCalibration(trades: BacktestTrade[]): CalibrationResult[];
+/**
  * Calibration 결과를 markdown 표로 포맷.
  */
 export declare function formatCalibrationReport(results: CalibrationResult[]): string;

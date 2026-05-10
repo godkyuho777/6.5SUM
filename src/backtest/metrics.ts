@@ -156,6 +156,25 @@ export function computeMetricsByTf(
 }
 
 /**
+ * Side(LONG/SHORT) 별 지표 계산 (P1-#3, 2026-05-10).
+ *
+ * Audit `01-BBDX-AUDIT.md` S2 권고 — SHORT path 알파 입증을 위해 LONG 과
+ * 분리 측정. side 미지정 trade 는 "long" 으로 간주 (backward compat).
+ *
+ * @returns { long: metrics, short: metrics } — 한쪽 trade 0건이면 totalTrades=0
+ */
+export function computeMetricsBySide(
+  trades: BacktestTrade[],
+): { long: BacktestMetrics; short: BacktestMetrics } {
+  const longTrades = trades.filter((t) => (t.side ?? "long") === "long");
+  const shortTrades = trades.filter((t) => t.side === "short");
+  return {
+    long: computeMetrics(longTrades),
+    short: computeMetrics(shortTrades),
+  };
+}
+
+/**
  * 표준 편차 export (signal-extractor 등 재사용)
  */
 export { mean, std };

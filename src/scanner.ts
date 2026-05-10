@@ -394,7 +394,12 @@ export async function scanCoin(
       indicators,
       // Legacy boolean fields — derived from the rich decisions for backward
       // compatibility with the current frontend.
-      isEntrySignal: entryDecision != null || !!fibSignal,
+      //
+      // P1-#2 fix (2026-05-10, audit `04-VWAP-AUDIT.md` §3 / `05-FIBONACCI-AUDIT.md`):
+      // `isEntrySignal` 은 BBDX core (`entryDecision`) 에만 의존. Fibonacci
+      // standalone 트리거 제거 (헌장 R3 violation). fibSignal 은 display
+      // 정보로 보존되지만 standalone 진입 시그널로 사용 X.
+      isEntrySignal: entryDecision != null,
       isExitSignal: exitDecision != null,
       signalStrength: finalLongStrength,
       fibSignal,

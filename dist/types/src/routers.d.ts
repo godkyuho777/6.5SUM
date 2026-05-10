@@ -464,7 +464,7 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 cooldownCandles?: number | undefined;
                 saveToDb?: boolean | undefined;
                 runName?: string | undefined;
-                strategy?: "vwap" | "bbdx" | "fibonacci" | "trend" | undefined;
+                strategy?: "vwap" | "bbdx" | "bbdx-short" | "fibonacci" | "trend" | undefined;
             };
             output: {
                 runId: number | undefined;
@@ -496,6 +496,28 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 symbol?: string | undefined;
             };
             output: import("./onchain/types").OnchainScore;
+            meta: object;
+        }>;
+        /**
+         * 7-modifier provider 상태 (P1-#4, 2026-05-10).
+         *
+         * 어떤 modifier 가 real / mock / stub 인지 운영시점 가시화.
+         * 사용자 / 운영자가 BBDX 점수에 실제로 영향 주는 modifier 갯수를 확인 가능.
+         * 헌장 R2 (백테스트 alpha) 결과 해석 시 컨텍스트.
+         */
+        providerStatus: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: {
+                modifiers: import("./onchain").ProviderStatus[];
+                summary: {
+                    total: number;
+                    real: number;
+                    mock: number;
+                    stub: number;
+                    partial: number;
+                    effective: number;
+                };
+            };
             meta: object;
         }>;
         /** BBDX 진입 시그널에 온체인 multiplier 적용 결과 */

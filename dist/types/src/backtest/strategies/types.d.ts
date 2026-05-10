@@ -17,7 +17,9 @@
  */
 import type { Candle, TechnicalIndicators } from "@shared/types";
 /** 전략 식별자 */
-export type StrategyName = "bbdx" | "fibonacci" | "vwap" | "trend";
+export type StrategyName = "bbdx" | "bbdx-short" | "fibonacci" | "vwap" | "trend";
+/** 매매 방향 — outcome 측정 시 가격 방향 기준이 됨. */
+export type StrategySide = "long" | "short";
 /** 진입 조건 평가 결과 */
 export interface EntryEvaluation {
     /** 진입 여부 */
@@ -76,6 +78,14 @@ export interface BacktestStrategy {
     description: string;
     /** 헌장 7차원 중 어느 차원을 측정하는지 */
     dimensionsCovered: Array<1 | 2 | 3 | 4 | 5 | 6 | 7>;
+    /**
+     * 매매 방향 (default: "long").
+     * "long"  → target > entry, stop < entry, profit when price ↑
+     * "short" → target < entry, stop > entry, profit when price ↓
+     *
+     * 미지정 시 "long" 으로 간주 (backward compat).
+     */
+    side?: StrategySide;
     /**
      * 진입 조건 평가.
      * 룩어헤드 안전: candles[0..idx] 만 사용.

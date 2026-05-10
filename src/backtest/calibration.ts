@@ -305,6 +305,79 @@ export const STANDARD_CALIBRATION_PARAMS: CalibrationParam[] = [
   },
 ];
 
+/**
+ * SHORT-specific calibration params (P1-#3, 2026-05-10).
+ *
+ * Audit `01-BBDX-AUDIT.md` S1 권고: SHORT RSI 비대칭 미러 회복.
+ * SHORT path 의 RSI [62, 75], BB upper proximity, ADX 영역을 측정.
+ *
+ * 사용법:
+ *   const shortTrades = trades.filter((t) => t.side === "short");
+ *   const results = SHORT_CALIBRATION_PARAMS.map((p) => calibrate(shortTrades, p));
+ */
+export const SHORT_CALIBRATION_PARAMS: CalibrationParam[] = [
+  {
+    name: "rsi-short",
+    label: "SHORT RSI (현재 62~75 진입 영역)",
+    valueOf: (t) => t.rsi,
+    edges: [55, 60, 62, 65, 70, 75, 85],
+    currentThreshold: 65,
+    direction: "min",
+    dimension: 1,
+  },
+  {
+    name: "adx-short",
+    label: "SHORT ADX (현재 ≤ 25 진입 영역)",
+    valueOf: (t) => t.adx,
+    edges: [0, 10, 15, 20, 25, 30, 40],
+    currentThreshold: 25,
+    direction: "max",
+    dimension: 3,
+  },
+  {
+    name: "patternConfluenceScore-short",
+    label: "SHORT Pattern Confluence (bearish, 현재 0.4 ≥)",
+    valueOf: (t) => t.patternConfluenceScore,
+    edges: [0, 0.2, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0],
+    currentThreshold: 0.4,
+    direction: "min",
+    dimension: 5,
+  },
+  {
+    name: "signalStrength-short",
+    label: "SHORT Signal Strength",
+    valueOf: (t) => t.signalStrength,
+    edges: [0, 30, 50, 70, 85, 100],
+    currentThreshold: 50,
+    direction: "min",
+    dimension: 5,
+  },
+  {
+    name: "modifiersProduct-short",
+    label: "SHORT Modifiers Product (부호 반전된 EMA × MACD × OB)",
+    valueOf: (t) => t.modifiersProduct,
+    edges: [0.50, 0.85, 0.95, 1.0, 1.05, 1.20, 1.45],
+    currentThreshold: 1.0,
+    direction: "min",
+    dimension: 5,
+  },
+];
+
+/**
+ * Phase 3 SHORT calibration — SHORT trades 만 추출 후 5 파라미터 검증.
+ *
+ * Audit S2 (01-BBDX-AUDIT.md) 의 헌장 R2 위반 시정 — SHORT path 알파 측정.
+ *
+ * @param trades 백테스트 trade 배열 (`side: "short"` 필터 자동 적용)
+ * @returns 5개 CalibrationResult (SHORT 전용)
+ */
+export function runShortCalibration(
+  trades: BacktestTrade[],
+): CalibrationResult[] {
+  const shortTrades = trades.filter((t) => t.side === "short");
+  return SHORT_CALIBRATION_PARAMS.map((param) => calibrate(shortTrades, param));
+}
+
 // ─────────────────────────────────────────────────────────
 // Report formatter
 // ─────────────────────────────────────────────────────────

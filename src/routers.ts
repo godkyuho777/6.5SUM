@@ -30,6 +30,10 @@ import { runBacktest } from "./backtest/runner";
 import { listStrategies } from "./backtest/strategies";
 import { fetchOnchainScore } from "./onchain/score-fetch";
 import { applyOnchainToEntry, applyOnchainToExit } from "./onchain/bbdx-integration";
+import {
+  getOnchainProviderStatus,
+  summarizeProviderStatus,
+} from "./onchain/provider-status";
 import { computeWaveTrackerData } from "./sentiment";
 import { analyzeTrend } from "./trend/analyze";
 import { getVwapDetail } from "./vwap-detail";
@@ -432,7 +436,9 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
           cooldownCandles: z.number().min(1).max(50).default(5),
           saveToDb: z.boolean().default(true),
           runName: z.string().max(100).optional(),
-          strategy: z.enum(["bbdx", "fibonacci", "vwap", "trend"]).default("bbdx"),
+          strategy: z
+            .enum(["bbdx", "bbdx-short", "fibonacci", "vwap", "trend"])
+            .default("bbdx"),
         })
       )
       .mutation(async ({ input }) => {
@@ -481,6 +487,20 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
         const symbol = input.symbol.toUpperCase();
         return fetchOnchainScore(symbol);
       }),
+
+    /**
+     * 7-modifier provider 상태 (P1-#4, 2026-05-10).
+     *
+     * 어떤 modifier 가 real / mock / stub 인지 운영시점 가시화.
+     * 사용자 / 운영자가 BBDX 점수에 실제로 영향 주는 modifier 갯수를 확인 가능.
+     * 헌장 R2 (백테스트 alpha) 결과 해석 시 컨텍스트.
+     */
+    providerStatus: publicProcedure.query(() => {
+      return {
+        modifiers: getOnchainProviderStatus(),
+        summary: summarizeProviderStatus(),
+      };
+    }),
 
     /** BBDX 진입 시그널에 온체인 multiplier 적용 결과 */
     applyToEntry: publicProcedure

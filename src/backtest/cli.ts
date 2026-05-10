@@ -17,8 +17,11 @@ import { runBacktest } from "./runner";
 import { saveReport } from "./report-generator";
 import {
   runStandardCalibration,
+  runShortCalibration,
   formatCalibrationReport,
 } from "./calibration";
+import { computeMetricsBySide } from "./metrics";
+import { describeProviderStatusForBacktest } from "../onchain/provider-status";
 import type { BacktestCliArgs } from "./types";
 import { TOP_COINS } from "@shared/types";
 
@@ -26,7 +29,7 @@ import { TOP_COINS } from "@shared/types";
 
 type ExtendedArgs = BacktestCliArgs & {
   calibrate?: boolean;
-  strategy?: "bbdx" | "fibonacci" | "vwap" | "trend";
+  strategy?: "bbdx" | "bbdx-short" | "fibonacci" | "vwap" | "trend";
 };
 
 function parseArgs(argv: string[]): ExtendedArgs {
@@ -112,6 +115,11 @@ async function main() {
 
   console.log(`   Strategy: ${strategy}`);
 
+  // ── P1-#4 (2026-05-10): onchain provider 상태 컨텍스트 출력 ──
+  // 어떤 modifier 가 실제 작동중인지 명시 → Wilson CI 결과 해석 시 baseline
+  // 환경 명확화 (헌장 R2 알파 측정 컨텍스트).
+  console.log(`\n${describeProviderStatusForBacktest()}\n`);
+
   const result = await runBacktest({
     symbols,
     tf,
@@ -126,6 +134,21 @@ async function main() {
 
   // 리포트 저장
   saveReport(result);
+
+  // ── P1-#3 (2026-05-10): SHORT path 알파 split — LONG/SHORT 분리 metric ──
+  // strategy='bbdx-short' 또는 trade 가 side='short' 를 포함하면 자동 split.
+  const sideMetrics = computeMetricsBySide(result.trades);
+  if (sideMetrics.short.totalTrades > 0) {
+    console.log("\n📐 LONG / SHORT split (P1-#3 alpha verification):");
+    const fmt = (m: typeof sideMetrics.long) =>
+      `n=${m.totalTrades} winRate=${(m.winRate * 100).toFixed(1)}% ` +
+      `avgRet=${m.avgReturn.toFixed(2)}% Sharpe=${m.sharpe.toFixed(2)} ` +
+      `MDD=${m.maxDrawdown.toFixed(2)}% PF=${m.profitFactor.toFixed(2)}`;
+    if (sideMetrics.long.totalTrades > 0) {
+      console.log(`   LONG  : ${fmt(sideMetrics.long)}`);
+    }
+    console.log(`   SHORT : ${fmt(sideMetrics.short)}`);
+  }
 
   // ── v6.5 Phase 3: --calibrate 플래그 시 calibration 리포트 추가 ──
   if (args.calibrate) {
@@ -160,6 +183,39 @@ async function main() {
           `  ⚠ ${r.param.name}: 권고 없음 ` +
             `(${r.sampleSufficient ? "통계적 유의성 부재" : "표본 부족"})`,
         );
+      }
+    }
+
+    // ── P1-#3 (2026-05-10): SHORT calibration 추가 (SHORT trade 있을 때만) ──
+    if (sideMetrics.short.totalTrades > 0) {
+      console.log("\n🔻 Running SHORT-specific calibration...");
+      const shortCalib = runShortCalibration(result.trades);
+      const shortMd = formatCalibrationReport(shortCalib);
+      const shortPath = join(
+        process.cwd(),
+        `backtest-reports/calibration_short_${args.runName ?? "run"}_${stamp}.md`,
+      );
+      try {
+        writeFileSync(shortPath, shortMd, "utf-8");
+        console.log(`   SHORT calibration report → ${shortPath}`);
+      } catch (e) {
+        console.warn("   Failed to write SHORT calibration report:", e);
+      }
+      console.log("\n📊 SHORT recommended thresholds:");
+      for (const r of shortCalib) {
+        if (r.recommendedThreshold != null) {
+          const flag = r.significantChange ? "🚨" : "✓";
+          console.log(
+            `  ${flag} ${r.param.name}: current=${r.param.currentThreshold.toFixed(3)} → ` +
+              `recommended=${r.recommendedThreshold.toFixed(3)} ` +
+              `(expected winRate ≥ ${((r.expectedWinRate ?? 0) * 100).toFixed(1)}%)`,
+          );
+        } else {
+          console.log(
+            `  ⚠ ${r.param.name}: 권고 없음 ` +
+              `(${r.sampleSufficient ? "통계적 유의성 부재" : "표본 부족"})`,
+          );
+        }
       }
     }
   }

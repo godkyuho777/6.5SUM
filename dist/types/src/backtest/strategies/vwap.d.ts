@@ -1,7 +1,22 @@
 /**
  * VWAP Strategy (Parker Brooks Style) — Signal Tracker / VWAP 페이지.
  *
- * 진입 게이트:
+ * ╔══════════════════════════════════════════════════════════════════════╗
+ * ║ ⚠ 헌장 R3 (No Standalone Signal) 통제 — P1-#2 fix, 2026-05-10        ║
+ * ║                                                                      ║
+ * ║ 본 strategy 는 **backtest 알파 baseline 측정 전용**.                  ║
+ * ║ live signal scanner (`scanner.ts`) 는 VWAP 를 BBDX 의 *multiplier*    ║
+ * ║ 로만 사용 (`vwapToMultiplier(decideVwapSignal(...))`). standalone     ║
+ * ║ 진입 발행 X.                                                          ║
+ * ║                                                                      ║
+ * ║ 사용 정책:                                                           ║
+ * ║   ✅ backtest CLI (`pnpm backtest --strategy vwap`) — 비교 baseline   ║
+ * ║   ❌ real-time signal 발행 — BBDX 의 multiplier 로만 작동             ║
+ * ║                                                                      ║
+ * ║ Audit: `docs/2026-05-10-SCANNER-AUDIT/04-VWAP-AUDIT.md` §3 (R3 risk)│
+ * ╚══════════════════════════════════════════════════════════════════════╝
+ *
+ * 진입 게이트 (backtest 한정):
  *   1. price > VWAP (VWAP 위에서 매수만)
  *   2. price > EMA(9) (단기 모멘텀 확인)
  *   3. Pullback detected (VWAP/EMA9 터치 후 반등)

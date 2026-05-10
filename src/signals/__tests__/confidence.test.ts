@@ -203,7 +203,7 @@ describe("computeFinalConfidence — additional multiplier (P1-#1)", () => {
   test("additional 미지정 시 1.0 fallback (backward compat)", () => {
     const macro = computeMacroScore({});
     const onchain = computeOnchainScore("BTCUSDT", {});
-    const wave = classifyWaveAlignment([tfTrendFixture("4h", "STRONG_UP")]);
+    const wave = classifyWaveAlignment([tfTrendFixture("4h", "BULLISH")]);
 
     const r = computeFinalConfidence({
       path: "BB:Riding",
@@ -218,7 +218,7 @@ describe("computeFinalConfidence — additional multiplier (P1-#1)", () => {
   test("additional=1.30 → finalConfidence ↑", () => {
     const macro = computeMacroScore({});
     const onchain = computeOnchainScore("BTCUSDT", {});
-    const wave = classifyWaveAlignment([tfTrendFixture("4h", "STRONG_UP")]);
+    const wave = classifyWaveAlignment([tfTrendFixture("4h", "BULLISH")]);
 
     const baseDecision = computeFinalConfidence({
       path: "BB:Riding",
@@ -244,7 +244,7 @@ describe("computeFinalConfidence — additional multiplier (P1-#1)", () => {
   test("additional=0.70 → finalConfidence ↓", () => {
     const macro = computeMacroScore({});
     const onchain = computeOnchainScore("BTCUSDT", {});
-    const wave = classifyWaveAlignment([tfTrendFixture("4h", "STRONG_UP")]);
+    const wave = classifyWaveAlignment([tfTrendFixture("4h", "BULLISH")]);
 
     const baseDecision = computeFinalConfidence({
       path: "BB:Riding",
@@ -269,7 +269,7 @@ describe("computeFinalConfidence — additional multiplier (P1-#1)", () => {
   test("additional 비유효 값(NaN/undefined) → 1.0 fallback", () => {
     const macro = computeMacroScore({});
     const onchain = computeOnchainScore("BTCUSDT", {});
-    const wave = classifyWaveAlignment([tfTrendFixture("4h", "STRONG_UP")]);
+    const wave = classifyWaveAlignment([tfTrendFixture("4h", "BULLISH")]);
 
     const r = computeFinalConfidence({
       path: "BB:Riding",
@@ -285,7 +285,7 @@ describe("computeFinalConfidence — additional multiplier (P1-#1)", () => {
   test("formula 일치: base × confluence × wave × macro × onchain × additional", () => {
     const macro = computeMacroScore({});
     const onchain = computeOnchainScore("BTCUSDT", {});
-    const wave = classifyWaveAlignment([tfTrendFixture("4h", "STRONG_UP")]);
+    const wave = classifyWaveAlignment([tfTrendFixture("4h", "BULLISH")]);
 
     const r = computeFinalConfidence({
       path: "BB:Riding",

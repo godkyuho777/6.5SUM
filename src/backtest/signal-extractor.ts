@@ -41,18 +41,17 @@ interface OutcomeResult {
  * 시그널 발생 이후 candles[signalIdx+1 .. signalIdx+window] 에서
  * Tier 1/2 부분 청산 + Stop 도달 여부를 측정.
  *
+ * **Side-aware (P1-#3, 2026-05-10)**:
+ *   - "long"  → profit when price ↑. target > entry, stop < entry.
+ *               Tier hit: c.high ≥ target. Stop hit: c.low ≤ stop.
+ *   - "short" → profit when price ↓. target < entry, stop > entry.
+ *               Tier hit: c.low ≤ target. Stop hit: c.high ≥ stop.
+ *               returnPct = (entry - exit) / entry × 100  (부호 반전)
+ *
  * 청산 우선순위 (한 캔들 내):
  *   1. Stop 도달 → 잔여 포지션 전부 손절
- *   2. Tier 2 도달 (bbUpper or +5%) → 잔여 포지션 전부 청산
- *   3. Tier 1 도달 (bbMiddle) → 50% 부분 청산 (잔여 50% 는 Tier 2 / Stop / 만료 대기)
- *
- * @param candles      전체 캔들 배열
- * @param signalIdx    시그널 발생 인덱스
- * @param entryPrice   진입 가격
- * @param target1      Tier 1 = bbMiddle
- * @param target2      Tier 2 = bbUpper 또는 entry × 1.05 중 작은 쪽
- * @param stopLoss     손절가 = max(bbLower × 0.97, entry × 0.98)
- * @param window       최대 측정 캔들 수
+ *   2. Tier 2 도달 → 잔여 포지션 전부 청산
+ *   3. Tier 1 도달 → 50% 부분 청산
  */
 function measureOutcomeTiered(
   candles: Candle[],
@@ -62,6 +61,7 @@ function measureOutcomeTiered(
   target2: number,
   stopLoss: number,
   window: number,
+  side: "long" | "short" = "long",
 ): OutcomeResult {
   const endIdx = Math.min(signalIdx + window, candles.length - 1);
   let maxHigh = entryPrice;
@@ -71,12 +71,24 @@ function measureOutcomeTiered(
   const partialExits: PartialExit[] = [];
   let tier1Hit = false;
   let remaining = 1.0;
-  let tier1ReturnPct = 0;
   let lastCandleIdx = endIdx;
 
   // 가중 청산 가격/수익률 누적
   let weightedExitPrice = 0;
   let weightedReturnPct = 0;
+
+  // ── side-aware helpers ─────────────────────────────────────────────────
+  // returnPct: long 은 (exit - entry) / entry × 100, short 은 (entry - exit)
+  const calcReturn = (exit: number) =>
+    ((side === "long" ? exit - entryPrice : entryPrice - exit) / entryPrice) * 100;
+  // tier hit: long 은 c.high ≥ target (price 상승), short 은 c.low ≤ target (price 하락)
+  const tierHit = (c: Candle, target: number) =>
+    side === "long" ? c.high >= target : c.low <= target;
+  // stop hit: long 은 c.low ≤ stop (price 하락 too far), short 은 c.high ≥ stop (price 상승)
+  const stopHit = (c: Candle, stop: number) =>
+    side === "long" ? c.low <= stop : c.high >= stop;
+  // maxFavorable: long 은 (maxHigh - entry), short 은 (entry - minLow). 보유 중 가장 좋은 시점.
+  // maxAdverse: long 은 (entry - minLow), short 은 (maxHigh - entry). 보유 중 가장 나쁜 시점.
 
   for (let i = signalIdx + 1; i <= endIdx; i++) {
     const c = candles[i];
@@ -84,9 +96,9 @@ function measureOutcomeTiered(
     if (c.high > maxHigh) maxHigh = c.high;
     if (c.low < minLow) minLow = c.low;
 
-    // 1. Stop 우선 (캔들 저가 기준)
-    if (c.low <= stopLoss) {
-      const stopReturn = ((stopLoss - entryPrice) / entryPrice) * 100;
+    // 1. Stop 우선
+    if (stopHit(c, stopLoss)) {
+      const stopReturn = calcReturn(stopLoss);
       // 잔여 포지션 (remaining) 전부 손절
       weightedExitPrice += stopLoss * remaining;
       weightedReturnPct += stopReturn * remaining;
@@ -105,17 +117,23 @@ function measureOutcomeTiered(
         exitTs: c.openTime,
         exitReason: tier1Hit ? "tier1_then_stop" : "stop_loss",
         returnPct: finalReturn,
-        maxFavorable: ((maxHigh - entryPrice) / entryPrice) * 100,
-        maxAdverse: ((entryPrice - minLow) / entryPrice) * 100,
+        maxFavorable:
+          side === "long"
+            ? ((maxHigh - entryPrice) / entryPrice) * 100
+            : ((entryPrice - minLow) / entryPrice) * 100,
+        maxAdverse:
+          side === "long"
+            ? ((entryPrice - minLow) / entryPrice) * 100
+            : ((maxHigh - entryPrice) / entryPrice) * 100,
         win: finalReturn > 0,
         holdingCandles: lastCandleIdx - signalIdx,
         partialExits,
       };
     }
 
-    // 2. Tier 2 도달 (bbUpper 또는 entry × 1.05 중 작은 값)
-    if (c.high >= target2) {
-      const tier2Return = ((target2 - entryPrice) / entryPrice) * 100;
+    // 2. Tier 2 도달
+    if (tierHit(c, target2)) {
+      const tier2Return = calcReturn(target2);
       weightedExitPrice += target2 * remaining;
       weightedReturnPct += tier2Return * remaining;
       partialExits.push({
@@ -132,19 +150,25 @@ function measureOutcomeTiered(
         exitTs: c.openTime,
         exitReason: tier1Hit ? "tier2_full" : "target_hit",
         returnPct: weightedReturnPct,
-        maxFavorable: ((maxHigh - entryPrice) / entryPrice) * 100,
-        maxAdverse: ((entryPrice - minLow) / entryPrice) * 100,
+        maxFavorable:
+          side === "long"
+            ? ((maxHigh - entryPrice) / entryPrice) * 100
+            : ((entryPrice - minLow) / entryPrice) * 100,
+        maxAdverse:
+          side === "long"
+            ? ((entryPrice - minLow) / entryPrice) * 100
+            : ((maxHigh - entryPrice) / entryPrice) * 100,
         win: weightedReturnPct > 0,
         holdingCandles: lastCandleIdx - signalIdx,
         partialExits,
       };
     }
 
-    // 3. Tier 1 도달 (bbMiddle) — 첫 도달 시 50% 부분 청산
-    if (!tier1Hit && c.high >= target1) {
+    // 3. Tier 1 도달 — 첫 도달 시 50% 부분 청산
+    if (!tier1Hit && tierHit(c, target1)) {
       tier1Hit = true;
       const tier1Ratio = 0.5;
-      tier1ReturnPct = ((target1 - entryPrice) / entryPrice) * 100;
+      const tier1ReturnPct = calcReturn(target1);
       weightedExitPrice += target1 * tier1Ratio;
       weightedReturnPct += tier1ReturnPct * tier1Ratio;
       remaining -= tier1Ratio;
@@ -161,7 +185,7 @@ function measureOutcomeTiered(
 
   // 윈도우 만료 — 잔여 포지션 마지막 close 로 청산
   const lastCandle = candles[endIdx];
-  const expireReturn = ((lastCandle.close - entryPrice) / entryPrice) * 100;
+  const expireReturn = calcReturn(lastCandle.close);
   weightedExitPrice += lastCandle.close * remaining;
   weightedReturnPct += expireReturn * remaining;
   partialExits.push({
@@ -177,8 +201,14 @@ function measureOutcomeTiered(
     exitTs: lastCandle.openTime,
     exitReason: tier1Hit ? "tier1_then_window" : "window_expired",
     returnPct: weightedReturnPct,
-    maxFavorable: ((maxHigh - entryPrice) / entryPrice) * 100,
-    maxAdverse: ((entryPrice - minLow) / entryPrice) * 100,
+    maxFavorable:
+      side === "long"
+        ? ((maxHigh - entryPrice) / entryPrice) * 100
+        : ((entryPrice - minLow) / entryPrice) * 100,
+    maxAdverse:
+      side === "long"
+        ? ((entryPrice - minLow) / entryPrice) * 100
+        : ((maxHigh - entryPrice) / entryPrice) * 100,
     win: weightedReturnPct > 0,
     holdingCandles: endIdx - signalIdx,
     partialExits,
@@ -210,6 +240,7 @@ export function extractSignalsFromCandles(
   const { tf, minWarmupCandles, outcomeWindowCandles, cooldownCandles } = config;
   const strategyName = config.strategy ?? "bbdx";
   const strategy = getStrategy(strategyName);
+  const side = strategy.side ?? "long";
 
   const trades: BacktestTrade[] = [];
   const maxSignalIdx = candles.length - outcomeWindowCandles - 1;
@@ -254,6 +285,7 @@ export function extractSignalsFromCandles(
       params.target2,
       params.stopLoss,
       outcomeWindowCandles,
+      side,
     );
 
     // 메타 추출 (각 전략별 다른 필드)
@@ -264,6 +296,7 @@ export function extractSignalsFromCandles(
       symbol,
       tf,
       strategy: strategyName,
+      side,
       entryReasons: evaluation.reasons,
       strategyMeta: meta as Record<string, unknown>,
       entryPrice: price,

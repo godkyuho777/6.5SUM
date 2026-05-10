@@ -5,12 +5,14 @@
  * signal-extractor 에서 `getStrategy(name)` 으로 lookup.
  */
 import "./bbdx";
+import "./bbdx-short";
 import "./fibonacci";
 import "./vwap";
 import "./trend";
 export { STRATEGY_REGISTRY, getStrategy, registerStrategy, } from "./types";
 export type { BacktestStrategy, StrategyName, EntryEvaluation, EntryParams, } from "./types";
 export { bbdxStrategy } from "./bbdx";
+export { bbdxShortStrategy } from "./bbdx-short";
 export { fibonacciStrategy } from "./fibonacci";
 export { vwapStrategy } from "./vwap";
 export { trendStrategy } from "./trend";

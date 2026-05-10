@@ -78,7 +78,16 @@ export interface OnchainAdjustedEntry {
 export const MODIFIER_BOUNDS = {
   min: -0.25,
   max: +0.20,
-  /** 7개 합산 후 정규화 분모 (절대값 기준 ~1.4 범위 → -1.0 ~ +1.0). */
+  /**
+   * 7개 합산 후 정규화 분모 (절대값 기준 ~1.4 범위 → -1.0 ~ +1.0).
+   *
+   * ⚠ P1-#4 audit (2026-05-10) — `score.ts:NORMALIZATION_DENOMINATOR=1.35`
+   * 와 다른 값 (`score-fetch.ts` UI fetch 경로용). spec
+   * `BBDX_v6.5_FULL_DIMENSION.md:237` 은 1.35 명시 — `score.ts` 가 spec
+   * 우선. 본 1.40 은 `score-fetch.ts` (외부 API fetch + UI 메타) 경로의
+   * raw modifier max abs 합 (1.40) 정확값. 두 경로가 *동일 score* 산출
+   * 하도록 후속 spec 명확화 권고 (P2 작업, audit `02-ONCHAIN-AUDIT.md` §1).
+   */
   normalizationDenom: 1.4,
 } as const;
 

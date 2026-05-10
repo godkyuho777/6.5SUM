@@ -7,6 +7,7 @@
 
 // 등록 부수효과 (side-effect import — 모듈 로드 시 registerStrategy 실행)
 import "./bbdx";
+import "./bbdx-short";
 import "./fibonacci";
 import "./vwap";
 import "./trend";
@@ -24,6 +25,7 @@ export type {
 } from "./types";
 
 export { bbdxStrategy } from "./bbdx";
+export { bbdxShortStrategy } from "./bbdx-short";
 export { fibonacciStrategy } from "./fibonacci";
 export { vwapStrategy } from "./vwap";
 export { trendStrategy } from "./trend";

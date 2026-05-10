@@ -28,7 +28,23 @@ export interface OnchainInputs {
     lthSupplyThirtyDayChange?: number;
 }
 export type OnchainRegime = "strong_accumulation" | "accumulation" | "neutral" | "distribution" | "strong_distribution";
-/** v6.5 §3.1.2 multiplier table. Tagged "beta — calibration pending". */
+/**
+ * v6.5 §3.1.2 multiplier table — spec source of truth.
+ *
+ * `BBDX_v6.5_FULL_DIMENSION.md` 의 명시 표. `OnchainScoreResult.mult` 는
+ * regime → 표 lookup 으로 산출.
+ *
+ * 주: `bbdx-integration.ts:applyOnchainToEntry` 의 `1 + score × 0.30` 공식과
+ * *수치적으로 다름* (e.g. score=0.4 면 표=1.15, 공식=1.12). 두 값은 *서로
+ * 다른 곱셈 경로* 에 사용:
+ *   - 표 (이 항목): `OnchainScoreResult.mult` → `signals/confidence.ts` 의
+ *     `final_confidence = base × ... × onchain × ...` 곱셈 체인.
+ *   - 공식: `applyOnchainToEntry(signal, onchain)` → entry-time 별도 보정
+ *     (`scanner.ts` 등에서 호출).
+ *
+ * Audit `02-ONCHAIN-AUDIT.md` §1 의 "두 파이프라인 통합" 권고는 *spec 의
+ * 의도된 분리* 일 가능성 — 후속 spec 명확화까지 두 경로 보존 (P2).
+ */
 export declare const ONCHAIN_MULTIPLIERS: Readonly<Record<OnchainRegime, number>>;
 export interface OnchainBreakdown {
     netflow: number;

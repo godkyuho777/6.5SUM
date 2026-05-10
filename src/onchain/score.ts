@@ -46,7 +46,23 @@ export type OnchainRegime =
   | "distribution"
   | "strong_distribution";
 
-/** v6.5 §3.1.2 multiplier table. Tagged "beta — calibration pending". */
+/**
+ * v6.5 §3.1.2 multiplier table — spec source of truth.
+ *
+ * `BBDX_v6.5_FULL_DIMENSION.md` 의 명시 표. `OnchainScoreResult.mult` 는
+ * regime → 표 lookup 으로 산출.
+ *
+ * 주: `bbdx-integration.ts:applyOnchainToEntry` 의 `1 + score × 0.30` 공식과
+ * *수치적으로 다름* (e.g. score=0.4 면 표=1.15, 공식=1.12). 두 값은 *서로
+ * 다른 곱셈 경로* 에 사용:
+ *   - 표 (이 항목): `OnchainScoreResult.mult` → `signals/confidence.ts` 의
+ *     `final_confidence = base × ... × onchain × ...` 곱셈 체인.
+ *   - 공식: `applyOnchainToEntry(signal, onchain)` → entry-time 별도 보정
+ *     (`scanner.ts` 등에서 호출).
+ *
+ * Audit `02-ONCHAIN-AUDIT.md` §1 의 "두 파이프라인 통합" 권고는 *spec 의
+ * 의도된 분리* 일 가능성 — 후속 spec 명확화까지 두 경로 보존 (P2).
+ */
 export const ONCHAIN_MULTIPLIERS: Readonly<Record<OnchainRegime, number>> = {
   strong_accumulation: 1.3,
   accumulation: 1.15,
@@ -78,7 +94,21 @@ export interface OnchainScoreResult {
   enabledModifiers: readonly ModifierName[];
 }
 
-/** v6.5 §3.1.1 normalization denominator — accommodates the maximum possible sum of all 7. */
+/**
+ * v6.5 §3.1.1 normalization denominator — spec source of truth.
+ *
+ * `BBDX_v6.5_FULL_DIMENSION.md:237` 명시:
+ *   `normalized = clamp(total / 1.35, -1.0, +1.0)`
+ *
+ * Spec 은 *의도적으로* 1.40 대신 1.35 를 사용 — modifier 가 동시에 max abs
+ * 도달은 사실상 불가능 (양/음 modifier 가 상쇄), 1.35 로 살짝 좁혀서 0.6/0.2
+ * boundary 가 더 빠르게 도달.
+ *
+ * P1-#4 audit 검토 (2026-05-10): audit `02-ONCHAIN-AUDIT.md` §1.4 가 1.40
+ * 권고했으나 spec 우선. `score-fetch.ts` 의 `MODIFIER_BOUNDS.normalizationDenom
+ * = 1.40` 가 spec 과 다른 값 — 후속 spec 명확화까지 1.35 유지 (P2 정합성
+ * 작업).
+ */
 const NORMALIZATION_DENOMINATOR = 1.35;
 
 /** v6.5 §3.1.2 regime boundaries. */

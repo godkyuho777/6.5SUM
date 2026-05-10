@@ -30,3 +30,12 @@ export {
 } from "./score";
 
 export { fetchOnchainScore, classifyRegime } from "./score-fetch";
+
+// P1-#4 (2026-05-10): provider 상태 가시화
+export {
+  getOnchainProviderStatus,
+  summarizeProviderStatus,
+  describeProviderStatusForBacktest,
+  type ProviderMode,
+  type ProviderStatus,
+} from "./provider-status";

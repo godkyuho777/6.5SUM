@@ -178,7 +178,10 @@ export declare function detectBBStructureShort(candles: Candle[], bbSeries: {
  *   PTN path — bearish 패턴 + 가격 ≥ BB상단×0.95 + ADX < 25
  *   NUM path — RSI 62~75 + 가격 ≥ BB상단×0.98 + ADX < 20
  *
- * Rising Knife (강한 상승 추세) 시 호출 측에서 미리 차단해야 함 (lowerRiding 외).
+ * **자본 보호 (P1-#3 audit S3, 2026-05-10)**:
+ *   `isRisingKnife` (= +DI > -DI && ADX > 25) 환경에서 *추세 추종 SHORT*
+ *   (lowerRiding) 외 모든 SHORT path 를 차단. LONG 의 isFallingKnife
+ *   + upperRiding 예외와 미러.
  *
  * 헌장 규칙 3 준수: SHORT 도 BBDX 차원 안. 단독 시그널 X.
  * decideEntry 와 동일한 우선순위 (BB > PTN > NUM).

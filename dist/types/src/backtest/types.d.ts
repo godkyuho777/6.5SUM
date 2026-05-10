@@ -10,7 +10,9 @@ import type { TimeframeValue } from "@shared/types";
 /**
  * 전략 식별자 — `src/backtest/strategies/` 의 등록된 BacktestStrategy.name 와 일치.
  */
-export type BacktestStrategyName = "bbdx" | "fibonacci" | "vwap" | "trend";
+export type BacktestStrategyName = "bbdx" | "bbdx-short" | "fibonacci" | "vwap" | "trend";
+/** 매매 방향 (BacktestTrade 에 직렬화). */
+export type BacktestSide = "long" | "short";
 export interface BacktestConfig {
     /** 백테스팅할 심볼 목록 */
     symbols: string[];
@@ -64,6 +66,11 @@ export interface BacktestTrade {
     tf: TimeframeValue;
     /** 어떤 전략으로 시그널이 발생했는지 (per-strategy 통계 분리용) */
     strategy?: BacktestStrategyName;
+    /**
+     * 매매 방향 (P1-#3, 2026-05-10).
+     * 기본 "long" — backward compat.
+     */
+    side?: BacktestSide;
     /** 진입 충족 사유 (strategy.shouldEnter 의 reasons) */
     entryReasons?: string[];
     /** 전략별 메타 (Fib level, VWAP position, Trend confidence 등) */

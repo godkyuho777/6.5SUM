@@ -197,3 +197,106 @@ describe("computeFinalConfidence — size factor", () => {
     expect(r.sizeFactor).toBe("reject");
   });
 });
+
+// ── P1-#1 (2026-05-10): `additional` multiplier wiring 검증 ──────────────────
+describe("computeFinalConfidence — additional multiplier (P1-#1)", () => {
+  test("additional 미지정 시 1.0 fallback (backward compat)", () => {
+    const macro = computeMacroScore({});
+    const onchain = computeOnchainScore("BTCUSDT", {});
+    const wave = classifyWaveAlignment([tfTrendFixture("4h", "STRONG_UP")]);
+
+    const r = computeFinalConfidence({
+      path: "BB:Riding",
+      baseStrength: 60,
+      macro,
+      onchain,
+      wave,
+    });
+    expect(r.breakdown.additional).toBe(1.0);
+  });
+
+  test("additional=1.30 → finalConfidence ↑", () => {
+    const macro = computeMacroScore({});
+    const onchain = computeOnchainScore("BTCUSDT", {});
+    const wave = classifyWaveAlignment([tfTrendFixture("4h", "STRONG_UP")]);
+
+    const baseDecision = computeFinalConfidence({
+      path: "BB:Riding",
+      baseStrength: 60,
+      macro,
+      onchain,
+      wave,
+    });
+    const boostedDecision = computeFinalConfidence({
+      path: "BB:Riding",
+      baseStrength: 60,
+      macro,
+      onchain,
+      wave,
+      additional: 1.30,
+    });
+    expect(boostedDecision.finalConfidence).toBeGreaterThan(
+      baseDecision.finalConfidence
+    );
+    expect(boostedDecision.breakdown.additional).toBe(1.30);
+  });
+
+  test("additional=0.70 → finalConfidence ↓", () => {
+    const macro = computeMacroScore({});
+    const onchain = computeOnchainScore("BTCUSDT", {});
+    const wave = classifyWaveAlignment([tfTrendFixture("4h", "STRONG_UP")]);
+
+    const baseDecision = computeFinalConfidence({
+      path: "BB:Riding",
+      baseStrength: 60,
+      macro,
+      onchain,
+      wave,
+    });
+    const dampedDecision = computeFinalConfidence({
+      path: "BB:Riding",
+      baseStrength: 60,
+      macro,
+      onchain,
+      wave,
+      additional: 0.70,
+    });
+    expect(dampedDecision.finalConfidence).toBeLessThan(
+      baseDecision.finalConfidence
+    );
+  });
+
+  test("additional 비유효 값(NaN/undefined) → 1.0 fallback", () => {
+    const macro = computeMacroScore({});
+    const onchain = computeOnchainScore("BTCUSDT", {});
+    const wave = classifyWaveAlignment([tfTrendFixture("4h", "STRONG_UP")]);
+
+    const r = computeFinalConfidence({
+      path: "BB:Riding",
+      baseStrength: 60,
+      macro,
+      onchain,
+      wave,
+      additional: NaN,
+    });
+    expect(r.breakdown.additional).toBe(1.0);
+  });
+
+  test("formula 일치: base × confluence × wave × macro × onchain × additional", () => {
+    const macro = computeMacroScore({});
+    const onchain = computeOnchainScore("BTCUSDT", {});
+    const wave = classifyWaveAlignment([tfTrendFixture("4h", "STRONG_UP")]);
+
+    const r = computeFinalConfidence({
+      path: "BB:Riding",
+      baseStrength: 60,
+      macro,
+      onchain,
+      wave,
+      additional: 1.20,
+    });
+    const { base, confluence, wave: w, macro: m, onchain: o, additional, raw } =
+      r.breakdown;
+    expect(raw).toBeCloseTo(base * confluence * w * m * o * additional, 5);
+  });
+});

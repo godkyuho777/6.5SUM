@@ -171,6 +171,8 @@ export interface ShortEntryDecision {
     fundingExtremeMult?: number;
     cvdDivergenceMult?: number;
     orderBlockMult?: number;
+    /** Multi-TF Trend wave alignment multiplier (LONG 과 동일 의미, SHORT 부호 반전) */
+    waveMult?: number;
 }
 /** v6.3 EXIT 카테고리 (Part II.1 §1.1). */
 export type ExitCategory = "A" | "B" | "C" | "D" | "STOP";

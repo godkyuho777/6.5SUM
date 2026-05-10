@@ -2,7 +2,11 @@
  * v6.5 confidence pipeline orchestrator — v6.5 §1.1, §4.1.
  *
  * Computes:
- *   final_confidence = base × confluence × wave × macro × onchain ÷ 100
+ *   final_confidence = base × confluence × wave × macro × onchain × additional ÷ 100
+ *
+ *   ↑ `additional` = combineAdditionalModifiers(EntryDecision *Mult fields)
+ *     = emaRibbon × macd × orderBlock × funding × breadth × cvd
+ *     (P1-#1 fix, 2026-05-10 — Audit `00-INDEX.md` 권고)
  *
  * Clamped to `[0, 100]`. Combined with the regime gates (run before
  * BBDX trigger) and the runtime 7-dimension assertion to produce the
@@ -42,6 +46,19 @@ export interface ConfidenceInputs {
   /** Optional regime-gate overrides (see `regime-gates.ts`). */
   tightAllowList?: readonly string[];
   strongDistAllowList?: readonly string[];
+  /**
+   * Additional Strategies multiplier (P1-#1 fix, 2026-05-10).
+   *
+   * Combined product of EMA Ribbon × MACD Divergence × Order Block ×
+   * Funding Extreme × Market Breadth × CVD Divergence multipliers.
+   *
+   * Pass the `combineAdditionalModifiers(decision)` result. If omitted,
+   * defaults to `1.0` (no effect — backward compat).
+   *
+   * 헌장 규칙 3 준수: modifier 단독 시그널 X. base BBDX path trigger 후
+   * 가중치로만 사용.
+   */
+  additional?: number;
 }
 
 export interface ConfidenceBreakdown {
@@ -50,6 +67,8 @@ export interface ConfidenceBreakdown {
   wave: number;
   macro: number;
   onchain: number;
+  /** Additional Strategies (combineAdditionalModifiers) — defaults 1.0. */
+  additional: number;
   /** Multiplied product before clamp, useful for telemetry. */
   raw: number;
 }
@@ -101,13 +120,18 @@ export function computeFinalConfidence(
   const macroBase = inputs.macro.mult;
   const macro = applyKoreaModifier(macroBase, inputs.koreaModifier ?? 0);
   const onchain = inputs.onchain.mult;
+  const additional =
+    inputs.additional != null && Number.isFinite(inputs.additional)
+      ? inputs.additional
+      : 1.0;
   const base = inputs.baseStrength;
 
-  // 3. Formula: `base × confluence × wave × macro × onchain`,
+  // 3. Formula: `base × confluence × wave × macro × onchain × additional`,
   //    clamped to [0, 100]. The spec writes "÷ 100" because base is
   //    already on a 0–100 scale and the multipliers are unitless,
   //    so the product is already on the right scale.
-  const raw = base * confluence * wave * macro * onchain;
+  //    `additional` = combineAdditionalModifiers(EntryDecision) — P1-#1.
+  const raw = base * confluence * wave * macro * onchain * additional;
   const finalConfidence = clamp(raw, 0, 100);
 
   const breakdown: ConfidenceBreakdown = {
@@ -116,6 +140,7 @@ export function computeFinalConfidence(
     wave,
     macro,
     onchain,
+    additional,
     raw,
   };
 

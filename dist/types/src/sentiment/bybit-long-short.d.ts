@@ -10,3 +10,5 @@
  */
 import type { BybitLongShortData } from "./types";
 export declare function fetchLongShortRatio(symbol: string, period?: string): Promise<BybitLongShortData>;
+/** v4.3 — 마지막 fetch timestamp (source health 추적). */
+export declare function getLongShortCacheTs(symbol: string, period?: string): number;

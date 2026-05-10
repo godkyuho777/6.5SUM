@@ -11,3 +11,5 @@
  */
 import type { BybitDerivativesData } from "./types";
 export declare function fetchBybitDerivatives(symbol: string): Promise<BybitDerivativesData>;
+/** v4.3 — 마지막 fetch 의 timestamp 가져오기 (source health 추적 용). */
+export declare function getDerivativesCacheAge(symbol: string): number;

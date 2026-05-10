@@ -11,14 +11,22 @@
  */
 import type { Candle } from "@shared/types";
 /**
- * Volume baseline — simple mean of the volume of the `lookback`
- * candles immediately preceding `patternIdx` (exclusive). Returns 0
- * when there are not enough candles.
+ * Volume baseline — EMA(volume, lookback) ending at `patternIdx-1` (exclusive).
  *
- * The spec uses EMA(volume, 50). We start with a SMA window for
- * simplicity and switch to EMA when the indicator pipeline already
- * produces an EMA-volume series we can reuse. Either way, this
- * function operates only on `candles[0..patternIdx-1]`.
+ * **P2 fix (2026-05-10, audit `04-VWAP-AUDIT.md` §V3 / `01-BBDX-AUDIT.md` 권고)**:
+ *   이전 SMA(50) → EMA(50) 마이그레이션. spec 정합 회복.
+ *
+ * 효과:
+ *   - SMA 는 50 캔들 모두 동일 가중. 거래량 spike 가 50 캔들 동안 baseline 을
+ *     *과도하게 끌어올려* volume multiplier 가 일관된 1.0 으로 떨어지는
+ *     문제 발생.
+ *   - EMA 는 최근 캔들에 더 큰 가중 (α=2/(N+1)). 거래량 spike 가 더 빠르게
+ *     baseline 에 흡수되어 *현재 캔들의 volume 비교* 가 의미 회복.
+ *
+ * lookback < 50 이면 (warmup 부족) SMA 로 fallback — EMA 의 첫 값이
+ * undefined 인 문제 방지.
+ *
+ * Lookahead-free: `candles[0..patternIdx-1]` 만 사용 (patternIdx 제외).
  */
 export declare function volumeBaseline(candles: Candle[], patternIdx: number, lookback?: number): number;
 /**

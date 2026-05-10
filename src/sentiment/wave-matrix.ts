@@ -26,11 +26,165 @@
 import type {
   BybitDerivativesData,
   BybitLongShortData,
+  OiDivergence,
   Signal,
   WaveMatrixState,
   MarketPhase,
 } from "./types";
 import { deriveMacroStance } from "./macro-stance";
+
+// ─── v4.3 Phase C — OI Divergence (24h vs 7d) ───────────────────
+
+/**
+ * OI 24h vs 7d 괴리 분류. 단기와 장기 방향이 갈리면 추세 전환 신호.
+ *
+ * @param oi24h  24h OI 변화율 (%)
+ * @param oi7d   7d OI 변화율 (% 또는 undefined — 데이터 없으면 CHOPPY 처리)
+ */
+export function deriveOiDivergence(
+  oi24h: number,
+  oi7d?: number,
+): { divergence: OiDivergence; ko: string } {
+  if (oi7d == null || isNaN(oi7d)) {
+    return { divergence: "CHOPPY", ko: "다중 기간 데이터 없음" };
+  }
+  const big7dUp = oi7d > 10;
+  const big7dDown = oi7d < -10;
+  const sharp24hUp = oi24h > 3;
+  const sharp24hDown = oi24h < -3;
+
+  if (big7dDown && sharp24hUp) {
+    return {
+      divergence: "BULL_REVERSAL",
+      ko: `7일간 청산(${oi7d.toFixed(1)}%) 후 24h 신규 롱(${oi24h.toFixed(1)}%) — 바닥 반등 신호`,
+    };
+  }
+  if (big7dUp && sharp24hDown) {
+    return {
+      divergence: "BEAR_REVERSAL",
+      ko: `7일간 매수누적(${oi7d.toFixed(1)}%) 후 24h 청산(${oi24h.toFixed(1)}%) — 고점 분산 신호`,
+    };
+  }
+  if (big7dUp && sharp24hUp) {
+    return {
+      divergence: "BULL_ACCEL",
+      ko: `7일 매수(${oi7d.toFixed(1)}%) + 24h 가속(${oi24h.toFixed(1)}%) — 상승 추세 진행`,
+    };
+  }
+  if (big7dDown && sharp24hDown) {
+    return {
+      divergence: "BEAR_ACCEL",
+      ko: `7일 청산(${oi7d.toFixed(1)}%) + 24h 가속(${oi24h.toFixed(1)}%) — 하락 추세 진행`,
+    };
+  }
+  return {
+    divergence: "CHOPPY",
+    ko: `24h ${oi24h >= 0 ? "+" : ""}${oi24h.toFixed(1)}% / 7d ${oi7d >= 0 ? "+" : ""}${oi7d.toFixed(1)}% — 명확한 multi-period 신호 없음`,
+  };
+}
+
+// ─── v4.3 Phase D — Prediction 12-ID matrix ─────────────────────
+
+const PREDICTIONS: Record<
+  string,
+  { en: string; ko: string; action: string }
+> = {
+  // HEATING (탐욕 + OI↑)
+  HEATING_bullish_strong: {
+    en: "Strong bullish acceleration in heating phase.",
+    ko: "강한 상승 가속 (가열). 추세 추종 진입 + 분할 익절 준비.",
+    action: "추세 매수 OK. 50% 익절 라인 미리 설정. 펀딩 폭주 시 절반 청산.",
+  },
+  HEATING_bullish_med: {
+    en: "Moderate bullish bias in heating phase.",
+    ko: "상승 편향 (가열). 추가 모멘텀 확인 권장.",
+    action: "분할 매수 OK. 사이즈 70%. 손절 BB-Lower 기준.",
+  },
+  HEATING_bullish_weak: {
+    en: "Weak bullish bias in heating phase.",
+    ko: "약한 상승 편향. 신중 접근.",
+    action: "사이즈 30%. 확정 캔들 대기. 즉각 손절 룰.",
+  },
+  // ACCUMULATION (공포 + OI↑)
+  ACCUMULATION_bullish_strong: {
+    en: "Smart money accumulation phase, strong setup.",
+    ko: "스마트머니 매집 (공포 + OI↑). 분할 매수 가능.",
+    action: "분할 매수 OK (3~5회). 사이즈 80%. 시간 분산.",
+  },
+  ACCUMULATION_bullish_med: {
+    en: "Mild accumulation phase setup.",
+    ko: "공포 + OI↑ 의 약한 매집 신호. 추가 신호 대기.",
+    action: "분할 매수 60%. 추가 dip 시 추매 여력 보존.",
+  },
+  ACCUMULATION_bearish_strong: {
+    en: "Bearish despite OI uptick — fake bounce risk.",
+    ko: "공포 + OI↑ 인데 베어 우세 — 가짜 반등 가능. 신중.",
+    action: "신규 롱 자제. 보유 시 짧은 stop. 반등 거부 캔들 시 청산.",
+  },
+  // DISTRIBUTION (탐욕 + OI↓)
+  DISTRIBUTION_bullish_med: {
+    en: "Top distribution risk despite remaining demand.",
+    ko: "탐욕 + OI↓ 인데 매수세 잔존 — 분산 임박.",
+    action: "익절 타이밍. 신규 롱 자제. 50% 익절 우선.",
+  },
+  DISTRIBUTION_bearish_strong: {
+    en: "Strong distribution — top likely formed.",
+    ko: "고점 분산 진행 (강). 신규 롱 자제. 짧은 stop 으로 숏 검토.",
+    action: "보유 청산 우선. 숏 진입 시 사이즈 50% + 짧은 stop.",
+  },
+  DISTRIBUTION_bearish_weak: {
+    en: "Distribution risk — tighten stops.",
+    ko: "분산 가능성. 보유 stop 강화.",
+    action: "익절선 끌어올리기. 신규 진입 보류.",
+  },
+  // PANIC (공포 + OI↓)
+  PANIC_bearish_strong: {
+    en: "Panic-sell continuing. Wait for capitulation signal.",
+    ko: "패닉셀 진행 (강). 매수 자제. F&G < 20 + OI 반등 시 분할 진입.",
+    action: "현금 보유. 캐피츌레이션 시그널 (F&G < 20 + 거래량 폭증) 대기.",
+  },
+  PANIC_bearish_weak: {
+    en: "Panic ongoing but signal weak.",
+    ko: "패닉 진행 중이나 신뢰도 낮음. 관망 우선.",
+    action: "관망. 사이즈 0%. 추가 데이터 대기.",
+  },
+  PANIC_bullish_med: {
+    en: "Panic + buying pressure — capitulation reversal possible.",
+    ko: "패닉 + 매수세 — 캐피츌레이션 반등 가능. 분할 진입.",
+    action: "분할 매수 (40%). 추가 dip 50% 추매 여력. stop 직전 저점.",
+  },
+  // 공통
+  mixed: {
+    en: "Mixed signals — wait for stronger confluence.",
+    ko: "신호 혼재. 추가 데이터 확인 후 판단 권장.",
+    action: "관망 우선. 진입 시 작은 사이즈 + 명확한 stop.",
+  },
+  tied: {
+    en: "Signals tied — no clear direction.",
+    ko: "신호 미정 (4-신호 동점). 관망 권장.",
+    action: "관망. 사이즈 0%. 4-신호 중 1개라도 명확해질 때까지 대기.",
+  },
+};
+
+function predictionKey(
+  phase: MarketPhase,
+  bias: Signal,
+  confidence: number,
+): string {
+  if (bias === "neutral") return "mixed";
+  const conf = confidence >= 70 ? "strong" : confidence >= 60 ? "med" : "weak";
+  const candidate = `${phase}_${bias}_${conf}`;
+  if (candidate in PREDICTIONS) return candidate;
+  // Fallback: try lower confidence
+  for (const fallback of [
+    `${phase}_${bias}_med`,
+    `${phase}_${bias}_weak`,
+    `${phase}_${bias}_strong`,
+  ]) {
+    if (fallback in PREDICTIONS) return fallback;
+  }
+  return "mixed";
+}
 
 function deriveOiSignal(
   oiChangeRate: number,
@@ -177,20 +331,11 @@ export function computeWaveMatrix(
     confidence = Math.max(0, Math.min(100, confidence));
   }
 
-  // 예측 메시지 — tie 면 별도 메시지
-  const { prediction, predictionKo } = isTie
-    ? {
-        prediction: "Signals tied — wait for clearer confluence.",
-        predictionKo: "신호 미정 (4-신호 동점). 추가 데이터 확인 후 판단 권장.",
-      }
-    : derivePrediction(
-        overallBias,
-        confidence,
-        bullishCount,
-        bearishCount,
-        derivatives,
-        fearGreedValue
-      );
+  // ── Prediction v4.3 — 12-ID matrix (Phase D) ───────────────
+  const predId = isTie
+    ? "tied"
+    : predictionKey(marketPhase, overallBias, confidence);
+  const predEntry = PREDICTIONS[predId] ?? PREDICTIONS.mixed;
 
   // ── Macro Stance (v4.2 — Audit Phase B 신설) ──────────────────
   // 사용자 명시 요청: "거시적 스탠스를 알려주는 지표".
@@ -202,6 +347,12 @@ export function computeWaveMatrix(
     marketPhase
   );
 
+  // ── OI Divergence v4.3 (Phase C) ─────────────────────────────
+  const oiDivResult = deriveOiDivergence(
+    derivatives.oiChangeRate,
+    derivatives.oiChange7d
+  );
+
   return {
     oiSignal: oi.signal,
     sentimentSignal,
@@ -209,8 +360,8 @@ export function computeWaveMatrix(
     lsSignal,
     overallBias,
     confidence,
-    prediction,
-    predictionKo,
+    prediction: predEntry.en,
+    predictionKo: predEntry.ko,
     oiChangeRate: derivatives.oiChangeRate,
     fearGreedValue,
     fundingRateAvg: derivatives.fundingRateAvg,
@@ -223,44 +374,17 @@ export function computeWaveMatrix(
     bullishCount,
     bearishCount,
     isTie,
+    // v4.3 Phase C
+    oiChange7d: derivatives.oiChange7d,
+    fundingAvg7d: derivatives.fundingAvg7d,
+    fundingTrend7d: derivatives.fundingTrend7d,
+    oiDivergence: oiDivResult.divergence,
+    oiDivergenceKo: oiDivResult.ko,
+    // v4.3 Phase D
+    predictionId: predId,
+    recommendedAction: predEntry.action,
     computedAt: new Date().toISOString(),
   };
 }
 
-function derivePrediction(
-  bias: Signal,
-  confidence: number,
-  bullCount: number,
-  bearCount: number,
-  derivatives: BybitDerivativesData,
-  fng: number
-): { prediction: string; predictionKo: string } {
-  if (bias === "bullish" && confidence >= 70) {
-    return {
-      prediction: "Strong bullish confluence. Trend-following entries with tight stops.",
-      predictionKo: "강한 상승 일치. 추세 추종 진입 + 익절 계획 필수.",
-    };
-  }
-  if (bias === "bullish") {
-    return {
-      prediction: "Mild bullish bias. Wait for confirmation.",
-      predictionKo: "약한 상승 편향. 확정 캔들 대기 권장.",
-    };
-  }
-  if (bias === "bearish" && confidence >= 70) {
-    return {
-      prediction: "Strong bearish confluence. Avoid counter-trend longs.",
-      predictionKo: "강한 하락 일치. 역추세 롱 자제. 분할 매수 검토.",
-    };
-  }
-  if (bias === "bearish") {
-    return {
-      prediction: "Mild bearish bias. Tighten risk.",
-      predictionKo: "약한 하락 편향. 리스크 관리 강화.",
-    };
-  }
-  return {
-    prediction: "Mixed signals — wait for stronger confluence.",
-    predictionKo: "신호 혼재. 추가 데이터 확인 후 판단 권장.",
-  };
-}
+// (v4.3 — old derivePrediction removed; replaced by predictionKey + PREDICTIONS map above)

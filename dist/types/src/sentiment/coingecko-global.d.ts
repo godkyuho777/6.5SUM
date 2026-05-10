@@ -9,3 +9,5 @@
  */
 import type { GlobalMarketData } from "./types";
 export declare function fetchGlobalMarket(): Promise<GlobalMarketData>;
+/** v4.3 — 마지막 fetch timestamp (source health 추적). */
+export declare function getGlobalMarketCacheTs(): number;

@@ -123,60 +123,137 @@ export function computeComposite(
   const compositeLabel = classify(compositeScore);
   const { phase, phaseKo } = phaseFor(compositeScore, derivatives.oiChangeRate);
 
-  // 분석 근거 (5~8개)
-  const reasons: string[] = [];
-  reasons.push(
-    `Fear & Greed: ${currentFng} (${labelKo(classify(currentFng))}) → ${
+  // ── v4.3 Phase D — Reasons dynamic filtering ─────────────────
+  // 강도 ≥ medium 인 항목만 reasons 에 포함. 단, 최소 3개 보장 위해 weak 도
+  // optionally 포함. 각 reason 은 (text, strength, priority) 로 우선순위 정렬.
+  type Reason = { text: string; strength: "strong" | "medium" | "weak"; priority: number };
+  const reasonPool: Reason[] = [];
+
+  // F&G — strong (|F&G - 50| ≥ 30) / medium (≥ 15) / weak (그 외)
+  const fngDist = Math.abs(currentFng - 50);
+  reasonPool.push({
+    text: `Fear & Greed: ${currentFng} (${labelKo(classify(currentFng))}) → ${
       currentFng < 40 ? "공포 구간, 바닥 탐색 중" :
       currentFng > 60 ? "탐욕 구간, 과열 주의" :
       "중립 구간, 방향성 약함"
-    }`
-  );
+    }`,
+    strength: fngDist >= 30 ? "strong" : fngDist >= 15 ? "medium" : "weak",
+    priority: 100, // 항상 표시 (헤드라인)
+  });
+
   if (Math.abs(fngDelta7d) > 5) {
-    reasons.push(
-      `F&G 7일 추세: ${fngDelta7d >= 0 ? "+" : ""}${fngDelta7d.toFixed(0)}pt (${
+    reasonPool.push({
+      text: `F&G 7일 추세: ${fngDelta7d >= 0 ? "+" : ""}${fngDelta7d.toFixed(0)}pt (${
         fngDelta7d > 0 ? "심리 회복 중" : "심리 악화 중"
-      })`
-    );
+      })`,
+      strength: Math.abs(fngDelta7d) >= 15 ? "strong" : "medium",
+      priority: 60,
+    });
   }
-  reasons.push(
-    `글로벌 시총 24h: ${global.marketCapChange24h >= 0 ? "+" : ""}${global.marketCapChange24h.toFixed(2)}% (${
-      Math.abs(global.marketCapChange24h) < 1 ? "보합" :
+
+  // 시총 24h — |change| ≥ 3% strong / ≥ 1% medium / 그 외 weak
+  const mcAbs = Math.abs(global.marketCapChange24h);
+  reasonPool.push({
+    text: `글로벌 시총 24h: ${global.marketCapChange24h >= 0 ? "+" : ""}${global.marketCapChange24h.toFixed(2)}% (${
+      mcAbs < 1 ? "보합" :
       global.marketCapChange24h > 0 ? "상승" : "하락"
-    })`
-  );
-  reasons.push(
-    `BTC 도미넌스: ${global.btcDominance.toFixed(1)}% (${
-      global.btcDominance > 60 ? "알트코인 약세" :
-      global.btcDominance < 45 ? "알트코인 강세 (알트 시즌)" :
-      "중립"
-    })`
-  );
-  reasons.push(
-    `OI 변화율: ${derivatives.oiChangeRate >= 0 ? "+" : ""}${derivatives.oiChangeRate.toFixed(2)}% (${
+    })`,
+    strength: mcAbs >= 3 ? "strong" : mcAbs >= 1 ? "medium" : "weak",
+    priority: 70,
+  });
+
+  // BTC 도미넌스 — > 60 또는 < 45 만 의미 있음
+  if (global.btcDominance > 60 || global.btcDominance < 45) {
+    reasonPool.push({
+      text: `BTC 도미넌스: ${global.btcDominance.toFixed(1)}% (${
+        global.btcDominance > 60 ? "알트코인 약세" : "알트코인 강세 (알트 시즌)"
+      })`,
+      strength: "medium",
+      priority: 50,
+    });
+  }
+
+  // OI — 강도 분류
+  const oiAbs2 = Math.abs(derivatives.oiChangeRate);
+  reasonPool.push({
+    text: `OI 변화율: ${derivatives.oiChangeRate >= 0 ? "+" : ""}${derivatives.oiChangeRate.toFixed(2)}% (${
       derivatives.oiChangeRate > 3 ? "새 포지션 대량 유입 (strong)" :
       derivatives.oiChangeRate > 1.5 ? "포지션 유입 (weak)" :
       derivatives.oiChangeRate < -3 ? "포지션 청산 대량 (strong)" :
       derivatives.oiChangeRate < -1.5 ? "포지션 축소 (weak)" :
       "변동 미미 (노이즈 구간)"
-    })`
-  );
-  reasons.push(
-    `롱/숏 비율: ${ls.longRatio.toFixed(1)}% / ${ls.shortRatio.toFixed(1)}% (ratio ${ls.ratio.toFixed(2)}x — ${
-      ls.ratio > 2.0 ? "롱 과열 (분산 임박 가능)" :
-      ls.ratio < 1.0 ? "숏 우세 (드문 신호)" :
-      "retail 평상치"
-    })`
-  );
-  reasons.push(
-    `펀딩비: ${derivatives.fundingRateAvg >= 0 ? "+" : ""}${derivatives.fundingRateAvg.toFixed(4)}% (${
+    })`,
+    strength: oiAbs2 >= 3 ? "strong" : oiAbs2 >= 1.5 ? "medium" : "weak",
+    priority: 90,
+  });
+
+  // OI 7d (v4.3 Phase C — 데이터 있을 때만)
+  if (derivatives.oiChange7d != null && Math.abs(derivatives.oiChange7d) >= 5) {
+    const v = derivatives.oiChange7d;
+    reasonPool.push({
+      text: `OI 7일 변화율: ${v >= 0 ? "+" : ""}${v.toFixed(1)}% (${
+        v > 10 ? "장기 매수 누적 (strong)" :
+        v > 5 ? "장기 매수 (medium)" :
+        v < -10 ? "장기 청산 누적 (strong)" :
+        "장기 청산 (medium)"
+      })`,
+      strength: Math.abs(v) >= 10 ? "strong" : "medium",
+      priority: 85,
+    });
+  }
+
+  // L/S — 의미 있는 영역만 (ratio ≤ 1.0 or ≥ 2.0)
+  if (ls.ratio > 2.0 || ls.ratio < 1.0) {
+    reasonPool.push({
+      text: `롱/숏 비율: ${ls.longRatio.toFixed(1)}% / ${ls.shortRatio.toFixed(1)}% (ratio ${ls.ratio.toFixed(2)}x — ${
+        ls.ratio > 2.0 ? "롱 과열 (분산 임박 가능)" : "숏 우세 (드문 신호)"
+      })`,
+      strength: ls.ratio > 2.5 || ls.ratio < 0.8 ? "strong" : "medium",
+      priority: 65,
+    });
+  }
+
+  // Funding — strong (|fr| ≥ 0.02%) / medium (≥ 0.01%) / 그 외 weak
+  const fundingAbs = Math.abs(derivatives.fundingRateAvg);
+  reasonPool.push({
+    text: `펀딩비: ${derivatives.fundingRateAvg >= 0 ? "+" : ""}${derivatives.fundingRateAvg.toFixed(4)}% (${
       derivatives.fundingRateAvg > 0.02 ? "롱 강과열 (스퀘즈 위험)" :
       derivatives.fundingRateAvg > 0.01 ? "롱 과열" :
       derivatives.fundingRateAvg < -0.02 ? "숏 강과열" :
       derivatives.fundingRateAvg < -0.01 ? "숏 과열" :
       "중립 (노이즈)"
-    })`
-  );
+    })`,
+    strength: fundingAbs >= 0.02 ? "strong" : fundingAbs >= 0.01 ? "medium" : "weak",
+    priority: 80,
+  });
+
+  // Funding 7d trend (v4.3 Phase C)
+  if (
+    derivatives.fundingTrend7d &&
+    derivatives.fundingTrend7d !== "flat" &&
+    derivatives.fundingAvg7d != null
+  ) {
+    reasonPool.push({
+      text: `펀딩 7일 추세: 평균 ${derivatives.fundingAvg7d >= 0 ? "+" : ""}${derivatives.fundingAvg7d.toFixed(4)}% / ${
+        derivatives.fundingTrend7d === "rising" ? "상승 추세 (누적 과열 진행)" :
+        "하락 추세 (과열 해소 중)"
+      }`,
+      strength: "medium",
+      priority: 55,
+    });
+  }
+
+  // Strength 우선순위로 필터: strong/medium 만. 단 최소 3개 보장.
+  const STRENGTH_RANK = { strong: 3, medium: 2, weak: 1 } as const;
+  const sorted = [...reasonPool].sort((a, b) => {
+    const sd = STRENGTH_RANK[b.strength] - STRENGTH_RANK[a.strength];
+    if (sd !== 0) return sd;
+    return b.priority - a.priority;
+  });
+  const filtered = sorted.filter((r) => r.strength !== "weak");
+  const reasons = filtered.length >= 3
+    ? filtered.map((r) => r.text)
+    : sorted.slice(0, Math.max(3, filtered.length)).map((r) => r.text);
 
   return {
     fearGreed: fng[0] ?? { value: 50, classification: "NEUTRAL", timestamp: Date.now() },

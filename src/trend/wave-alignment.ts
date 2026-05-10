@@ -32,15 +32,44 @@ export const WAVE_MULTIPLIERS: Readonly<Record<WaveAlignment, number>> = {
 /**
  * Wave Alignment → multiplier (BBDX final_confidence 곱셈 체인용).
  *
- * Tradelab 은 LONG-only 시그널 시스템 (헌장). SHORT 미지원이라 bbdxSide
- * 인자는 forward-compat placeholder. 향후 SHORT 추가 시 여기서 부호 반전.
+ * **P2 fix (2026-05-10, audit `06-WAVE-TREND-AUDIT.md` SHORT support)**:
+ *   SHORT 추가됨 (P1-#3). LONG 의 perfect_up 은 SHORT 의 perfect_down
+ *   과 의미 반전 — 추세 일치 시 강화, 추세 반대 시 약화.
+ *
+ *   LONG 매핑:
+ *     perfect_up → 1.30  (모든 TF 강세 정렬, LONG 완벽 환경)
+ *     perfect_down → 0.65 (모든 TF 약세, LONG 진입 잘못)
+ *     partial_up → 1.10
+ *     mixed → 0.85
+ *     opposing → 0.30
+ *
+ *   SHORT 매핑 (의미 반전):
+ *     perfect_down → 1.30 (모든 TF 약세, SHORT 완벽 환경)
+ *     perfect_up → 0.65   (모든 TF 강세, SHORT 진입 잘못)
+ *     partial_up → 0.85   (LONG 의 mixed 대응)
+ *     mixed → 0.85        (양방향 중립)
+ *     opposing → 0.30     (자본 보호 — 다중 TF 충돌)
  */
 export function waveAlignmentToMultiplier(
   alignment: WaveAlignment,
-  bbdxSide: "LONG" = "LONG"
+  bbdxSide: "LONG" | "SHORT" = "LONG"
 ): number {
   if (bbdxSide === "LONG") return WAVE_MULTIPLIERS[alignment];
-  return 1.0;
+  // SHORT — perfect_up ↔ perfect_down 의 1.30 ↔ 0.65 swap
+  switch (alignment) {
+    case "perfect_down":
+      return 1.30;
+    case "perfect_up":
+      return 0.65;
+    case "partial_up":
+      return 0.85; // LONG 의 mixed 와 동일 가중
+    case "mixed":
+      return 0.85;
+    case "opposing":
+      return 0.30; // 자본 보호 — 양 방향 모두 위험
+    default:
+      return 1.0;
+  }
 }
 
 export interface WaveAlignmentResult {

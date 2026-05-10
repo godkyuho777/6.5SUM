@@ -42,3 +42,8 @@ export async function fetchGlobalMarket(): Promise<GlobalMarketData> {
   cache = { ts: Date.now(), data };
   return data;
 }
+
+/** v4.3 — 마지막 fetch timestamp (source health 추적). */
+export function getGlobalMarketCacheTs(): number {
+  return cache?.ts ?? 0;
+}

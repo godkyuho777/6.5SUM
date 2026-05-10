@@ -76,3 +76,8 @@ export function trendDelta7d(points: FearGreedPoint[]): number {
   const old = points[Math.min(7, points.length - 1)]?.value ?? now;
   return now - old;
 }
+
+/** v4.3 — 마지막 fetch 의 timestamp (source health 추적 용). 0 이면 미fetch. */
+export function getFearGreedCacheTs(): number {
+  return cache?.ts ?? 0;
+}

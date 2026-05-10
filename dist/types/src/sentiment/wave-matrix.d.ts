@@ -22,5 +22,15 @@
  *
  *   기존 공식의 비대칭성 제거 — bear 일치도 bull 일치와 동일 신뢰도.
  */
-import type { BybitDerivativesData, BybitLongShortData, WaveMatrixState, MarketPhase } from "./types";
+import type { BybitDerivativesData, BybitLongShortData, OiDivergence, WaveMatrixState, MarketPhase } from "./types";
+/**
+ * OI 24h vs 7d 괴리 분류. 단기와 장기 방향이 갈리면 추세 전환 신호.
+ *
+ * @param oi24h  24h OI 변화율 (%)
+ * @param oi7d   7d OI 변화율 (% 또는 undefined — 데이터 없으면 CHOPPY 처리)
+ */
+export declare function deriveOiDivergence(oi24h: number, oi7d?: number): {
+    divergence: OiDivergence;
+    ko: string;
+};
 export declare function computeWaveMatrix(derivatives: BybitDerivativesData, ls: BybitLongShortData, compositeScore: number, fearGreedValue: number, marketPhase?: MarketPhase): WaveMatrixState;

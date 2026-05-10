@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest";
 
-import { classifyWaveAlignment, WAVE_MULTIPLIERS } from "../wave-alignment";
+import {
+  classifyWaveAlignment,
+  WAVE_MULTIPLIERS,
+  waveAlignmentToMultiplier,
+} from "../wave-alignment";
 import type { TimeframeTrend, TrendDirection } from "../multi-tf";
 
 const tfTrend = (tf: string, direction: TrendDirection): TimeframeTrend => ({
@@ -86,5 +90,41 @@ describe("classifyWaveAlignment", () => {
     ]);
     expect(r.alignment).toBe("partial_up");
     expect(r.mult).toBe(1.1);
+  });
+});
+
+// ── (나-2) Wave Alignment SHORT 미러 (P2 fix, 2026-05-10) ────────────────────
+describe("waveAlignmentToMultiplier — SHORT mirror (P2 fix)", () => {
+  test("LONG: perfect_up → 1.30 (강세 정렬 = LONG 강화)", () => {
+    expect(waveAlignmentToMultiplier("perfect_up", "LONG")).toBe(1.3);
+  });
+
+  test("SHORT: perfect_down → 1.30 (약세 정렬 = SHORT 강화)", () => {
+    expect(waveAlignmentToMultiplier("perfect_down", "SHORT")).toBe(1.3);
+  });
+
+  test("LONG: perfect_down → 0.65 (약세 정렬 시 LONG 차감)", () => {
+    expect(waveAlignmentToMultiplier("perfect_down", "LONG")).toBe(0.65);
+  });
+
+  test("SHORT: perfect_up → 0.65 (강세 정렬 시 SHORT 차감, LONG 미러)", () => {
+    expect(waveAlignmentToMultiplier("perfect_up", "SHORT")).toBe(0.65);
+  });
+
+  test("LONG: opposing → 0.30 (자본 보호)", () => {
+    expect(waveAlignmentToMultiplier("opposing", "LONG")).toBe(0.3);
+  });
+
+  test("SHORT: opposing → 0.30 (자본 보호 — 양방향 위험)", () => {
+    expect(waveAlignmentToMultiplier("opposing", "SHORT")).toBe(0.3);
+  });
+
+  test("SHORT: partial_up → 0.85 (약화 — LONG 의 mixed 와 동일)", () => {
+    expect(waveAlignmentToMultiplier("partial_up", "SHORT")).toBe(0.85);
+  });
+
+  test("SHORT/LONG mixed → 0.85 (양방향 동일)", () => {
+    expect(waveAlignmentToMultiplier("mixed", "LONG")).toBe(0.85);
+    expect(waveAlignmentToMultiplier("mixed", "SHORT")).toBe(0.85);
   });
 });

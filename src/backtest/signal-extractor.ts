@@ -253,6 +253,13 @@ export function extractSignalsFromCandles(
     return [];
   }
 
+  // ── 시그널 cooldown — 같은 strategy 내에서 5 캔들 간격 ────────────────
+  // 현재 single-strategy execution model: 1 strategy = 1 extractor call →
+  // lastSignalIdx 가 strategy 별 자동 분리.
+  //
+  // 미래 multi-strategy 동시 실행 (LONG + SHORT 같은 universe) 시:
+  // strategy/side 별 별도 cooldown 추적 필요 — 현재 architecture 변경 X,
+  // 주석 마커로 future fix 권고 (audit `08-BACKTEST-CALIBRATION-AUDIT.md` S1).
   let lastSignalIdx = -Infinity;
 
   for (let i = minWarmupCandles; i <= maxSignalIdx; i++) {

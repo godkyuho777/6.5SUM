@@ -66,6 +66,20 @@ export interface WaveMatrixState {
     bearishCount: number;
     /** tie 여부 (2:2 또는 3:3 동점). UI 에서 "신호 미정" 표기 용. */
     isTie: boolean;
+    /** OI 7일 변화율 (%, 가능 시). */
+    oiChange7d?: number;
+    /** Funding 7일 평균 (%). */
+    fundingAvg7d?: number;
+    /** Funding 추세. */
+    fundingTrend7d?: "rising" | "falling" | "flat";
+    /** OI Divergence 분류 (24h vs 7d). */
+    oiDivergence?: OiDivergence;
+    /** OI Divergence 한글 해석. */
+    oiDivergenceKo?: string;
+    /** Prediction 매핑 ID — 12종 중 하나 + tied/mixed. */
+    predictionId?: string;
+    /** Prediction 권장 액션 (한글). */
+    recommendedAction?: string;
     computedAt: string;
 }
 /** Bybit OI/Funding/Price 묶음 (내부용). */
@@ -75,7 +89,32 @@ export interface BybitDerivativesData {
     fundingRateAvg: number;
     priceChange24h: number;
     lastPrice: number;
+    /** OI 7일 변화율 (%, 일봉 8일치 기준). */
+    oiChange7d?: number;
+    /** Funding 7일 평균 (%, 21개 펀딩 기준). */
+    fundingAvg7d?: number;
+    /** Funding 추세 방향 (slope 부호). */
+    fundingTrend7d?: "rising" | "falling" | "flat";
+    /** Funding 7일 slope (% per day). */
+    fundingSlope7d?: number;
 }
+export type SourceStatus = "live" | "stale" | "fallback";
+export interface SourceHealthEntry {
+    status: SourceStatus;
+    /** unix ms — 마지막 성공한 fetch 시각 (fallback 면 0). */
+    lastUpdated: number;
+    /** 데이터 age 초 단위 (UI 표기 용). */
+    ageSec: number;
+}
+export interface SourceHealth {
+    fearGreed: SourceHealthEntry;
+    globalMarket: SourceHealthEntry;
+    bybitDerivatives: SourceHealthEntry;
+    bybitLongShort: SourceHealthEntry;
+    /** 4개 중 live 인 것의 갯수 (4 = perfect, 0 = all fallback). */
+    healthScore: number;
+}
+export type OiDivergence = "BULL_REVERSAL" | "BEAR_REVERSAL" | "BULL_ACCEL" | "BEAR_ACCEL" | "CHOPPY";
 /** Bybit Long/Short Ratio. */
 export interface BybitLongShortData {
     symbol: string;

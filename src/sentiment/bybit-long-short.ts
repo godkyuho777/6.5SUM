@@ -60,3 +60,8 @@ export async function fetchLongShortRatio(
     return { symbol, longRatio: 50, shortRatio: 50, ratio: 1 };
   }
 }
+
+/** v4.3 — 마지막 fetch timestamp (source health 추적). */
+export function getLongShortCacheTs(symbol: string, period = "1h"): number {
+  return cache.get(`${symbol}:${period}`)?.ts ?? 0;
+}

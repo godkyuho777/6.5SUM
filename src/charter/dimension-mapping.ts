@@ -123,6 +123,10 @@ export const ADDITIONAL_MODIFIER_DIMENSIONS: Readonly<
   fundingExtreme: { dimension: 6, rule1Exempt: true, beta: false },
   // 6차원 macro — Wave Tracker 와 다른 각도 (펀딩/OI vs RSI 분포)
   marketBreadth: { dimension: 6, rule1Exempt: true, beta: false },
+  // 5차원 structure — Trend Analysis Engine v2.0 의 Wave Alignment.
+  // 4개 TF 에서 ADX/EMA 를 사용하지만 측정 각도가 다름 — 단일 TF 의 추세 강도가
+  // 아니라 *멀티 TF 정합 상태* (HH/HL 시장구조). 헌장 규칙 1 면제.
+  waveAlignment: { dimension: 5, rule1Exempt: true, beta: false },
 } as const;
 
 export function getAdditionalModifierMeta(

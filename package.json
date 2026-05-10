@@ -26,6 +26,8 @@
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
+    "push:mirrors": "node scripts/push-mirrors.mjs",
+    "push:mirrors:all": "node scripts/push-mirrors.mjs --include-main",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",

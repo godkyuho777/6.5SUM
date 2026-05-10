@@ -16,3 +16,4 @@ export interface CombinedSentiment {
  */
 export declare function computeWaveTrackerData(symbol?: string): Promise<CombinedSentiment>;
 export type { SentimentSnapshot, WaveMatrixState } from "./types";
+export type { MacroStance, MacroStanceResult } from "./macro-stance";

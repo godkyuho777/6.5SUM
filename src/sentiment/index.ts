@@ -51,9 +51,17 @@ export async function computeWaveTrackerData(
       : { symbol: sym, longRatio: 50, shortRatio: 50, ratio: 1 };
 
   const sentiment = computeComposite(fng, global, deriv, ls);
-  const matrix = computeWaveMatrix(deriv, ls, sentiment.compositeScore, sentiment.fearGreed.value);
+  // v4.2: marketPhase 를 wave-matrix 에 전달 → DEFENSIVE 분류에 phase=PANIC 사용.
+  const matrix = computeWaveMatrix(
+    deriv,
+    ls,
+    sentiment.compositeScore,
+    sentiment.fearGreed.value,
+    sentiment.marketPhase
+  );
 
   return { sentiment, matrix };
 }
 
 export type { SentimentSnapshot, WaveMatrixState } from "./types";
+export type { MacroStance, MacroStanceResult } from "./macro-stance";

@@ -83,6 +83,23 @@ export interface WaveMatrixState {
   oiInterpretation: string; // 한글 해석
   oiInterpretationSignal: Signal;
 
+  // ── v4.2 Audit 개선 ───────────────────────────────────────
+  /**
+   * 거시 스탠스 (Macro Stance).
+   *
+   * WAVE_SENTIMENT_AUDIT.md §4 — 사용자가 "거시적 스탠스" 로 사용 중.
+   * 5단계: RISK_ON / NEUTRAL_BULL / NEUTRAL / NEUTRAL_BEAR / RISK_OFF / DEFENSIVE.
+   * BBDX 시그널의 macro 컨텍스트 라벨로만 사용 (헌장 규칙 3, modifier-only).
+   */
+  macroStance: import("./macro-stance").MacroStanceResult;
+
+  /** 4-신호 vote 결과 — bullish 갯수 (0-4). UI 차트용. */
+  bullishCount: number;
+  /** 4-신호 vote 결과 — bearish 갯수 (0-4). UI 차트용. */
+  bearishCount: number;
+  /** tie 여부 (2:2 또는 3:3 동점). UI 에서 "신호 미정" 표기 용. */
+  isTie: boolean;
+
   computedAt: string;
 }
 

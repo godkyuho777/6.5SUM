@@ -217,7 +217,21 @@ export declare function decideEntry(candles: Candle[], ind: TechnicalIndicators,
  * decideExitForPosition() in src/exits/index.ts. The scanner uses
  * this thin wrapper which only runs EXIT-A and EXIT-B.
  */
-export declare function decideExit(price: number, ind: TechnicalIndicators, bearishPatterns: CandlePatternMatch[]): ExitDecision | null;
+export declare function decideExit(price: number, ind: TechnicalIndicators, bearishPatterns: CandlePatternMatch[], 
+/**
+ * P2 (2026-05-10) — EXIT-B B4/B5 wiring 옵션.
+ *
+ * Audit `01-BBDX-AUDIT.md` E2 시정: B4 trendline + B5 MACD divergence
+ * 의 input 이 항상 0 이라 EXIT-B 가 사실상 3-component (max 0.90) 작동.
+ * scanner 가 candles 전달 시 두 컴포넌트 자동 계산:
+ *   B4 trendlineState: "broken" 시 +0.30, "confirmed_break" 시 +0.15
+ *   B5 macdBearishDivergence: true 시 +0.20
+ *
+ * 옵션 미지정 시 기존 동작 유지 (backward compat).
+ */
+opts?: {
+    candles?: Candle[];
+}): ExitDecision | null;
 /**
  * BBDX-PATTERN v6.1 시그널 강도. 0~100.
  *

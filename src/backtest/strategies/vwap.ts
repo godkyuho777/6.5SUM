@@ -124,10 +124,28 @@ export const vwapStrategy: BacktestStrategy = {
       stopLoss = entryPrice * 0.98;
     }
 
-    // Signal strength: pullback 후 반등 distance 정규화
-    const distance = Math.abs(entryPrice - calculateVWAP(windowCandles));
+    // Signal strength: pullback 후 반등 distance 정규화 (P2 fix 2026-05-10).
+    // Audit `04-VWAP-AUDIT.md` V4 시정: 이전 `50 + dist% × 10` 가 0.5~5%
+    // 거리 → 55~100 범위로 비현실적 분포 (대부분 60~70 영역에 쏠림).
+    //
+    // 새 공식: VWAP 와의 거리 / 1σ 정규화 → 0~50 범위 + base 50.
+    //   거리 = 0σ → 50 (중립)
+    //   거리 = 1σ → 75 (강함)
+    //   거리 = 2σ → 100 (cap, 매우 강함)
+    // Bands 계산 실패 시 0.5% 단위 fallback.
+    const vwap = calculateVWAP(windowCandles);
+    const distance = Math.abs(entryPrice - vwap);
+    let oneSigma: number;
+    try {
+      const bands = calculateVwapBands(windowCandles);
+      oneSigma = bands.upper1 - vwap; // upper1 = VWAP + 1σ → diff = 1σ
+    } catch {
+      oneSigma = entryPrice * 0.005; // fallback: 0.5% 기준
+    }
+    if (oneSigma <= 0) oneSigma = entryPrice * 0.005;
+    const sigmaUnits = distance / oneSigma; // 거리 / 1σ
     const signalStrength = Math.round(
-      Math.min(100, 50 + (distance / entryPrice) * 1000),
+      Math.min(100, 50 + Math.min(2.0, sigmaUnits) * 25),
     );
 
     return { target1, target2, stopLoss, signalStrength };

@@ -169,12 +169,14 @@ export const bbdxShortStrategy: BacktestStrategy = {
     indicators: TechnicalIndicators,
     entryPrice: number,
   ): EntryParams {
-    // SHORT R:R 비대칭화 미러:
+    // SHORT R:R 비대칭화 미러 (alpha 튜닝 2026-05-10):
     //   Tier 1 = bbMiddle (price 하락 시 도달)
-    //   Tier 2 = max(bbLower, entry × 0.95) — LONG 의 min(bbUpper, +5%) 미러
-    //   Stop  = min(bbUpper × 1.03, entry × 1.02) — LONG max(bbLower × 0.97, -2%) 미러
+    //   Tier 2 = max(bbLower, entry × 0.97) — entry-3% 도달이 -5% 보다 흔함
+    //            (가) 결과: tier1_then_stop 37.7% dominant — Tier 2 도달 X 후
+    //            잔여 50% 손절. Tier 2 보수화로 expectancy 회복 시도.
+    //   Stop  = min(bbUpper × 1.03, entry × 1.02)
     const target1 = indicators.bbMiddle;
-    const target2 = Math.max(indicators.bbLower, entryPrice * 0.95);
+    const target2 = Math.max(indicators.bbLower, entryPrice * 0.97);
     const stopLoss = Math.min(indicators.bbUpper * 1.03, entryPrice * 1.02);
 
     // SHORT signal strength — calculateShortSignalStrength 사용

@@ -248,21 +248,35 @@ export async function scanCoin(
     const bearishPatterns = candlePatterns.filter(
       (p) => p.bias === "bearish"
     );
-    const exitDecision = decideExit(price, indicators, bearishPatterns);
+    // P2 (2026-05-10): EXIT-B B4 trendline + B5 MACD divergence wiring 활성화.
+    // Audit `01-BBDX-AUDIT.md` E2 시정 — 5-component reversal score 복원.
+    const exitDecision = decideExit(price, indicators, bearishPatterns, { candles });
     const stopLossPrice = indicators.bbLower * 0.97;
     const isStopLossHit = price <= stopLossPrice;
 
     // ── SHORT path (LONG 미러, 헌장 규칙 3 준수) ──
     // SHORT 도 isRisingKnife 차단 (강한 상승 추세 중 평균회귀 SHORT 위험).
     // lowerRiding (추세 추종 SHORT) 만 isRisingKnife 예외.
-    const bbStructureShort = detectBBStructureShort(candles, bbSeries);
+    //
+    // ⚠ Production feature flag (alpha 입증 전 차단, 2026-05-10):
+    //   90d: winRate 37.0%, Sharpe -0.17, PF 0.66, MDD 40.57%
+    //   365d (RSI 65 / Tier 2 0.97 튜닝 후): winRate 37.8%, Sharpe -0.25,
+    //                                          PF 0.55, MDD 98.85%
+    //   → Charter R2 명백한 미입증. SHORT 시그널이 강세장 환경에서 자본
+    //     파괴 위험. ENABLE_SHORT_SIGNALS=1 명시적 opt-in 필요.
+    //   alpha 통과 시 (winRate ≥ 50%, Sharpe ≥ 0.30, PF ≥ 1.3) flag 제거.
+    const SHORT_SIGNALS_ENABLED = process.env.ENABLE_SHORT_SIGNALS === "1";
+    const bbStructureShort = SHORT_SIGNALS_ENABLED
+      ? detectBBStructureShort(candles, bbSeries)
+      : null;
     const risingKnife = isRisingKnife(
       indicators.plusDi,
       indicators.minusDi,
       indicators.adx
     );
     // RisingKnife 차단: lowerRiding 외 SHORT path 막음. lowerRiding 은 추세 추종이라 허용.
-    const shortAllowed = !risingKnife || bbStructureShort === "lowerRiding";
+    const shortAllowed = SHORT_SIGNALS_ENABLED &&
+      (!risingKnife || bbStructureShort === "lowerRiding");
     const shortDecision = shortAllowed
       ? decideShortEntry(candles, indicators, candlePatterns, bbStructureShort, ratio)
       : null;

@@ -26,6 +26,19 @@ export interface ScannerExitContext {
         full: number;
         partial: number;
     };
+    /**
+     * P2 (2026-05-10) — EXIT-B B4 trendline wiring (audit `01-BBDX-AUDIT.md` E2).
+     * 호출 측이 candles + trendline 감지 결과 제공.
+     *   "broken"          → +0.30 reversal score
+     *   "confirmed_break" → +0.15
+     *   "intact" / undef  → 0
+     */
+    trendlineState?: "intact" | "confirmed_break" | "broken";
+    /**
+     * P2 (2026-05-10) — EXIT-B B5 MACD bearish divergence wiring.
+     *   true → +0.20 reversal score
+     */
+    macdBearishDivergence?: boolean;
 }
 /**
  * Per-symbol EXIT evaluation for the scanner. Combines reversal

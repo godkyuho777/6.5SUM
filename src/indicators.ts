@@ -1046,7 +1046,21 @@ export function detectBBStructureShort(
 
 // ── SHORT 진입 결정 (3가지 경로 미러) ──────────────────────────────────────
 
-const SHORT_NUM_RSI_LOW = 62;
+/**
+ * SHORT 임계값 — alpha 튜닝 (2026-05-10).
+ *
+ * Audit `01-BBDX-AUDIT.md` S1 권고 + 14-RESULT 결과 반영:
+ *   초기값 62 → 65 — 비대칭 미러 회복.
+ *   암호화폐의 long-short asymmetry (Hong & Stein 1999, Frazzini & Lamont 2006):
+ *   상승 동력이 하락 동력보다 강하므로 대칭 임계 [62, 75] 가 SHORT alpha
+ *   underestimate. 65 부터 시작하여 false-positive 감소 + 진정한 과매수
+ *   영역만 SHORT 진입.
+ *
+ * (가) 90일 백테스트 결과 (2026-02 ~ 2026-05):
+ *   SHORT_NUM_RSI_LOW=62: winRate 37.0%, Sharpe -0.17, PF 0.66
+ *   → 65 로 상향 + 365일 재측정 권고.
+ */
+const SHORT_NUM_RSI_LOW = 65;
 const SHORT_NUM_RSI_HIGH = 75;
 const SHORT_NUM_BB_TOLERANCE = 0.02;
 const SHORT_NUM_ADX_MAX = 20;
@@ -1260,9 +1274,105 @@ const EXIT_PLUSDI_THRESHOLD = 25;
 export function decideExit(
   price: number,
   ind: TechnicalIndicators,
-  bearishPatterns: CandlePatternMatch[]
+  bearishPatterns: CandlePatternMatch[],
+  /**
+   * P2 (2026-05-10) — EXIT-B B4/B5 wiring 옵션.
+   *
+   * Audit `01-BBDX-AUDIT.md` E2 시정: B4 trendline + B5 MACD divergence
+   * 의 input 이 항상 0 이라 EXIT-B 가 사실상 3-component (max 0.90) 작동.
+   * scanner 가 candles 전달 시 두 컴포넌트 자동 계산:
+   *   B4 trendlineState: "broken" 시 +0.30, "confirmed_break" 시 +0.15
+   *   B5 macdBearishDivergence: true 시 +0.20
+   *
+   * 옵션 미지정 시 기존 동작 유지 (backward compat).
+   */
+  opts?: {
+    candles?: Candle[];
+  }
 ): ExitDecision | null {
-  return decideExitForScanner({ price, indicators: ind, bearishPatterns });
+  // B4: Trendline state 감지 — recent uptrend trendline 의 break 검사.
+  // 간소 구현: 직전 30 캔들 closes 의 양봉 추세선 (linear regression slope)
+  // 가 *현재 가격* 아래면 broken, 직전 5 캔들 모두 아래면 confirmed_break.
+  let trendlineState: "intact" | "confirmed_break" | "broken" | undefined;
+  if (opts?.candles && opts.candles.length >= 30) {
+    const recent = opts.candles.slice(-30);
+    const closes = recent.map((c) => c.close);
+    // OLS: slope = covariance(x, y) / variance(x)
+    const n = closes.length;
+    const meanY = closes.reduce((s, v) => s + v, 0) / n;
+    const meanX = (n - 1) / 2;
+    let cov = 0;
+    let varX = 0;
+    for (let i = 0; i < n; i++) {
+      cov += (i - meanX) * (closes[i] - meanY);
+      varX += (i - meanX) * (i - meanX);
+    }
+    const slope = varX > 0 ? cov / varX : 0;
+    const intercept = meanY - slope * meanX;
+    // Trendline 이 상승 (slope>0) 이고 현재가가 trendline 아래면 broken
+    if (slope > 0) {
+      const trendlineNow = slope * (n - 1) + intercept;
+      if (price < trendlineNow * 0.99) {
+        // 직전 5 캔들 모두 trendline 아래?
+        const tail = closes.slice(-5);
+        let belowCount = 0;
+        for (let i = 0; i < tail.length; i++) {
+          const tlVal = slope * (n - 5 + i) + intercept;
+          if (tail[i] < tlVal * 0.99) belowCount++;
+        }
+        trendlineState = belowCount === 5 ? "confirmed_break" : "broken";
+      } else {
+        trendlineState = "intact";
+      }
+    }
+  }
+
+  // B5: MACD bearish divergence 감지 — 가격이 higher high 만든 후 MACD
+  // hist 가 lower high. 간소 구현: 직전 20 캔들 중 두 swing high 비교.
+  let macdBearishDivergence = false;
+  if (opts?.candles && opts.candles.length >= 26) {
+    const recent = opts.candles.slice(-30);
+    const closes = recent.map((c) => c.close);
+    // EMA(12) - EMA(26) approximation
+    const ema = (arr: number[], period: number): number[] => {
+      const out: number[] = [];
+      const k = 2 / (period + 1);
+      let prev = arr[0];
+      out.push(prev);
+      for (let i = 1; i < arr.length; i++) {
+        prev = arr[i] * k + prev * (1 - k);
+        out.push(prev);
+      }
+      return out;
+    };
+    const ema12 = ema(closes, 12);
+    const ema26 = ema(closes, 26);
+    const macdLine = closes.map((_, i) => ema12[i] - ema26[i]);
+    // 두 swing high 비교 (직전 5 vs 그 전 5)
+    const recentWin = closes.slice(-5);
+    const olderWin = closes.slice(-10, -5);
+    const recentMaxIdx = recentWin.indexOf(Math.max(...recentWin));
+    const olderMaxIdx = olderWin.indexOf(Math.max(...olderWin));
+    const recentPriceHigh = recentWin[recentMaxIdx];
+    const olderPriceHigh = olderWin[olderMaxIdx];
+    const recentMacdHigh = macdLine[macdLine.length - 5 + recentMaxIdx];
+    const olderMacdHigh = macdLine[macdLine.length - 10 + olderMaxIdx];
+    // Bearish divergence: price HH AND MACD LH
+    if (
+      recentPriceHigh > olderPriceHigh &&
+      recentMacdHigh < olderMacdHigh
+    ) {
+      macdBearishDivergence = true;
+    }
+  }
+
+  return decideExitForScanner({
+    price,
+    indicators: ind,
+    bearishPatterns,
+    trendlineState,
+    macdBearishDivergence,
+  });
 }
 
 // ── 시그널 강도 (5-component formula per spec) ────────────────────────────

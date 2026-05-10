@@ -119,9 +119,9 @@ describe("SHORT_CALIBRATION_PARAMS (P1-#3)", () => {
     expect(names).toContain("modifiersProduct-short");
   });
 
-  test("RSI-short edges [55, 60, 62, 65, 70, 75, 85] — 비대칭 미러", () => {
+  test("RSI-short edges [55, 60, 65, 68, 70, 75, 85] — alpha 튜닝 2026-05-10", () => {
     const rsiParam = SHORT_CALIBRATION_PARAMS.find((p) => p.name === "rsi-short");
-    expect(rsiParam?.edges).toEqual([55, 60, 62, 65, 70, 75, 85]);
+    expect(rsiParam?.edges).toEqual([55, 60, 65, 68, 70, 75, 85]);
     // 권고 임계 65 (audit S1: 비대칭 미러 회복)
     expect(rsiParam?.currentThreshold).toBe(65);
   });

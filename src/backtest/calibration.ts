@@ -318,9 +318,9 @@ export const STANDARD_CALIBRATION_PARAMS: CalibrationParam[] = [
 export const SHORT_CALIBRATION_PARAMS: CalibrationParam[] = [
   {
     name: "rsi-short",
-    label: "SHORT RSI (현재 62~75 진입 영역)",
+    label: "SHORT RSI (현재 65~75 진입 영역, alpha 튜닝 2026-05-10)",
     valueOf: (t) => t.rsi,
-    edges: [55, 60, 62, 65, 70, 75, 85],
+    edges: [55, 60, 65, 68, 70, 75, 85],
     currentThreshold: 65,
     direction: "min",
     dimension: 1,

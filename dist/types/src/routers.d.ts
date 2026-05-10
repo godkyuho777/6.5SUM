@@ -807,6 +807,33 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             meta: object;
         }>;
     }>>;
+    trend: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /**
+         * 단일 심볼의 멀티-TF Trend 분석. 5-min 캐시 자동 적용.
+         * default tfs: ["1h", "4h", "1d"] (15m 은 Bybit Spot 호환 위해 1h fallback).
+         */
+        analyze: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tfs?: ("1h" | "4h" | "1d" | "1w" | "15m")[] | undefined;
+            };
+            output: import("./trend").TrendAnalysisResult | {
+                symbol: string;
+                perTf: {};
+                alignment: "mixed";
+                waveMult: number;
+                overallConfidence: number;
+                computedAt: number;
+                error: string;
+            };
+            meta: object;
+        }>;
+    }>>;
     modifiers: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;

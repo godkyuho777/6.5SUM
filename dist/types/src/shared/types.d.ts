@@ -140,6 +140,13 @@ export interface EntryDecision {
     cvdDivergenceMult?: number;
     /** Order Block (5차원: structure, 베타) — 0.95~1.05 */
     orderBlockMult?: number;
+    /**
+     * Wave Alignment (Trend Analysis Engine v2.0) — 0.30~1.30.
+     * 멀티-TF 추세 정합. ADX/EMA 와 같은 3차원 지표를 사용하지만 측정 각도가
+     * 다름 (단일 TF strength vs 멀티-TF alignment). 헌장 규칙 1 면제.
+     * 헌장 규칙 3 준수: BBDX final_confidence × waveMult 곱셈에만 사용.
+     */
+    waveMult?: number;
 }
 /**
  * 매도(SHORT) 진입 결정. LONG `EntryDecision` 의 미러.

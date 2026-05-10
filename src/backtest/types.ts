@@ -13,6 +13,11 @@ import type { TimeframeValue } from "@shared/types";
 // Configuration
 // ─────────────────────────────────────────────────────────
 
+/**
+ * 전략 식별자 — `src/backtest/strategies/` 의 등록된 BacktestStrategy.name 와 일치.
+ */
+export type BacktestStrategyName = "bbdx" | "fibonacci" | "vwap" | "trend";
+
 export interface BacktestConfig {
   /** 백테스팅할 심볼 목록 */
   symbols: string[];
@@ -38,6 +43,11 @@ export interface BacktestConfig {
   saveToDb: boolean;
   /** 실행 이름 (리포트 파일명 등에 사용) */
   runName?: string;
+  /**
+   * 사용할 전략 (기본: bbdx).
+   * Signal Tracker 의 모든 투자 전략 + Wave Tracker Trend Analysis 백테스트.
+   */
+  strategy?: BacktestStrategyName;
 }
 
 export const DEFAULT_BACKTEST_CONFIG: Omit<BacktestConfig, "symbols" | "startDate" | "endDate"> = {
@@ -46,6 +56,7 @@ export const DEFAULT_BACKTEST_CONFIG: Omit<BacktestConfig, "symbols" | "startDat
   outcomeWindowCandles: 42, // 7 days on 4h
   cooldownCandles: 5,
   saveToDb: false,
+  strategy: "bbdx",
 };
 
 // ─────────────────────────────────────────────────────────
@@ -79,6 +90,12 @@ export interface BacktestTrade {
   signalTs: number;
   symbol: string;
   tf: TimeframeValue;
+  /** 어떤 전략으로 시그널이 발생했는지 (per-strategy 통계 분리용) */
+  strategy?: BacktestStrategyName;
+  /** 진입 충족 사유 (strategy.shouldEnter 의 reasons) */
+  entryReasons?: string[];
+  /** 전략별 메타 (Fib level, VWAP position, Trend confidence 등) */
+  strategyMeta?: Record<string, unknown>;
 
   // ── 진입 정보 ─────────────────────────────────────────
   /** 진입 가격 (시그널 발생 캔들 close) */

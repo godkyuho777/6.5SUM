@@ -12,20 +12,20 @@
  * - 진입 게이트 추가: Pattern Confluence (≥0.4) + Higher-TF SMA(50) 필터
  */
 import type { Candle } from "@shared/types";
+import "./strategies";
 import type { BacktestConfig, BacktestTrade } from "./types";
 /**
- * 단일 심볼의 전체 캔들에서 BBDX 시그널을 추출하고
- * 각 시그널의 outcome 을 측정한다.
+ * 단일 심볼의 전체 캔들에서 시그널을 추출하고 outcome 을 측정한다.
  *
- * v6.5 Phase 1 진입 게이트:
- *   1. isEntrySignal (RSI 30~35, BB lower, ADX ≤ 30)
- *   2. Falling Knife (-DI > +DI && ADX > 25 → 차단)
- *   3. Pattern Confluence ≥ 0.4 (NEW)
- *   4. Higher-TF SMA(50) Bullish (NEW, BEARISH 차단)
+ * v6.5 multi-strategy: BacktestConfig.strategy 로 4 전략 중 선택.
+ *   - bbdx (default)        — RSI/BB/ADX (v6.5 Phase 1+2+3)
+ *   - fibonacci             — Fib 골든존 진입
+ *   - vwap                  — VWAP+EMA Pullback
+ *   - trend                 — Multi-TF Trend Analysis
  *
- * @param symbol   심볼 (e.g. "BTCUSDT")
- * @param candles  해당 심볼의 전체 캔들 (oldest → newest)
- * @param config   백테스트 설정
+ * 각 전략은 strategies/<name>.ts 에서 BacktestStrategy 인터페이스 구현.
+ * shouldEnter (진입 조건) + getEntryParams (Tier 1/2 + Stop) 만 책임.
+ * Outcome 측정 / partial exit / 통계는 framework 가 처리.
  */
 export declare function extractSignalsFromCandles(symbol: string, candles: Candle[], config: BacktestConfig): BacktestTrade[];
 /**

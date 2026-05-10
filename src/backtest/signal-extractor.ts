@@ -13,18 +13,11 @@
  */
 
 import type { Candle } from "@shared/types";
-import {
-  calculateAllIndicators,
-  isEntrySignal,
-  calculateSignalStrength,
-  detectAllCandlePatterns,
-} from "../indicators";
-import { aggregatePatternScore } from "../patterns/aggregator";
-import {
-  computeEmaRibbon,
-  detectMacdDivergence,
-  detectOrderBlock,
-} from "../modifiers";
+import { calculateAllIndicators } from "../indicators";
+import { getStrategy } from "./strategies";
+// strategies/index.ts 의 side-effect import 가 모든 전략을 STRATEGY_REGISTRY 에 등록.
+// signal-extractor 는 BacktestConfig.strategy (default 'bbdx') 로 lookup.
+import "./strategies";
 import type { BacktestConfig, BacktestTrade, ExitReason, PartialExit } from "./types";
 
 // ─────────────────────────────────────────────────────────
@@ -193,59 +186,21 @@ function measureOutcomeTiered(
 }
 
 // ─────────────────────────────────────────────────────────
-// Higher-TF context (look-ahead safe)
+// Main extractor — strategy-driven (v6.5 multi-strategy)
 // ─────────────────────────────────────────────────────────
 
 /**
- * 같은 TF 캔들로 Higher-TF context 를 근사:
- *   SMA(50) 의 방향성 + 현재가 위치
+ * 단일 심볼의 전체 캔들에서 시그널을 추출하고 outcome 을 측정한다.
  *
- * Bullish 조건:
- *   - 현재가 > SMA(50)
- *   - SMA(50) 이 상승 추세 (현재 SMA - 20캔들 전 SMA > 0.5%)
+ * v6.5 multi-strategy: BacktestConfig.strategy 로 4 전략 중 선택.
+ *   - bbdx (default)        — RSI/BB/ADX (v6.5 Phase 1+2+3)
+ *   - fibonacci             — Fib 골든존 진입
+ *   - vwap                  — VWAP+EMA Pullback
+ *   - trend                 — Multi-TF Trend Analysis
  *
- * (별도 1D 캔들 fetch 없이도 추세 noise 일부 차단 가능. 진짜 1D 분석은
- *  cli.ts 에 데이터 로더 확장 후 multi-tf trend engine 통합 예정.)
- */
-function checkHigherTfBullish(candles: Candle[], idx: number): boolean {
-  if (idx < 50) return true; // warmup 부족 → 통과 (보수적이지 않음)
-  const slice = candles.slice(Math.max(0, idx - 49), idx + 1);
-  const closes = slice.map((c) => c.close);
-  const smaCurrent = closes.reduce((a, b) => a + b, 0) / closes.length;
-
-  // 20 캔들 전 SMA(50) 비교 위해 idx-20 시점의 SMA 계산
-  const idxBack = idx - 20;
-  if (idxBack < 50) return candles[idx].close >= smaCurrent;
-  const sliceBack = candles.slice(Math.max(0, idxBack - 49), idxBack + 1);
-  const closesBack = sliceBack.map((c) => c.close);
-  const smaBack = closesBack.reduce((a, b) => a + b, 0) / closesBack.length;
-
-  const slope = (smaCurrent - smaBack) / smaBack; // 상승률
-  const priceAbove = candles[idx].close >= smaCurrent;
-
-  // BEARISH 차단: SMA 가 -1% 이상 하락 + 가격이 SMA 아래
-  if (slope < -0.01 && !priceAbove) return false;
-
-  return true; // 그 외는 진입 허용 (sideways 도 진입)
-}
-
-// ─────────────────────────────────────────────────────────
-// Main extractor
-// ─────────────────────────────────────────────────────────
-
-/**
- * 단일 심볼의 전체 캔들에서 BBDX 시그널을 추출하고
- * 각 시그널의 outcome 을 측정한다.
- *
- * v6.5 Phase 1 진입 게이트:
- *   1. isEntrySignal (RSI 30~35, BB lower, ADX ≤ 30)
- *   2. Falling Knife (-DI > +DI && ADX > 25 → 차단)
- *   3. Pattern Confluence ≥ 0.4 (NEW)
- *   4. Higher-TF SMA(50) Bullish (NEW, BEARISH 차단)
- *
- * @param symbol   심볼 (e.g. "BTCUSDT")
- * @param candles  해당 심볼의 전체 캔들 (oldest → newest)
- * @param config   백테스트 설정
+ * 각 전략은 strategies/<name>.ts 에서 BacktestStrategy 인터페이스 구현.
+ * shouldEnter (진입 조건) + getEntryParams (Tier 1/2 + Stop) 만 책임.
+ * Outcome 측정 / partial exit / 통계는 framework 가 처리.
  */
 export function extractSignalsFromCandles(
   symbol: string,
@@ -253,6 +208,8 @@ export function extractSignalsFromCandles(
   config: BacktestConfig,
 ): BacktestTrade[] {
   const { tf, minWarmupCandles, outcomeWindowCandles, cooldownCandles } = config;
+  const strategyName = config.strategy ?? "bbdx";
+  const strategy = getStrategy(strategyName);
 
   const trades: BacktestTrade[] = [];
   const maxSignalIdx = candles.length - outcomeWindowCandles - 1;
@@ -275,65 +232,45 @@ export function extractSignalsFromCandles(
     const indicators = calculateAllIndicators(windowCandles);
     const price = candles[i].close;
 
-    // Gate 1: 기본 BBDX 진입 조건
-    if (!isEntrySignal(price, indicators)) continue;
+    // ── Strategy 진입 조건 평가 ──────────────────────────
+    const evaluation = strategy.shouldEnter(candles, i, indicators, windowCandles);
+    if (!evaluation.entry) continue;
 
-    // Gate 2: Falling Knife 필터
-    if (indicators.minusDi > indicators.plusDi && indicators.adx > 25) continue;
+    // ── Strategy 청산 파라미터 산출 ──────────────────────
+    const params = strategy.getEntryParams(
+      candles,
+      i,
+      indicators,
+      price,
+      windowCandles,
+    );
 
-    // Gate 3 (NEW): Pattern Confluence — bullish score ≥ 0.4
-    const allPatterns = detectAllCandlePatterns(windowCandles);
-    const bullishPatterns = allPatterns.filter((p) => p.bias === "bullish");
-    const patternConfluenceScore = aggregatePatternScore(bullishPatterns);
-    if (patternConfluenceScore < 0.4) continue;
-
-    // Gate 4 (NEW): Higher-TF SMA(50) Bullish
-    const higherTfBullish = checkHigherTfBullish(candles, i);
-    if (!higherTfBullish) continue;
-
-    // ── 진입 파라미터 (v6.5 Phase 1: tiered) ─────────────
-    const entryPrice = price;
-    const target1 = indicators.bbMiddle; // Tier 1 (50%)
-    const target2 = Math.min(indicators.bbUpper, entryPrice * 1.05); // Tier 2 (full)
-    const stopLoss = Math.max(indicators.bbLower * 0.97, entryPrice * 0.98);
-    const signalStrength = calculateSignalStrength(price, indicators);
-
-    // ── v6.5 Phase 2: Modifier multipliers (헌장 규칙 3) ──
-    // 헌장 규칙 3 준수: 차단 X. 추적만 해서 calibration 데이터로 활용.
-    // 향후 Phase 3 calibration 결과로 곱셈 통합 임계값 자동 도출.
-    let emaRibbonMult = 1.0;
-    let macdDivergenceMult = 1.0;
-    let orderBlockMult = 1.0;
-    try {
-      emaRibbonMult = computeEmaRibbon(windowCandles).multiplier;
-      macdDivergenceMult = detectMacdDivergence(windowCandles).multiplier;
-      orderBlockMult = detectOrderBlock(windowCandles).multiplier;
-    } catch {
-      // graceful — modifier 실패가 백테스트를 깨지 않도록
-    }
-    const modifiersProduct = emaRibbonMult * macdDivergenceMult * orderBlockMult;
-    const adjustedConfidence = signalStrength * modifiersProduct;
-
-    // ── Outcome 측정 (candles[i+1..] 만 사용) ─────────────
+    // ── Outcome 측정 (candles[i+1..] 만 사용, framework 책임) ──
     const outcome = measureOutcomeTiered(
       candles,
       i,
-      entryPrice,
-      target1,
-      target2,
-      stopLoss,
+      price,
+      params.target1,
+      params.target2,
+      params.stopLoss,
       outcomeWindowCandles,
     );
+
+    // 메타 추출 (각 전략별 다른 필드)
+    const meta = evaluation.metadata ?? {};
 
     const trade: BacktestTrade = {
       signalTs: candles[i].openTime,
       symbol,
       tf,
-      entryPrice,
-      target: target1,
-      target2,
-      stopLoss,
-      signalStrength,
+      strategy: strategyName,
+      entryReasons: evaluation.reasons,
+      strategyMeta: meta as Record<string, unknown>,
+      entryPrice: price,
+      target: params.target1,
+      target2: params.target2,
+      stopLoss: params.stopLoss,
+      signalStrength: params.signalStrength,
       rsi: indicators.rsi,
       bbLower: indicators.bbLower,
       bbMiddle: indicators.bbMiddle,
@@ -341,13 +278,29 @@ export function extractSignalsFromCandles(
       adx: indicators.adx,
       plusDi: indicators.plusDi,
       minusDi: indicators.minusDi,
-      patternConfluenceScore,
-      higherTfBullish,
-      emaRibbonMult,
-      macdDivergenceMult,
-      orderBlockMult,
-      modifiersProduct,
-      adjustedConfidence,
+      // 전략별 metadata 에서 추출 (BBDX 의 Phase 1+2 필드)
+      patternConfluenceScore:
+        typeof meta.patternConfluenceScore === "number"
+          ? meta.patternConfluenceScore
+          : undefined,
+      higherTfBullish:
+        typeof meta.higherTfBullish === "boolean" ? meta.higherTfBullish : undefined,
+      emaRibbonMult:
+        typeof meta.emaRibbonMult === "number" ? meta.emaRibbonMult : undefined,
+      macdDivergenceMult:
+        typeof meta.macdDivergenceMult === "number"
+          ? meta.macdDivergenceMult
+          : undefined,
+      orderBlockMult:
+        typeof meta.orderBlockMult === "number" ? meta.orderBlockMult : undefined,
+      modifiersProduct:
+        typeof meta.modifiersProduct === "number"
+          ? meta.modifiersProduct
+          : undefined,
+      adjustedConfidence:
+        typeof meta.modifiersProduct === "number"
+          ? params.signalStrength * meta.modifiersProduct
+          : undefined,
       ...outcome,
     };
 

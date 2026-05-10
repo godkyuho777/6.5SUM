@@ -40,6 +40,7 @@ import {
   detectMacdDivergence,
   detectOrderBlock,
 } from "./modifiers";
+import { analyzeTrend } from "./trend/analyze";
 
 /**
  * Aggregator 결과 → CoinScanResult 의 PatternConfluenceSummary.
@@ -293,6 +294,22 @@ export async function scanCoin(
         // graceful — 추가 modifier 실패가 BBDX 시그널을 깨지 않도록.
         console.warn(
           `[Scanner] Additional modifiers failed for ${symbol}: ${String(err?.message ?? err)}`
+        );
+      }
+    }
+
+    // ── Trend Analysis Wave Alignment 통합 (헌장 규칙 3, modifier-only). ──
+    // analyzeTrend 는 5-min 캐시 → scanner hot path 에서 매번 호출해도 안전.
+    // 외부 fetchKlines 실패는 SIDEWAYS fallback 으로 흡수 → throw 안 함.
+    // 단, scanner 가 너무 무거워질 위험 → 1h/4h/1d 3 TF 만 사용 (15m 제외).
+    if (entryDecision) {
+      try {
+        const trend = await analyzeTrend(symbol, ["1h", "4h", "1d"]);
+        entryDecision.waveMult = trend.waveMult;
+      } catch (err: any) {
+        // graceful — 실패 시 multiplier 미설정 (= 1.0 동치).
+        console.warn(
+          `[Scanner] Trend analysis failed for ${symbol}: ${String(err?.message ?? err)}`
         );
       }
     }

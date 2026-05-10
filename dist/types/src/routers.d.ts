@@ -433,6 +433,21 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             meta: object;
         }>;
         /**
+         * 사용 가능한 백테스트 전략 목록
+         * (BBDX, Fibonacci, VWAP, Trend Analysis)
+         * 프론트엔드 dropdown 채우는 용도.
+         */
+        listStrategies: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: {
+                name: string;
+                label: string;
+                description: string;
+                dimensionsCovered: number[];
+            }[];
+            meta: object;
+        }>;
+        /**
          * 백테스트 즉시 실행 (서버에서 동기 실행, 응답 최대 5분)
          * 결과는 saveToDb=true 일 때 DB에 저장됨
          *
@@ -449,6 +464,7 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 cooldownCandles?: number | undefined;
                 saveToDb?: boolean | undefined;
                 runName?: string | undefined;
+                strategy?: "vwap" | "bbdx" | "fibonacci" | "trend" | undefined;
             };
             output: {
                 runId: number | undefined;

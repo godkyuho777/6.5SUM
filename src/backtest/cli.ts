@@ -24,8 +24,13 @@ import { TOP_COINS } from "@shared/types";
 
 // ─── 인자 파싱 ───────────────────────────────────────────
 
-function parseArgs(argv: string[]): BacktestCliArgs & { calibrate?: boolean } {
-  const args: BacktestCliArgs & { calibrate?: boolean } = {};
+type ExtendedArgs = BacktestCliArgs & {
+  calibrate?: boolean;
+  strategy?: "bbdx" | "fibonacci" | "vwap" | "trend";
+};
+
+function parseArgs(argv: string[]): ExtendedArgs {
+  const args: ExtendedArgs = {};
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     switch (arg) {
@@ -59,6 +64,10 @@ function parseArgs(argv: string[]): BacktestCliArgs & { calibrate?: boolean } {
       case "--calibrate":
         // v6.5 Phase 3: 백테스트 후 자동 calibration 리포트 생성
         args.calibrate = true;
+        break;
+      case "--strategy":
+        // v6.5 multi-strategy: bbdx | fibonacci | vwap | trend
+        args.strategy = argv[++i] as ExtendedArgs["strategy"];
         break;
     }
   }
@@ -99,6 +108,10 @@ async function main() {
 
   console.log("🚀 Tradelab Backtesting Engine Starting...\n");
 
+  const strategy = args.strategy ?? "bbdx";
+
+  console.log(`   Strategy: ${strategy}`);
+
   const result = await runBacktest({
     symbols,
     tf,
@@ -107,7 +120,8 @@ async function main() {
     outcomeWindowCandles,
     cooldownCandles: args.cooldown ?? 5,
     saveToDb: args.saveToDb ?? false,
-    runName: args.runName ?? `${tf}_${symbols.length}coins`,
+    runName: args.runName ?? `${strategy}_${tf}_${symbols.length}coins`,
+    strategy,
   });
 
   // 리포트 저장

@@ -102,16 +102,17 @@ export const bbdxStrategy: BacktestStrategy = {
     reasons.push(`Entry path: ${entryDecision.path}`);
     entryDecision.reasons.forEach((r) => reasons.push(r));
 
-    // Gate 3: Pattern Confluence ≥ 0.4 (NUM path 안전망 — D4 권고)
+    // P1-② fix (2026-05-11): 모든 path Pattern Confluence ≥ 0.4 hard gate.
+    //   P0 적용 후 365d 결과: 1728 trades (4.7/day) — over-trading 으로
+    //   PF 0.44, MDD 100%. NUM path soft gate 0.2 너무 헐거움.
+    //   모든 path 동일 0.4 임계 → 진입 빈도 ↓, winRate ↑ 예상.
+    //   Audit D4 권고: 5차원 structure 커버 필수.
     const bullishPatterns = allPatterns.filter((p) => p.bias === "bullish");
     const patternConfluenceScore = aggregatePatternScore(bullishPatterns);
-    if (entryDecision.path === "NUM" && patternConfluenceScore < 0.2) {
-      // NUM path 만 patternConfluence 약한 soft gate (audit D4 권고)
+    if (patternConfluenceScore < 0.4) {
       return { entry: false };
     }
-    if (patternConfluenceScore >= 0.4) {
-      reasons.push(`Pattern Confluence ${(patternConfluenceScore * 100).toFixed(0)} ≥ 40`);
-    }
+    reasons.push(`Pattern Confluence ${(patternConfluenceScore * 100).toFixed(0)} ≥ 40`);
 
     // Gate 4: Higher-TF SMA(50)
     const higherTfBullish = checkHigherTfBullish(candles, idx);
@@ -152,20 +153,30 @@ export const bbdxStrategy: BacktestStrategy = {
     entryPrice: number,
     windowCandles: Candle[],
   ): EntryParams {
-    const target1 = indicators.bbMiddle;
-    const target2 = Math.min(indicators.bbUpper, entryPrice * 1.05);
-
-    // P0-① fix (2026-05-11): ATR 1.5σ 기반 stop — 진단 결과 이전 stop
-    // (`max(bbLower × 0.97, entry × 0.98)`) 가 너무 좁아 trade 80.8% 가
-    // Tier 1 도달 전 stop_loss. ATR 기반 변동성-적응으로 변경:
-    //
-    //   stopLoss = max(
-    //     entry - 1.5 × ATR,     // 변동성 적응
-    //     bbLower × 0.92         // 절대 floor (-8% of bbLower)
-    //   )
-    //
-    // ATR 계산 실패 시 (캔들 부족) → legacy fallback.
     const atr = calculateATR(windowCandles);
+
+    // P1-① fix (2026-05-11): Tier 1 = bbMiddle + 0.5 × ATR — 짧은 bounce 잘림 방지.
+    //   P0 적용 후 365d 결과: tier1_then_stop 45.1% (Tier 1 도달 후 BE 회귀
+    //   stop). 원인: Tier 1 = bbMiddle 이 entry 근처 → normal pullback 도
+    //   Tier 1 도달 → 잔여 50% 가 entry (BE) 회귀하면서 무수익 청산.
+    //
+    //   bbMiddle + 0.5 × ATR → 짧은 bounce 보다 *의미 있는 trend continuation*
+    //   까지 가야 Tier 1 인정. ATR 부재 시 bbMiddle 단독 fallback.
+    const target1 =
+      atr > 0
+        ? indicators.bbMiddle + 0.5 * atr
+        : indicators.bbMiddle;
+
+    // P1-① fix: Tier 2 = max(bbUpper, entry + 2 × ATR) 또는 entry × 1.05 중 작은 쪽.
+    //   기존 min(bbUpper, entry × 1.05) 가 좁은 BB 코인에서 너무 가까움.
+    //   ATR 기반 floor 추가 → 변동성 큰 코인은 더 멀리 target.
+    const atrTarget2 = atr > 0 ? entryPrice + 2 * atr : entryPrice * 1.05;
+    const target2 = Math.min(
+      Math.max(indicators.bbUpper, atrTarget2),
+      entryPrice * 1.08, // 8% cap (너무 멀어지지 않도록)
+    );
+
+    // P0-① stop placement (ATR 1.5σ)
     let stopLoss: number;
     if (atr > 0) {
       const atrStop = entryPrice - 1.5 * atr;

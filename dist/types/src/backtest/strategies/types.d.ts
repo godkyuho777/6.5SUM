@@ -17,7 +17,7 @@
  */
 import type { Candle, TechnicalIndicators } from "@shared/types";
 /** 전략 식별자 */
-export type StrategyName = "bbdx" | "bbdx-short" | "fibonacci" | "vwap" | "trend";
+export type StrategyName = "bbdx" | "bbdx-short" | "fibonacci" | "vwap" | "trend" | "trend-follow";
 /** 매매 방향 — outcome 측정 시 가격 방향 기준이 됨. */
 export type StrategySide = "long" | "short";
 /** 진입 조건 평가 결과 */

@@ -464,7 +464,7 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 cooldownCandles?: number | undefined;
                 saveToDb?: boolean | undefined;
                 runName?: string | undefined;
-                strategy?: "vwap" | "bbdx" | "bbdx-short" | "fibonacci" | "trend" | undefined;
+                strategy?: "vwap" | "bbdx" | "bbdx-short" | "fibonacci" | "trend" | "trend-follow" | undefined;
             };
             output: {
                 runId: number | undefined;
@@ -481,6 +481,19 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 durationMs: number;
                 trades: import("./backtest/types").BacktestTrade[];
             };
+            meta: object;
+        }>;
+    }>>;
+    cycle: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /** BTC 200d MA cycle regime (bull / bear / neutral) */
+        btc: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: import("./cycle/btc-regime").BtcCycleResult;
             meta: object;
         }>;
     }>>;

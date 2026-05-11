@@ -11,6 +11,7 @@ import "./bbdx-short";
 import "./fibonacci";
 import "./vwap";
 import "./trend";
+import "./trend-follow";
 
 export {
   STRATEGY_REGISTRY,
@@ -29,6 +30,7 @@ export { bbdxShortStrategy } from "./bbdx-short";
 export { fibonacciStrategy } from "./fibonacci";
 export { vwapStrategy } from "./vwap";
 export { trendStrategy } from "./trend";
+export { trendFollowStrategy } from "./trend-follow";
 
 import { STRATEGY_REGISTRY } from "./types";
 

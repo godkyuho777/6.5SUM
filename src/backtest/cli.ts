@@ -29,7 +29,13 @@ import { TOP_COINS } from "@shared/types";
 
 type ExtendedArgs = BacktestCliArgs & {
   calibrate?: boolean;
-  strategy?: "bbdx" | "bbdx-short" | "fibonacci" | "vwap" | "trend";
+  strategy?:
+    | "bbdx"
+    | "bbdx-short"
+    | "fibonacci"
+    | "vwap"
+    | "trend"
+    | "trend-follow";
 };
 
 function parseArgs(argv: string[]): ExtendedArgs {

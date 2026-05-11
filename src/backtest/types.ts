@@ -21,7 +21,8 @@ export type BacktestStrategyName =
   | "bbdx-short"
   | "fibonacci"
   | "vwap"
-  | "trend";
+  | "trend"
+  | "trend-follow";
 
 /** 매매 방향 (BacktestTrade 에 직렬화). */
 export type BacktestSide = "long" | "short";

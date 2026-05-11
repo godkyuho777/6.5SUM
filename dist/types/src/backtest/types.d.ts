@@ -10,7 +10,7 @@ import type { TimeframeValue } from "@shared/types";
 /**
  * 전략 식별자 — `src/backtest/strategies/` 의 등록된 BacktestStrategy.name 와 일치.
  */
-export type BacktestStrategyName = "bbdx" | "bbdx-short" | "fibonacci" | "vwap" | "trend";
+export type BacktestStrategyName = "bbdx" | "bbdx-short" | "fibonacci" | "vwap" | "trend" | "trend-follow";
 /** 매매 방향 (BacktestTrade 에 직렬화). */
 export type BacktestSide = "long" | "short";
 export interface BacktestConfig {

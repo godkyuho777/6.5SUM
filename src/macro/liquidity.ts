@@ -50,6 +50,17 @@ export interface MacroLiquidityResult {
   breakdown: MacroBreakdown;
   /** Inputs that were missing — surfaces in the UI as "data sparse". */
   missingInputs: string[];
+  /**
+   * v2 composite contribution to score (optional — populated only when
+   * `computeMacroScoreV2` is called with composite signals).
+   *   c1>0.6 → -20 (crisis 강화)
+   *   c2>0.8 → +20 (risk-on 강화)
+   */
+  compositeAdjustment?: {
+    c1Applied: boolean;
+    c2Applied: boolean;
+    delta: number;
+  };
 }
 
 function clamp(value: number, lo: number, hi: number): number {
@@ -173,5 +184,55 @@ export function computeMacroScore(
     mult,
     breakdown,
     missingInputs,
+  };
+}
+
+// ─────────────────────────────────────────────────────────
+// v2 — composite-signal weighted scoring (MACRO_v2 §3.3)
+// ─────────────────────────────────────────────────────────
+
+import type { CompositeSignals } from "./composite-signals";
+
+export interface MacroLiquidityV2Result extends MacroLiquidityResult {
+  composite: CompositeSignals;
+}
+
+/**
+ * v2 score: 기존 single-indicator score 위에 C1/C2 composite 가중을 더함.
+ *
+ * 규칙 (MACRO_v2 §3.3):
+ *   c1 > 0.6 → score -= 20 (crisis 강화)
+ *   c2 > 0.8 → score += 20 (risk-on 강화)
+ *
+ * 기존 `computeMacroScore` 시그니처를 깨지 않기 위해 신규 함수로 분리.
+ */
+export function computeMacroScoreV2(
+  inputs: MacroLiquidityInputs,
+  composite: CompositeSignals,
+): MacroLiquidityV2Result {
+  const base = computeMacroScore(inputs);
+
+  let delta = 0;
+  const c1Applied = composite.c1_crisis > 0.6;
+  const c2Applied = composite.c2_riskOn > 0.8;
+  if (c1Applied) delta -= 20;
+  if (c2Applied) delta += 20;
+
+  const newScore = clamp(base.score + delta, -100, 100);
+  const newRegime = ((): MacroRegime => {
+    if (newScore < -50) return "crisis";
+    if (newScore <= -15) return "tight";
+    if (newScore < 15) return "neutral";
+    if (newScore <= 50) return "easy";
+    return "flooded";
+  })();
+
+  return {
+    ...base,
+    score: newScore,
+    regime: newRegime,
+    mult: MACRO_MULTIPLIERS[newRegime],
+    compositeAdjustment: { c1Applied, c2Applied, delta },
+    composite,
   };
 }

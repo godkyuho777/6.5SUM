@@ -77,6 +77,20 @@ export const INDICATOR_REGISTRY: Readonly<Record<string, IndicatorMeta>> = {
   "Fear&Greed": { name: "Fear&Greed", dimension: "macro" },
   BTC_dominance: { name: "BTC_dominance", dimension: "macro" },
   Macro_Liquidity: { name: "Macro_Liquidity", dimension: "macro" },
+  // MACRO_v2 composite signals (등록 — INDICATOR_TO_DIMENSION 와 정합).
+  // 모두 macro 차원의 다른 측정 각도이므로 rule1Exempt 필요 시 별도 처리.
+  Macro_C1_Crisis: { name: "Macro_C1_Crisis", dimension: "macro" },
+  Macro_C2_RiskOn: { name: "Macro_C2_RiskOn", dimension: "macro" },
+  Macro_C3_NetLiquidity: { name: "Macro_C3_NetLiquidity", dimension: "macro" },
+  Macro_C4_CyclePhase: { name: "Macro_C4_CyclePhase", dimension: "macro" },
+  Macro_VIX: { name: "Macro_VIX", dimension: "macro" },
+  Macro_DXY_30d: { name: "Macro_DXY_30d", dimension: "macro" },
+  Macro_RealRate: { name: "Macro_RealRate", dimension: "macro" },
+  Macro_YieldCurve: { name: "Macro_YieldCurve", dimension: "macro" },
+  Macro_WALCL_30d: { name: "Macro_WALCL_30d", dimension: "macro" },
+  Macro_RRP_TGA_30d: { name: "Macro_RRP_TGA_30d", dimension: "macro" },
+  Macro_BOK_Rate_90d: { name: "Macro_BOK_Rate_90d", dimension: "macro" },
+  Macro_KRW_30d: { name: "Macro_KRW_30d", dimension: "macro" },
 
   // ── 7. Onchain
   Exchange_Netflow: { name: "Exchange_Netflow", dimension: "onchain" },

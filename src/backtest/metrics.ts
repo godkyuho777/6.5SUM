@@ -9,6 +9,85 @@
  */
 
 import type { BacktestTrade, BacktestMetrics } from "./types";
+import { wilsonScoreInterval } from "./calibration";
+
+// ─────────────────────────────────────────────────────────
+// Transaction cost model (P1.G fix — DUAL_BACKTEST §6.x)
+// ─────────────────────────────────────────────────────────
+
+/** Default trading cost assumptions. Override via `applyCostModel` opts. */
+export const DEFAULT_COST_MODEL = {
+  /** Taker fee per side, fraction. Bybit Spot 0.1%. */
+  fee_pct: 0.001,
+  /** Estimated slippage per side, fraction. */
+  slippage_pct: 0.0005,
+} as const;
+
+export interface CostModel {
+  fee_pct: number;
+  slippage_pct: number;
+}
+
+/** Adjust a raw returnPct by round-trip fee + slippage. Pure helper. */
+export function applyCostModel(
+  rawReturnPct: number,
+  model: CostModel = DEFAULT_COST_MODEL,
+): number {
+  // round-trip cost in %: (fee + slippage) × 2
+  const cost = (model.fee_pct + model.slippage_pct) * 2 * 100;
+  return rawReturnPct - cost;
+}
+
+// ─────────────────────────────────────────────────────────
+// Sample sufficiency classifier (P1.G — DUAL_BACKTEST §6.1)
+// ─────────────────────────────────────────────────────────
+
+export type SampleSufficiencyLabel =
+  | "sufficient"
+  | "marginal"
+  | "insufficient";
+
+/**
+ * 표본 충분성 분류. 신뢰구간 폭과 표본 크기 둘 다 검사.
+ *   n>=100 + CI width <0.15 → sufficient
+ *   n>=30  + CI width <0.25 → marginal
+ *   else                     → insufficient
+ */
+export function classifySampleSufficiency(
+  n: number,
+  winRate: number,
+): SampleSufficiencyLabel {
+  if (n <= 0) return "insufficient";
+  const wins = Math.round(winRate * n);
+  const { lower, upper } = wilsonScoreInterval(wins, n);
+  const width = upper - lower;
+  if (n >= 100 && width < 0.15) return "sufficient";
+  if (n >= 30 && width < 0.25) return "marginal";
+  return "insufficient";
+}
+
+/**
+ * Wilson CI 를 winRate 옆에 부착한 확장 메트릭.
+ * 기존 BacktestMetrics 를 확장하므로 backward-compat 유지.
+ */
+export interface BacktestMetricsExt extends BacktestMetrics {
+  ci_low: number;
+  ci_high: number;
+  sample_sufficiency: SampleSufficiencyLabel;
+}
+
+export function withCi(metrics: BacktestMetrics): BacktestMetricsExt {
+  const { lower, upper } = wilsonScoreInterval(metrics.wins, metrics.totalTrades);
+  return {
+    ...metrics,
+    ci_low: lower,
+    ci_high: upper,
+    sample_sufficiency: classifySampleSufficiency(
+      metrics.totalTrades,
+      metrics.winRate,
+    ),
+  };
+}
 
 function mean(arr: number[]): number {
   if (arr.length === 0) return 0;

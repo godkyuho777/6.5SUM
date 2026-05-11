@@ -16,7 +16,23 @@ import {
   computeMetrics,
   computeMetricsBySymbol,
   computeMetricsByTf,
+  classifySampleSufficiency,
+  applyCostModel,
+  DEFAULT_COST_MODEL,
 } from "./metrics";
+import { wilsonScoreInterval } from "./calibration";
+
+/**
+ * Look-ahead bias 보장 (P1.G — DUAL_BACKTEST §1.3):
+ *
+ *   signal-extractor.ts 는 캔들 i 의 결정에 `candles[0..i]` 슬라이스만 사용.
+ *   결과 측정은 `candles[i+1..i+window]` 만. 두 데이터 집합이 절대 섞이지
+ *   않는다 (해당 파일 doc 참조).
+ *
+ *   본 runner 단계에서 별도 assertNoLookahead 호출 X — signal-extractor
+ *   가 이미 lookahead-free 보장 (구조적). Timeline 기반 엔진 A/B 는
+ *   `timeline-types.ts:assertNoLookahead` 별도 호출.
+ */
 
 // ─── DB 저장 (옵션) ──────────────────────────────────────
 
@@ -138,20 +154,44 @@ export async function runBacktest(
 
   // ── Step 2: 시그널 추출 & 결과 측정 ─────────────────
   console.log("\n▶ Step 2/3: Signal extraction & outcome measurement...");
-  const trades: BacktestTrade[] = extractAllSignals(
+  const rawTrades: BacktestTrade[] = extractAllSignals(
     candleMap,
     config,
     (done, total, sym) => {
       process.stdout.write(`\r   [${done}/${total}] ${sym.padEnd(12)}`);
     }
   );
-  console.log(`\n   Extracted ${trades.length} signals`);
+  console.log(`\n   Extracted ${rawTrades.length} signals`);
+
+  // ── BACKTEST_DEFECT_AUDIT D1: cost-model 적용 ────────
+  // signal-extractor 의 measureOutcomeTiered 가 반환하는 returnPct 는 raw —
+  // 여기에서 round-trip fee + slippage 차감하여 trade.win/returnPct 갱신.
+  const costModel = {
+    fee_pct: config.feePct ?? DEFAULT_COST_MODEL.fee_pct,
+    slippage_pct: config.slippagePct ?? DEFAULT_COST_MODEL.slippage_pct,
+  };
+  const trades: BacktestTrade[] = rawTrades.map((t) => {
+    const adjusted = applyCostModel(t.returnPct, costModel);
+    return {
+      ...t,
+      returnPct: adjusted,
+      win: adjusted > 0,
+    };
+  });
 
   // ── Step 3: 통계 계산 ────────────────────────────────
   console.log("\n▶ Step 3/3: Computing metrics...");
   const overall = computeMetrics(trades);
   const bySymbol = computeMetricsBySymbol(trades);
   const byTf = computeMetricsByTf(trades);
+
+  // ── BACKTEST_DEFECT_AUDIT D2/D4: Wilson CI + sample sufficiency ──
+  const ci = wilsonScoreInterval(overall.wins, overall.totalTrades);
+  const overallCi = { lower: ci.lower, upper: ci.upper };
+  const overallSampleSufficiency = classifySampleSufficiency(
+    overall.totalTrades,
+    overall.winRate,
+  );
 
   const durationMs = Date.now() - wallStart;
 
@@ -163,6 +203,12 @@ export async function runBacktest(
     trades,
     runAt: new Date().toISOString(),
     durationMs,
+    overallCi,
+    overallSampleSufficiency,
+    appliedCostModel: {
+      feePct: costModel.fee_pct,
+      slippagePct: costModel.slippage_pct,
+    },
   };
 
   // ── (옵션) DB 저장 ────────────────────────────────────
@@ -175,10 +221,17 @@ export async function runBacktest(
   const elapsed = (durationMs / 1000).toFixed(1);
   console.log(`\n✓ Backtest complete in ${elapsed}s`);
   console.log(`  Total trades: ${overall.totalTrades}`);
-  console.log(`  Win rate: ${(overall.winRate * 100).toFixed(1)}%`);
-  console.log(`  Avg return: ${overall.avgReturn.toFixed(2)}%`);
+  console.log(
+    `  Win rate: ${(overall.winRate * 100).toFixed(1)}% ` +
+      `(95% CI ${(overallCi.lower * 100).toFixed(1)}~${(overallCi.upper * 100).toFixed(1)}%)`,
+  );
+  console.log(`  Avg return: ${overall.avgReturn.toFixed(2)}% (post fee+slippage)`);
   console.log(`  Sharpe: ${overall.sharpe.toFixed(3)}`);
-  console.log(`  Max drawdown: ${overall.maxDrawdown.toFixed(2)}%\n`);
+  console.log(`  Max drawdown: ${overall.maxDrawdown.toFixed(2)}%`);
+  console.log(`  Sample sufficiency: ${overallSampleSufficiency}`);
+  console.log(
+    `  Cost model: fee=${costModel.fee_pct} slippage=${costModel.slippage_pct} (round-trip)\n`,
+  );
 
   return result;
 }

@@ -267,6 +267,16 @@ export function extractSignalsFromCandles(
 
     // ── Lookahead-free: candles[0..i] 만 사용 ────────────
     const windowCandles = candles.slice(Math.max(0, i - 199), i + 1);
+    // BACKTEST_DEFECT_AUDIT D3 — DEV sanity: windowCandles 의 마지막 캔들이
+    // 정확히 candles[i] 인지 확인. strategy 가 future bar 를 참조하지 않도록.
+    if (process.env.NODE_ENV !== "production") {
+      const last = windowCandles[windowCandles.length - 1];
+      if (last !== candles[i]) {
+        throw new Error(
+          `[signal-extractor] LOOKAHEAD: windowCandles tail !== candles[${i}]`,
+        );
+      }
+    }
     const indicators = calculateAllIndicators(windowCandles);
     const price = candles[i].close;
 

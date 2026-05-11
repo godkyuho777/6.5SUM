@@ -93,6 +93,31 @@ function trueRange(high: number, low: number, prevClose: number): number {
 }
 
 /**
+ * ATR (Average True Range) — Wilder smoothing.
+ *
+ * P0-① fix (2026-05-11) — Backtest 진단 결과 stop placement 너무 좁아 trade
+ * 80.8% 가 stop_loss 로 끝남. ATR 기반 변동성-적응 stop 으로 회복 시도.
+ *
+ * @param candles 캔들 배열 (length >= period+1 필요)
+ * @param period  ATR 기간 (기본 14)
+ * @returns ATR 값 (price 단위, 항상 양수)
+ */
+export function calculateATR(candles: Candle[], period = 14): number {
+  if (candles.length < period + 1) return 0;
+  const trArr: number[] = [];
+  for (let i = 1; i < candles.length; i++) {
+    trArr.push(trueRange(candles[i].high, candles[i].low, candles[i - 1].close));
+  }
+  // Wilder smoothing — initial SMA + EMA(α=1/period)
+  if (trArr.length < period) return 0;
+  let atr = trArr.slice(0, period).reduce((a, b) => a + b, 0) / period;
+  for (let i = period; i < trArr.length; i++) {
+    atr = (atr * (period - 1) + trArr[i]) / period;
+  }
+  return atr;
+}
+
+/**
  * ADX (Average Directional Index) 계산
  * +DI, -DI 포함
  * @param candles - 캔들 데이터 배열

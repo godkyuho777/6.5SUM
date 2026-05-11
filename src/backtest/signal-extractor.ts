@@ -73,6 +73,15 @@ function measureOutcomeTiered(
   let remaining = 1.0;
   let lastCandleIdx = endIdx;
 
+  // P0-② fix (2026-05-11): Tier 1 도달 후 stop 을 entry 로 이동 (breakeven).
+  //   진단 결과: tier1_then_stop 1.9% 외에도 *Tier 1 미도달 후 즉시 stop*
+  //   비율 80.8%. Tier 1 도달 후 잔여 50% 의 stop 을 *원래 stop* 으로 유지
+  //   하면 trend reversal 시 손실로 끝남. BE 이동으로 잔여 50% 손실 cap.
+  //
+  //   long:  effectiveStop = max(stopLoss, entryPrice)
+  //   short: effectiveStop = min(stopLoss, entryPrice)
+  let effectiveStop = stopLoss;
+
   // 가중 청산 가격/수익률 누적
   let weightedExitPrice = 0;
   let weightedReturnPct = 0;
@@ -96,16 +105,16 @@ function measureOutcomeTiered(
     if (c.high > maxHigh) maxHigh = c.high;
     if (c.low < minLow) minLow = c.low;
 
-    // 1. Stop 우선
-    if (stopHit(c, stopLoss)) {
-      const stopReturn = calcReturn(stopLoss);
+    // 1. Stop 우선 (effectiveStop — Tier 1 도달 후 BE 로 이동된 stop 사용)
+    if (stopHit(c, effectiveStop)) {
+      const stopReturn = calcReturn(effectiveStop);
       // 잔여 포지션 (remaining) 전부 손절
-      weightedExitPrice += stopLoss * remaining;
+      weightedExitPrice += effectiveStop * remaining;
       weightedReturnPct += stopReturn * remaining;
       partialExits.push({
         tier: tier1Hit ? 2 : 1, // Tier 라벨은 위치보다 stop 처리
         candleOffset: i - signalIdx,
-        price: stopLoss,
+        price: effectiveStop,
         ratio: remaining,
         returnPct: stopReturn,
       });
@@ -179,7 +188,14 @@ function measureOutcomeTiered(
         ratio: tier1Ratio,
         returnPct: tier1ReturnPct,
       });
-      // Tier 1 도달 후에도 잔여 50% 는 계속 Tier 2 / Stop / 만료 대기
+      // P0-② fix (2026-05-11): Tier 1 도달 후 stop 을 entry 가격으로 이동
+      // (breakeven). 잔여 50% 의 손실 cap → MDD ↓.
+      //   long:  effectiveStop = max(원래 stop, entry)  — 위쪽으로만 이동
+      //   short: effectiveStop = min(원래 stop, entry)  — 아래쪽으로만 이동
+      effectiveStop =
+        side === "long"
+          ? Math.max(effectiveStop, entryPrice)
+          : Math.min(effectiveStop, entryPrice);
     }
   }
 

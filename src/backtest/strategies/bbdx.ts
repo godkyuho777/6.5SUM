@@ -19,9 +19,14 @@
 
 import type { Candle, TechnicalIndicators } from "@shared/types";
 import {
-  isEntrySignal,
   calculateSignalStrength,
+  calculateATR,
+  calculateBollingerBandsSeries,
+  decideEntry,
   detectAllCandlePatterns,
+  detectBBStructure,
+  isFallingKnife,
+  volumeRatio,
 } from "../../indicators";
 import { aggregatePatternScore } from "../../patterns/aggregator";
 import {
@@ -69,24 +74,44 @@ export const bbdxStrategy: BacktestStrategy = {
     indicators: TechnicalIndicators,
     windowCandles: Candle[],
   ): EntryEvaluation {
-    const price = candles[idx].close;
     const reasons: string[] = [];
 
-    // Gate 1: BBDX 기본 진입
-    if (!isEntrySignal(price, indicators)) return { entry: false };
-    reasons.push("RSI 30~35 + BB lower 근처 + ADX ≤ 30");
+    // P0-③ fix (2026-05-11): live `decideEntry` (RSI 25~38, 3-path: BB > PTN > NUM)
+    // 와 backtest 가 동일 룰 측정하도록 동기화. 이전엔 `isEntrySignal` (RSI 30~35,
+    // 1-path) 사용 — live 와 다른 전략 측정. Audit D5 시정.
+    const allPatterns = detectAllCandlePatterns(windowCandles);
+    const ratio = volumeRatio(windowCandles);
+    const closes = windowCandles.map((c) => c.close);
+    const bbSeries = calculateBollingerBandsSeries(closes);
+    const bbStructure = detectBBStructure(windowCandles, bbSeries);
 
-    // Gate 2: Falling Knife 차단
-    if (indicators.minusDi > indicators.plusDi && indicators.adx > 25) {
+    // Gate 1: Falling Knife 차단 (live 와 동일)
+    if (isFallingKnife(indicators.plusDi, indicators.minusDi, indicators.adx)) {
       return { entry: false };
     }
 
-    // Gate 3: Pattern Confluence ≥ 0.4
-    const allPatterns = detectAllCandlePatterns(windowCandles);
+    // Gate 2: live decideEntry 호출 (3-path: BB > PTN > NUM)
+    const entryDecision = decideEntry(
+      windowCandles,
+      indicators,
+      allPatterns,
+      bbStructure,
+      ratio,
+    );
+    if (!entryDecision) return { entry: false };
+    reasons.push(`Entry path: ${entryDecision.path}`);
+    entryDecision.reasons.forEach((r) => reasons.push(r));
+
+    // Gate 3: Pattern Confluence ≥ 0.4 (NUM path 안전망 — D4 권고)
     const bullishPatterns = allPatterns.filter((p) => p.bias === "bullish");
     const patternConfluenceScore = aggregatePatternScore(bullishPatterns);
-    if (patternConfluenceScore < 0.4) return { entry: false };
-    reasons.push(`Pattern Confluence ${(patternConfluenceScore * 100).toFixed(0)} ≥ 40`);
+    if (entryDecision.path === "NUM" && patternConfluenceScore < 0.2) {
+      // NUM path 만 patternConfluence 약한 soft gate (audit D4 권고)
+      return { entry: false };
+    }
+    if (patternConfluenceScore >= 0.4) {
+      reasons.push(`Pattern Confluence ${(patternConfluenceScore * 100).toFixed(0)} ≥ 40`);
+    }
 
     // Gate 4: Higher-TF SMA(50)
     const higherTfBullish = checkHigherTfBullish(candles, idx);
@@ -125,10 +150,31 @@ export const bbdxStrategy: BacktestStrategy = {
     _idx: number,
     indicators: TechnicalIndicators,
     entryPrice: number,
+    windowCandles: Candle[],
   ): EntryParams {
     const target1 = indicators.bbMiddle;
     const target2 = Math.min(indicators.bbUpper, entryPrice * 1.05);
-    const stopLoss = Math.max(indicators.bbLower * 0.97, entryPrice * 0.98);
+
+    // P0-① fix (2026-05-11): ATR 1.5σ 기반 stop — 진단 결과 이전 stop
+    // (`max(bbLower × 0.97, entry × 0.98)`) 가 너무 좁아 trade 80.8% 가
+    // Tier 1 도달 전 stop_loss. ATR 기반 변동성-적응으로 변경:
+    //
+    //   stopLoss = max(
+    //     entry - 1.5 × ATR,     // 변동성 적응
+    //     bbLower × 0.92         // 절대 floor (-8% of bbLower)
+    //   )
+    //
+    // ATR 계산 실패 시 (캔들 부족) → legacy fallback.
+    const atr = calculateATR(windowCandles);
+    let stopLoss: number;
+    if (atr > 0) {
+      const atrStop = entryPrice - 1.5 * atr;
+      const floor = indicators.bbLower * 0.92;
+      stopLoss = Math.max(atrStop, floor);
+    } else {
+      stopLoss = Math.max(indicators.bbLower * 0.97, entryPrice * 0.98);
+    }
+
     const signalStrength = calculateSignalStrength(entryPrice, indicators);
     return { target1, target2, stopLoss, signalStrength };
   },

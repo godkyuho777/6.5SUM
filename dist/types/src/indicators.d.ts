@@ -18,6 +18,17 @@ export declare function calculateBollingerBands(closes: number[], period?: numbe
     lower: number;
 };
 /**
+ * ATR (Average True Range) — Wilder smoothing.
+ *
+ * P0-① fix (2026-05-11) — Backtest 진단 결과 stop placement 너무 좁아 trade
+ * 80.8% 가 stop_loss 로 끝남. ATR 기반 변동성-적응 stop 으로 회복 시도.
+ *
+ * @param candles 캔들 배열 (length >= period+1 필요)
+ * @param period  ATR 기간 (기본 14)
+ * @returns ATR 값 (price 단위, 항상 양수)
+ */
+export declare function calculateATR(candles: Candle[], period?: number): number;
+/**
  * ADX (Average Directional Index) 계산
  * +DI, -DI 포함
  * @param candles - 캔들 데이터 배열

@@ -18,3 +18,5 @@ build/
 
 coverage/
 .tsbuildinfo
+backtest-reports/
+reports/

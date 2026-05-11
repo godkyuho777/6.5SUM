@@ -941,5 +941,100 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             meta: object;
         }>;
     }>>;
+    taxonomy: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /** 모든 modifier 메타데이터 — layer 필터 없음 */
+        list: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: readonly import("./types-entry").TrackerModifier[];
+            meta: object;
+        }>;
+        /** 특정 layer 의 modifier 만 (signal | wave | macro | onchain) */
+        byLayer: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                layer: "signal" | "wave" | "macro" | "onchain";
+            };
+            output: readonly import("./types-entry").TrackerModifier[];
+            meta: object;
+        }>;
+        /** 단일 slug 로 modifier 조회 (없으면 null) */
+        bySlug: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                slug: string;
+            };
+            output: import("./types-entry").TrackerModifier | null;
+            meta: object;
+        }>;
+    }>>;
+    dualEngine: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /** Engine A — 단일 지표 백테스트 실행 */
+        singleIndicator: import("@trpc/server").TRPCMutationProcedure<{
+            input: {
+                config: any;
+            };
+            output: import("./backtest/engines/single-indicator").SingleIndicatorResult | {
+                status: "error";
+                detail: string;
+            };
+            meta: object;
+        }>;
+        /** Engine B — DSL 다중 전략 백테스트 실행 */
+        multiStrategy: import("@trpc/server").TRPCMutationProcedure<{
+            input: {
+                config: any;
+            };
+            output: import("./backtest/engines/multi-strategy").MultiStrategyResult | {
+                status: "error";
+                detail: string;
+            };
+            meta: object;
+        }>;
+        /** Engine B — DSL 표현식의 헌장 매핑 검증 (백테스트 실행 전) */
+        validateStrategy: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                expression: any;
+            };
+            output: import("./backtest/engines/multi-strategy").CharterValidation;
+            meta: object;
+        }>;
+    }>>;
+    macroV2: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /** 현재 시점 macro snapshot (단일 layer 객체) */
+        snapshot: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: import("./macro").MacroLayer | null;
+            meta: object;
+        }>;
+        /**
+         * FRED 시계열 raw observations (chart 렌더링 용).
+         * mode 는 항상 realtime — backtest 모드는 dualEngine 경로로.
+         */
+        history: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                seriesId: string;
+                period?: "30d" | "90d" | "1y" | "5y" | undefined;
+            };
+            output: {
+                status: import("./macro/sources/fred").FredFetchStatus;
+                observations: import("./macro").FredObservation[];
+                detail: string | undefined;
+            };
+            meta: object;
+        }>;
+    }>>;
 }>>;
 export type AppRouter = typeof appRouter;

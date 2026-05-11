@@ -39,6 +39,17 @@ export interface MacroLiquidityResult {
     breakdown: MacroBreakdown;
     /** Inputs that were missing — surfaces in the UI as "data sparse". */
     missingInputs: string[];
+    /**
+     * v2 composite contribution to score (optional — populated only when
+     * `computeMacroScoreV2` is called with composite signals).
+     *   c1>0.6 → -20 (crisis 강화)
+     *   c2>0.8 → +20 (risk-on 강화)
+     */
+    compositeAdjustment?: {
+        c1Applied: boolean;
+        c2Applied: boolean;
+        delta: number;
+    };
 }
 /**
  * Compute the macro liquidity score from raw FRED-derived inputs.
@@ -49,3 +60,17 @@ export interface MacroLiquidityResult {
  * is unavailable.
  */
 export declare function computeMacroScore(inputs?: MacroLiquidityInputs): MacroLiquidityResult;
+import type { CompositeSignals } from "./composite-signals";
+export interface MacroLiquidityV2Result extends MacroLiquidityResult {
+    composite: CompositeSignals;
+}
+/**
+ * v2 score: 기존 single-indicator score 위에 C1/C2 composite 가중을 더함.
+ *
+ * 규칙 (MACRO_v2 §3.3):
+ *   c1 > 0.6 → score -= 20 (crisis 강화)
+ *   c2 > 0.8 → score += 20 (risk-on 강화)
+ *
+ * 기존 `computeMacroScore` 시그니처를 깨지 않기 위해 신규 함수로 분리.
+ */
+export declare function computeMacroScoreV2(inputs: MacroLiquidityInputs, composite: CompositeSignals): MacroLiquidityV2Result;

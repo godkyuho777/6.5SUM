@@ -8,6 +8,37 @@
  *  - profitFactor, expectancy
  */
 import type { BacktestTrade, BacktestMetrics } from "./types";
+/** Default trading cost assumptions. Override via `applyCostModel` opts. */
+export declare const DEFAULT_COST_MODEL: {
+    /** Taker fee per side, fraction. Bybit Spot 0.1%. */
+    readonly fee_pct: 0.001;
+    /** Estimated slippage per side, fraction. */
+    readonly slippage_pct: 0.0005;
+};
+export interface CostModel {
+    fee_pct: number;
+    slippage_pct: number;
+}
+/** Adjust a raw returnPct by round-trip fee + slippage. Pure helper. */
+export declare function applyCostModel(rawReturnPct: number, model?: CostModel): number;
+export type SampleSufficiencyLabel = "sufficient" | "marginal" | "insufficient";
+/**
+ * 표본 충분성 분류. 신뢰구간 폭과 표본 크기 둘 다 검사.
+ *   n>=100 + CI width <0.15 → sufficient
+ *   n>=30  + CI width <0.25 → marginal
+ *   else                     → insufficient
+ */
+export declare function classifySampleSufficiency(n: number, winRate: number): SampleSufficiencyLabel;
+/**
+ * Wilson CI 를 winRate 옆에 부착한 확장 메트릭.
+ * 기존 BacktestMetrics 를 확장하므로 backward-compat 유지.
+ */
+export interface BacktestMetricsExt extends BacktestMetrics {
+    ci_low: number;
+    ci_high: number;
+    sample_sufficiency: SampleSufficiencyLabel;
+}
+export declare function withCi(metrics: BacktestMetrics): BacktestMetricsExt;
 declare function mean(arr: number[]): number;
 declare function std(arr: number[], avg?: number): number;
 /**

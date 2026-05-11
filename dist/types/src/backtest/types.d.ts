@@ -43,6 +43,16 @@ export interface BacktestConfig {
      * Signal Tracker 의 모든 투자 전략 + Wave Tracker Trend Analysis 백테스트.
      */
     strategy?: BacktestStrategyName;
+    /**
+     * Taker fee (round-trip 의 한쪽). default = 0.001 (Bybit Spot 0.1%).
+     * BACKTEST_DEFECT_AUDIT.md D1 — 거래 비용 누적.
+     */
+    feePct?: number;
+    /**
+     * Slippage 추정 (round-trip 의 한쪽). default = 0.0005 (0.05%).
+     * BACKTEST_DEFECT_AUDIT.md D1 — 거래 비용 누적.
+     */
+    slippagePct?: number;
 }
 export declare const DEFAULT_BACKTEST_CONFIG: Omit<BacktestConfig, "symbols" | "startDate" | "endDate">;
 export type ExitReason = "target_hit" | "stop_loss" | "window_expired" | "tier1_then_window" | "tier2_full" | "tier1_then_stop";
@@ -171,6 +181,20 @@ export interface BacktestResult {
     durationMs: number;
     /** DB에 저장된 run ID (saveToDb=true일 때) */
     runId?: number;
+    /**
+     * Wilson 95% CI + sample sufficiency for `overall.winRate`.
+     * BACKTEST_DEFECT_AUDIT.md D2/D4.
+     */
+    overallCi?: {
+        lower: number;
+        upper: number;
+    };
+    overallSampleSufficiency?: "sufficient" | "marginal" | "insufficient";
+    /** 실제 적용된 cost model (round-trip 차감 후 returnPct). */
+    appliedCostModel?: {
+        feePct: number;
+        slippagePct: number;
+    };
 }
 export interface FetchHistoricalOptions {
     symbol: string;

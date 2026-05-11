@@ -41,3 +41,8 @@ export type {
   InsertPosition,
   InsertAlertSetting,
 } from "../drizzle/schema";
+export type {
+  TrackerModifier,
+  TrackerLayer,
+  ModifierStatus,
+} from "./shared/tracker-taxonomy";

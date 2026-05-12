@@ -483,6 +483,52 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             };
             meta: object;
         }>;
+        /**
+         * Layer indicator + operator 카탈로그 — frontend builder dropdown 채우기.
+         * GET 한 번이면 충분 (정적 메타).
+         */
+        compositeCatalog: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: {
+                indicators: import("./backtest/composite").IndicatorMeta[];
+                operators: import("./backtest/composite").OperatorMeta[];
+                defaultConfig: import("./backtest/composite").CompositeStrategyConfig;
+            };
+            meta: object;
+        }>;
+        /**
+         * 3-Layer composite 백테스트 실행.
+         *
+         * 사용자 요구 #2: Signal + Macro + Wave 지표 조합으로 진입 게이트
+         * 만들고 백테스트. 결과는 기존 single-strategy 결과와 *분리* 표시.
+         */
+        runComposite: import("@trpc/server").TRPCMutationProcedure<{
+            input: {
+                startDate: string;
+                endDate: string;
+                config: any;
+                symbols?: string[] | undefined;
+                tf?: "1h" | "4h" | "6h" | "1d" | "1w" | "1M" | undefined;
+                outcomeWindowCandles?: number | undefined;
+                cooldownCandles?: number | undefined;
+                macroSnapshot?: any;
+                waveSnapshot?: any;
+            };
+            output: {
+                overall: import("./backtest/types").BacktestMetrics;
+                bySymbol: Record<string, import("./backtest/types").BacktestMetrics>;
+                layerStats: {
+                    signalPassRate: number;
+                    macroPassRate: number;
+                    wavePassRate: number;
+                    allPassRate: number;
+                };
+                runAt: string;
+                durationMs: number;
+                trades: import("./backtest/types").BacktestTrade[];
+            };
+            meta: object;
+        }>;
     }>>;
     cycle: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;

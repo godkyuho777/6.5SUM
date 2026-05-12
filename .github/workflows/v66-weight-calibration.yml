@@ -1,0 +1,80 @@
+name: BBDX v6.6 — Weekly Weight Calibration
+
+# Step 4: 매주 일요일 23:00 KST = 14:00 UTC
+# 모든 (symbol, tf, path, side) 조합에 대해 autoCorrectWeights 실행.
+# Priority 1 자체 백테스트 (≥100 samples) → 2 외부 manifest → 3 default fallback.
+
+on:
+  schedule:
+    # 매주 일요일 14:00 UTC = 23:00 KST
+    - cron: "0 14 * * 0"
+  workflow_dispatch:  # 수동 트리거 가능
+    inputs:
+      symbol:
+        description: "Specific symbol (optional, e.g. BTCUSDT). Empty = all default symbols."
+        required: false
+        default: ""
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10.4.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          SKIP_PREPARE: "1"
+
+      - name: Run weight calibration cron
+        run: pnpm tsx src/cron/v66-weight-calibration.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          BBDX_VERSION: "v6.6"
+          BBDX_MARKET: "perp"
+          ENABLE_SHORT_SIGNALS: "true"
+          # Optional FRED/BOK keys for macro calibration
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          BOK_API_KEY: ${{ secrets.BOK_API_KEY }}
+          # Optional alerting
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          NODE_ENV: "production"
+
+      - name: Upload calibration report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weight-calibration-report-${{ github.run_id }}
+          path: reports/weight-calibration-*.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Comment on commit (success)
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            try {
+              const files = fs.readdirSync('reports').filter(f => f.startsWith('weight-calibration-'));
+              if (files.length > 0) {
+                const latest = files.sort().reverse()[0];
+                const report = JSON.parse(fs.readFileSync(`reports/${latest}`, 'utf8'));
+                console.log(`Calibration summary: ${report.summary || 'no summary'}`);
+              }
+            } catch (e) {
+              console.log('No report file found, skipping comment');
+            }

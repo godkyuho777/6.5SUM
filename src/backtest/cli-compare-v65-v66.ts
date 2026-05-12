@@ -326,9 +326,8 @@ async function main() {
   console.log(`\n전체 요약 → ${summaryPath}`);
 }
 
-if (import.meta.url === `file://${process.argv[1]?.replace(/\\/g, "/")}`) {
-  main().catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
-}
+// CLI entry — always run when invoked as script (works cross-platform incl. Windows)
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

@@ -32,8 +32,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "backtest": "tsx src/backtest/cli.ts",
-    "backtest:quick": "tsx src/backtest/cli.ts --quick",
-    "backtest:compare": "tsx src/backtest/cli-compare-v65-v66.ts"
+    "backtest:quick": "tsx src/backtest/cli.ts --quick"
   },
   "dependencies": {
     "@trpc/server": "^11.6.0",

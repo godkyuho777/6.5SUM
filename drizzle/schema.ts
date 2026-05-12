@@ -1,13 +1,17 @@
 import {
+  bigint,
+  bigserial,
   boolean,
   doublePrecision,
   integer,
   jsonb,
   pgEnum,
   pgTable,
+  real,
   serial,
   text,
   timestamp,
+  unique,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -327,3 +331,105 @@ export const coinEvents = pgTable("coin_events", {
 
 export type CoinEvent = typeof coinEvents.$inferSelect;
 export type InsertCoinEvent = typeof coinEvents.$inferInsert;
+
+// ─────────────────────────────────────────────────────────
+// BBDX v6.6 Calibration Tables (WEIGHT_SYSTEM §3.4 + BBDX_v66_PERP §4.4)
+// ─────────────────────────────────────────────────────────
+
+/**
+ * Calibrated weights — production 가중치 (symbol, tf, path, side) 당 1 행.
+ *
+ *   source:
+ *     - 'self_backtest' : 자체 백테스트 기반 (Priority 1)
+ *     - 'external'      : 학술 manifest (Priority 2)
+ *     - 'default'       : 직관값 fallback (Priority 3)
+ *   status:
+ *     - 'production'      : 현재 사용
+ *     - 'review_required' : 사용 가능하지만 검토 필요 (default 출처)
+ */
+export const calibratedWeights = pgTable(
+  "calibrated_weights",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    symbol: varchar("symbol", { length: 20 }).notNull(),
+    tf: varchar("tf", { length: 10 }).notNull(),
+    path: varchar("path", { length: 20 }).notNull(),
+    side: varchar("side", { length: 10 }).notNull(),
+    weightMomentum: real("weight_momentum").notNull(),
+    weightPosition: real("weight_position").notNull(),
+    weightTrend: real("weight_trend").notNull(),
+    weightVolume: real("weight_volume").notNull(),
+    weightAction: real("weight_action").notNull(),
+    source: varchar("source", { length: 20 }).notNull(),
+    externalSourceId: varchar("external_source_id", { length: 100 }),
+    metadata: jsonb("metadata").default({}).notNull(),
+    rSquared: real("r_squared"),
+    sampleSize: bigint("sample_size", { mode: "number" }),
+    oosMatch: real("oos_match"),
+    wilsonCiWidth: real("wilson_ci_width"),
+    status: varchar("status", { length: 20 }).notNull(),
+    calibratedAt: bigint("calibrated_at", { mode: "number" }).notNull(),
+  },
+  (table) => ({
+    uq: unique().on(table.symbol, table.tf, table.path, table.side, table.status),
+  }),
+);
+
+export type CalibratedWeights = typeof calibratedWeights.$inferSelect;
+export type InsertCalibratedWeights = typeof calibratedWeights.$inferInsert;
+
+/**
+ * Calibrated weights history — 이전 production 가중치 archive.
+ */
+export const calibratedWeightsHistory = pgTable("calibrated_weights_history", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  symbol: varchar("symbol", { length: 20 }).notNull(),
+  tf: varchar("tf", { length: 10 }).notNull(),
+  path: varchar("path", { length: 20 }).notNull(),
+  side: varchar("side", { length: 10 }).notNull(),
+  weightMomentum: real("weight_momentum").notNull(),
+  weightPosition: real("weight_position").notNull(),
+  weightTrend: real("weight_trend").notNull(),
+  weightVolume: real("weight_volume").notNull(),
+  weightAction: real("weight_action").notNull(),
+  source: varchar("source", { length: 20 }).notNull(),
+  externalSourceId: varchar("external_source_id", { length: 100 }),
+  metadata: jsonb("metadata").default({}).notNull(),
+  rSquared: real("r_squared"),
+  sampleSize: bigint("sample_size", { mode: "number" }),
+  oosMatch: real("oos_match"),
+  wilsonCiWidth: real("wilson_ci_width"),
+  status: varchar("status", { length: 20 }).notNull(),
+  calibratedAt: bigint("calibrated_at", { mode: "number" }).notNull(),
+  replacedAt: bigint("replaced_at", { mode: "number" }).notNull(),
+});
+
+export type CalibratedWeightsHistory = typeof calibratedWeightsHistory.$inferSelect;
+export type InsertCalibratedWeightsHistory = typeof calibratedWeightsHistory.$inferInsert;
+
+/**
+ * Calibrated thresholds — F1-tuned 진입 임계 (LONG/SHORT 별).
+ */
+export const calibratedThresholds = pgTable(
+  "calibrated_thresholds",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    symbol: varchar("symbol", { length: 20 }).notNull(),
+    tf: varchar("tf", { length: 10 }).notNull(),
+    side: varchar("side", { length: 10 }).notNull(),
+    threshold: real("threshold").notNull(),
+    f1Score: real("f1_score"),
+    precisionScore: real("precision_score"),
+    recallScore: real("recall_score"),
+    sampleSize: bigint("sample_size", { mode: "number" }),
+    source: varchar("source", { length: 20 }).notNull(),
+    status: varchar("status", { length: 20 }).notNull(),
+    calibratedAt: bigint("calibrated_at", { mode: "number" }).notNull(),
+  },
+  (table) => ({
+    uq: unique().on(table.symbol, table.tf, table.side, table.status),
+  }),
+);
+
+export type CalibratedThresholds = typeof calibratedThresholds.$inferSelect;
+export type InsertCalibratedThresholds = typeof calibratedThresholds.$inferInsert;

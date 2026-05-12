@@ -257,14 +257,19 @@ export async function scanCoin(
     // SHORT 도 isRisingKnife 차단 (강한 상승 추세 중 평균회귀 SHORT 위험).
     // lowerRiding (추세 추종 SHORT) 만 isRisingKnife 예외.
     //
-    // ⚠ Production feature flag (alpha 입증 전 차단, 2026-05-10):
+    // ⚠ Alpha 검증중 (2026-05-10 update):
     //   90d: winRate 37.0%, Sharpe -0.17, PF 0.66, MDD 40.57%
-    //   365d (RSI 65 / Tier 2 0.97 튜닝 후): winRate 37.8%, Sharpe -0.25,
-    //                                          PF 0.55, MDD 98.85%
-    //   → Charter R2 명백한 미입증. SHORT 시그널이 강세장 환경에서 자본
-    //     파괴 위험. ENABLE_SHORT_SIGNALS=1 명시적 opt-in 필요.
-    //   alpha 통과 시 (winRate ≥ 50%, Sharpe ≥ 0.30, PF ≥ 1.3) flag 제거.
-    const SHORT_SIGNALS_ENABLED = process.env.ENABLE_SHORT_SIGNALS === "1";
+    //   365d (RSI 65 / Tier 2 0.97 튜닝): winRate 37.8%, Sharpe -0.25, PF 0.55
+    //   → Charter R2 미입증 — 단 사용자가 UI 에서 SHORT 시그널 *시각 확인* 은
+    //     필요. scanner 는 항상 산출, frontend 가 `검증중` chip 으로 disclaimer.
+    //
+    //   자본 보호 정책 (이중 보호):
+    //   1. isRisingKnife 차단 (lowerRiding 외 SHORT 차단)
+    //   2. BROADCAST_SHORT_ALERTS=1 미설정 시 Lite Alerts 발송 X (production)
+    //
+    //   ENABLE_SHORT_SIGNALS env 는 deprecated — 호환성을 위해 살아있지만
+    //   기본값을 *true* 로 변경 (UI 노출은 항상). alpha 통과 후 flag 제거 예정.
+    const SHORT_SIGNALS_ENABLED = process.env.ENABLE_SHORT_SIGNALS !== "0";
     const bbStructureShort = SHORT_SIGNALS_ENABLED
       ? detectBBStructureShort(candles, bbSeries)
       : null;

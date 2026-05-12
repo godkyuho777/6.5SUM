@@ -73,6 +73,18 @@ import type {
   TranslateKind,
 } from "./lite/types";
 
+// ── v6.6 Calibration & BBDX evaluator (feature-flagged, v6.5 모듈 보존)
+import {
+  autoCorrectThreshold,
+  autoCorrectWeights,
+  getThresholdForSignal,
+  getWeightsForSignal,
+  getWeightsHistory,
+} from "./strategies/weight-calibration";
+import { evaluatePositionSignalsV66 } from "./strategies/bbdx-v66";
+import { FEATURE_FLAGS } from "./config/feature-flags";
+import { calculateAllIndicators } from "./indicators";
+
 const intervalSchema = z.enum(["1h", "4h", "6h", "1d", "1w", "1M"]).default("4h");
 
 export const appRouter = router({
@@ -1427,6 +1439,160 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
             detail: (err as Error).message ?? "unknown",
           };
         }
+      }),
+  }),
+
+  // ─── BBDX v6.6 (feature-flagged, v6.5 모듈 보존) ───────────────────
+  bbdxV66: router({
+    /**
+     * 단일 (symbol, tf) 의 v6.6 LONG/SHORT 양방향 평가.
+     * BBDX_VERSION=v6.6 일 때만 실제 평가. v6.5 일 때는 fallback note 반환.
+     */
+    current: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.enum(["1h", "4h", "1d"]),
+          /** indicators 계산용 캔들 개수 (default 200) */
+          limit: z.number().min(60).max(500).optional(),
+        }),
+      )
+      .query(async ({ input }) => {
+        if (FEATURE_FLAGS.BBDX_VERSION !== "v6.6") {
+          return {
+            long: null,
+            short: null,
+            meta: {
+              version: "v6.5",
+              note: "BBDX_VERSION=v6.5 — v6.6 evaluator 비활성. 환경변수 설정 시 활성화.",
+              bothTriggered: false,
+            },
+          };
+        }
+        try {
+          const candles = await fetchKlines(input.symbol, input.tf, input.limit ?? 200);
+          if (candles.length < 60) {
+            return {
+              long: null,
+              short: null,
+              meta: {
+                version: "v6.6",
+                note: `캔들 부족 (${candles.length} < 60)`,
+                bothTriggered: false,
+              },
+            };
+          }
+          const indicators = calculateAllIndicators(candles);
+          const result = await evaluatePositionSignalsV66({
+            symbol: input.symbol,
+            tf: input.tf,
+            candles,
+            windowCandles: candles,
+            indicators,
+          });
+          return result;
+        } catch (err) {
+          return {
+            long: null,
+            short: null,
+            meta: {
+              version: "v6.6",
+              note: `evaluate error: ${(err as Error).message}`,
+              bothTriggered: false,
+            },
+          };
+        }
+      }),
+
+    /** 특정 (symbol, tf, path, side) 의 현재 production 가중치 */
+    weightsFor: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.string(),
+          path: z.enum(["NUM", "PTN", "BB"]),
+          side: z.enum(["long", "short"]),
+        }),
+      )
+      .query(async ({ input }) => {
+        return await getWeightsForSignal(input);
+      }),
+
+    /** 특정 (symbol, tf, side) 의 현재 production 임계 */
+    thresholdFor: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.string(),
+          side: z.enum(["long", "short"]),
+        }),
+      )
+      .query(async ({ input }) => {
+        return await getThresholdForSignal(input);
+      }),
+
+    /** 현재 feature flag 상태 (UI 진단용) */
+    flags: publicProcedure.query(() => {
+      return {
+        bbdxVersion: FEATURE_FLAGS.BBDX_VERSION,
+        bbdxMarket: FEATURE_FLAGS.BBDX_MARKET,
+        enableShortSignals: FEATURE_FLAGS.ENABLE_SHORT_SIGNALS,
+      };
+    }),
+  }),
+
+  // ─── Calibration Admin (수동 재calibration + history) ───────────────
+  // TODO(admin-procedure): adminProcedure (Supabase 사용자 ID 화이트리스트) 추가
+  //                       필요. 현재는 publicProcedure — production 전에 protect.
+  calibrationAdmin: router({
+    triggerManualWeights: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.string(),
+          path: z.enum(["NUM", "PTN", "BB"]),
+          side: z.enum(["long", "short"]),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        // signalsFetch 미공급 → external manifest / default 만 시도.
+        // 실제 자체 백테스트 적용은 cron 또는 CLI 에서 (Bybit fetch 비용 ↑).
+        return await autoCorrectWeights(input);
+      }),
+
+    triggerManualThreshold: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.string(),
+          side: z.enum(["long", "short"]),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        return await autoCorrectThreshold(input);
+      }),
+
+    history: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: z.string(),
+          path: z.enum(["NUM", "PTN", "BB"]),
+          side: z.enum(["long", "short"]),
+          limit: z.number().min(1).max(100).optional(),
+        }),
+      )
+      .query(async ({ input }) => {
+        const rows = await getWeightsHistory(
+          {
+            symbol: input.symbol,
+            tf: input.tf,
+            path: input.path,
+            side: input.side,
+          },
+          input.limit ?? 20,
+        );
+        return rows;
       }),
   }),
 });

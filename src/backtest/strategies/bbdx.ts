@@ -12,7 +12,7 @@
  *   Tier 2: min(bbUpper, entry × 1.05) → 잔여 50%
  *   Stop: max(bbLower × 0.97, entry × 0.98)
  *
- * Modifier 추적 (Phase 2): EMA Ribbon × MACD × Order Block
+ * Modifier 추적 (Phase 2): MACD × Order Block
  *
  * 헌장 차원: 1 momentum (RSI), 2 volatility (BB), 3 trend (ADX)
  */
@@ -30,7 +30,6 @@ import {
 } from "../../indicators";
 import { aggregatePatternScore } from "../../patterns/aggregator";
 import {
-  computeEmaRibbon,
   detectMacdDivergence,
   detectOrderBlock,
 } from "../../modifiers";
@@ -120,17 +119,15 @@ export const bbdxStrategy: BacktestStrategy = {
     reasons.push("Higher-TF SMA(50) bullish/sideways");
 
     // Phase 2: Modifier multipliers (graceful — 차단 X)
-    let emaRibbonMult = 1.0;
     let macdDivergenceMult = 1.0;
     let orderBlockMult = 1.0;
     try {
-      emaRibbonMult = computeEmaRibbon(windowCandles).multiplier;
       macdDivergenceMult = detectMacdDivergence(windowCandles).multiplier;
       orderBlockMult = detectOrderBlock(windowCandles).multiplier;
     } catch {
       /* graceful */
     }
-    const modifiersProduct = emaRibbonMult * macdDivergenceMult * orderBlockMult;
+    const modifiersProduct = macdDivergenceMult * orderBlockMult;
 
     return {
       entry: true,
@@ -138,7 +135,6 @@ export const bbdxStrategy: BacktestStrategy = {
       metadata: {
         patternConfluenceScore,
         higherTfBullish,
-        emaRibbonMult,
         macdDivergenceMult,
         orderBlockMult,
         modifiersProduct,

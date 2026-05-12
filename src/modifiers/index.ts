@@ -1,30 +1,19 @@
 /**
  * Additional Strategies modifiers — 통합 export.
  *
- * 명세서 03_ADDITIONAL_STRATEGIES.md §0~§10 의 6개 추가 전략을
  * BBDX 코어 시그널의 multiplier 로 통합 (헌장 규칙 3, modifier-only).
  *
  * 7차원 매핑:
  *   1 momentum   → MACD Divergence  (rule1Exempt: RSI 와 다른 각도)
- *   3 trend      → EMA Ribbon       (ADX/DI 와 다른 각도)
- *   4 volume     → CVD Divergence   (베타 stub, rule1Exempt)
  *   5 structure  → Order Block      (Fib/Trendline 과 다른 각도)
  *   6 macro      → Market Breadth, Funding Extreme
  */
 
 export * from "./types";
 export type {
-  EmaRibbonAlignment,
-  EmaRibbonResult,
-} from "./ema-ribbon";
-export type {
   MacdDivergenceType,
   MacdDivergenceResult,
 } from "./macd-divergence";
-export type {
-  CvdDivergenceType,
-  CvdDivergenceResult,
-} from "./cvd-divergence";
 export type {
   FundingRegime,
   FundingExtremeResult,
@@ -38,9 +27,7 @@ export type {
   OrderBlockResult,
 } from "./order-block";
 
-export { computeEmaRibbon } from "./ema-ribbon";
 export { detectMacdDivergence } from "./macd-divergence";
-export { detectCvdDivergence } from "./cvd-divergence";
 export { computeFundingExtreme } from "./funding-extreme";
 export { computeMarketBreadth } from "./market-breadth";
 export { detectOrderBlock } from "./order-block";
@@ -56,27 +43,19 @@ export { detectOrderBlock } from "./order-block";
  *                    × onchain
  *                    × vwapMult
  *                    × combineAdditionalModifiers(...)   ← 본 함수
- *
- * v6.5 머지 후 `src/signals/confidence.ts` (또는 동등 위치) 에서
- * EntryDecision 의 *Mult 필드를 본 함수로 묶어 곱셈 체인에 합쳐야 함.
- * (현재 EntryDecision 에 optional 필드만 추가됨, 통합 위치는 후속 커밋)
  */
 export function combineAdditionalModifiers(decision: {
-  emaRibbonMult?: number;
   marketBreadthMult?: number;
   macdDivergenceMult?: number;
   fundingExtremeMult?: number;
-  cvdDivergenceMult?: number;
   orderBlockMult?: number;
 }): number {
   const m = (v: number | undefined) =>
     v != null && Number.isFinite(v) ? v : 1.0;
   return (
-    m(decision.emaRibbonMult) *
     m(decision.marketBreadthMult) *
     m(decision.macdDivergenceMult) *
     m(decision.fundingExtremeMult) *
-    m(decision.cvdDivergenceMult) *
     m(decision.orderBlockMult)
   );
 }

@@ -185,20 +185,15 @@ export interface EntryDecision {
    */
   vwapMult?: number;
 
-  // ── Additional Strategies (03_ADDITIONAL_STRATEGIES.md, 헌장 규칙 3) ──
+  // ── Additional Strategies (헌장 규칙 3) ──
   // 모두 optional. null/undefined = 미적용 (multiplier 1.0 동치).
-  // BBDX 코어 final_confidence 곱셈 체인에 `combineAdditionalModifiers()` 로 합쳐
-  // 통합 (v6.5 머지 후 `src/signals/confidence.ts` 의 곱셈 체인 끝에 추가).
-  /** EMA Ribbon (3차원: trend) — 0.30~1.15 */
-  emaRibbonMult?: number;
+  // BBDX 코어 final_confidence 곱셈 체인에 `combineAdditionalModifiers()` 로 합쳐 통합.
   /** Market Breadth (6차원: macro/sentiment) — 0.60~1.30 */
   marketBreadthMult?: number;
   /** MACD Divergence (1차원: momentum, RSI 와 다른 각도) — 0.80~1.20 */
   macdDivergenceMult?: number;
   /** Funding Extreme (6차원: macro/perp positioning) — 0.85~1.20 */
   fundingExtremeMult?: number;
-  /** CVD Divergence (4차원: volume/liquidity, 베타) — 0.80~1.20 */
-  cvdDivergenceMult?: number;
   /** Order Block (5차원: structure, 베타) — 0.95~1.05 */
   orderBlockMult?: number;
   /**
@@ -227,11 +222,9 @@ export interface ShortEntryDecision {
   bbStructure?: BBStructureShort;
   /** v6.5 multiplier 체인 (long 과 동일 — 부호만 반대) */
   vwapMult?: number;
-  emaRibbonMult?: number;
   marketBreadthMult?: number;
   macdDivergenceMult?: number;
   fundingExtremeMult?: number;
-  cvdDivergenceMult?: number;
   orderBlockMult?: number;
   /** Multi-TF Trend wave alignment multiplier (LONG 과 동일 의미, SHORT 부호 반전) */
   waveMult?: number;

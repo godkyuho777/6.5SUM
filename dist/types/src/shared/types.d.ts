@@ -128,16 +128,12 @@ export interface EntryDecision {
      * 다른 차원 multiplier (macroMult / onchainMult 등) 는 후속 머지로 추가 예정.
      */
     vwapMult?: number;
-    /** EMA Ribbon (3차원: trend) — 0.30~1.15 */
-    emaRibbonMult?: number;
     /** Market Breadth (6차원: macro/sentiment) — 0.60~1.30 */
     marketBreadthMult?: number;
     /** MACD Divergence (1차원: momentum, RSI 와 다른 각도) — 0.80~1.20 */
     macdDivergenceMult?: number;
     /** Funding Extreme (6차원: macro/perp positioning) — 0.85~1.20 */
     fundingExtremeMult?: number;
-    /** CVD Divergence (4차원: volume/liquidity, 베타) — 0.80~1.20 */
-    cvdDivergenceMult?: number;
     /** Order Block (5차원: structure, 베타) — 0.95~1.05 */
     orderBlockMult?: number;
     /**
@@ -165,11 +161,9 @@ export interface ShortEntryDecision {
     bbStructure?: BBStructureShort;
     /** v6.5 multiplier 체인 (long 과 동일 — 부호만 반대) */
     vwapMult?: number;
-    emaRibbonMult?: number;
     marketBreadthMult?: number;
     macdDivergenceMult?: number;
     fundingExtremeMult?: number;
-    cvdDivergenceMult?: number;
     orderBlockMult?: number;
     /** Multi-TF Trend wave alignment multiplier (LONG 과 동일 의미, SHORT 부호 반전) */
     waveMult?: number;

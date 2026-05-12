@@ -5,8 +5,7 @@
  *   final_confidence = base × confluence × wave × macro × onchain × additional ÷ 100
  *
  *   ↑ `additional` = combineAdditionalModifiers(EntryDecision *Mult fields)
- *     = emaRibbon × macd × orderBlock × funding × breadth × cvd
- *     (P1-#1 fix, 2026-05-10 — Audit `00-INDEX.md` 권고)
+ *     = macd × orderBlock × funding × breadth
  *
  * Clamped to `[0, 100]`. Combined with the regime gates (run before
  * BBDX trigger) and the runtime 7-dimension assertion to produce the
@@ -41,10 +40,10 @@ export interface ConfidenceInputs {
     tightAllowList?: readonly string[];
     strongDistAllowList?: readonly string[];
     /**
-     * Additional Strategies multiplier (P1-#1 fix, 2026-05-10).
+     * Additional Strategies multiplier.
      *
-     * Combined product of EMA Ribbon × MACD Divergence × Order Block ×
-     * Funding Extreme × Market Breadth × CVD Divergence multipliers.
+     * Combined product of MACD Divergence × Order Block ×
+     * Funding Extreme × Market Breadth multipliers.
      *
      * Pass the `combineAdditionalModifiers(decision)` result. If omitted,
      * defaults to `1.0` (no effect — backward compat).

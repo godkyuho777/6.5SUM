@@ -12,7 +12,7 @@
  *   Tier 2: min(bbUpper, entry × 1.05) → 잔여 50%
  *   Stop: max(bbLower × 0.97, entry × 0.98)
  *
- * Modifier 추적 (Phase 2): EMA Ribbon × MACD × Order Block
+ * Modifier 추적 (Phase 2): MACD × Order Block
  *
  * 헌장 차원: 1 momentum (RSI), 2 volatility (BB), 3 trend (ADX)
  */

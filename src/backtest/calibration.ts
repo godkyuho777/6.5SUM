@@ -277,15 +277,6 @@ export const STANDARD_CALIBRATION_PARAMS: CalibrationParam[] = [
     dimension: 5,
   },
   {
-    name: "emaRibbonMult",
-    label: "EMA Ribbon Mult (Phase 2, 현재 임계 없음)",
-    valueOf: (t) => t.emaRibbonMult,
-    edges: [0.30, 0.70, 0.90, 1.0, 1.05, 1.15],
-    currentThreshold: 1.0,
-    direction: "min",
-    dimension: 3,
-  },
-  {
     name: "macdDivergenceMult",
     label: "MACD Divergence Mult (Phase 2, 현재 임계 없음)",
     valueOf: (t) => t.macdDivergenceMult,
@@ -296,7 +287,7 @@ export const STANDARD_CALIBRATION_PARAMS: CalibrationParam[] = [
   },
   {
     name: "modifiersProduct",
-    label: "Modifiers Product (EMA × MACD × OB)",
+    label: "Modifiers Product (MACD × OB)",
     valueOf: (t) => t.modifiersProduct,
     edges: [0.50, 0.85, 0.95, 1.0, 1.05, 1.20, 1.45],
     currentThreshold: 1.0,

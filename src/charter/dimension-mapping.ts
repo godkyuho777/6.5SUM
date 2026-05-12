@@ -127,10 +127,6 @@ export const ADDITIONAL_MODIFIER_DIMENSIONS: Readonly<
 > = {
   // 1차원 momentum — RSI 와 다른 각도 (level vs momentum-of-momentum)
   macdDivergence: { dimension: 1, rule1Exempt: true, beta: false },
-  // 3차원 trend — ADX 와 다른 각도 (강도 vs 정렬 상태)
-  emaRibbon: { dimension: 3, rule1Exempt: true, beta: false },
-  // 4차원 volume — OBV/Vol_zscore 와 다른 각도 (matched volume vs aggressive direction)
-  cvdDivergence: { dimension: 4, rule1Exempt: true, beta: true },
   // 5차원 structure — Fib/Trendline 과 다른 각도 (확정 레벨 vs 유동성 sweep)
   orderBlock: { dimension: 5, rule1Exempt: true, beta: true },
   // 6차원 macro — Wave Tracker 와 다른 각도 (composite vs single-symbol perp)

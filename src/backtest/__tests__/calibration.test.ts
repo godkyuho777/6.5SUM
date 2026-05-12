@@ -310,13 +310,12 @@ describe("calibrate — recommended threshold", () => {
 // ─────────────────────────────────────────────────────────
 
 describe("STANDARD_CALIBRATION_PARAMS", () => {
-  it("contains 7 standard params", () => {
-    expect(STANDARD_CALIBRATION_PARAMS).toHaveLength(7);
+  it("contains 6 standard params", () => {
+    expect(STANDARD_CALIBRATION_PARAMS).toHaveLength(6);
     const names = STANDARD_CALIBRATION_PARAMS.map((p) => p.name);
     expect(names).toContain("patternConfluenceScore");
     expect(names).toContain("rsi");
     expect(names).toContain("adx");
-    expect(names).toContain("emaRibbonMult");
     expect(names).toContain("macdDivergenceMult");
     expect(names).toContain("modifiersProduct");
   });
@@ -338,14 +337,13 @@ describe("STANDARD_CALIBRATION_PARAMS", () => {
 });
 
 describe("runStandardCalibration — integration", () => {
-  it("produces 7 results from sample trades", () => {
+  it("produces 6 results from sample trades", () => {
     const trades = Array.from({ length: 200 }, (_, i) =>
       makeTrade({
         patternConfluenceScore: (i % 5) * 0.2,
         rsi: 28 + (i % 12),
         adx: 10 + (i % 25),
         signalStrength: 30 + (i % 60),
-        emaRibbonMult: 0.7 + (i % 5) * 0.1,
         macdDivergenceMult: 0.85 + (i % 4) * 0.08,
         orderBlockMult: 0.95 + (i % 2) * 0.05,
         modifiersProduct: 0.8 + (i % 6) * 0.1,
@@ -354,7 +352,7 @@ describe("runStandardCalibration — integration", () => {
       }),
     );
     const results = runStandardCalibration(trades);
-    expect(results).toHaveLength(7);
+    expect(results).toHaveLength(6);
     for (const r of results) {
       expect(r.buckets.length).toBeGreaterThan(0);
       expect(r.baselineWinRate).toBeGreaterThan(0);

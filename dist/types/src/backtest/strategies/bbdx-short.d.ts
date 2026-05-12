@@ -17,7 +17,7 @@
  *   Tier 2: max(bbLower, entry × 0.95) → 잔여 50%
  *   Stop:   min(bbUpper × 1.03, entry × 1.02)
  *
- * Modifier 추적 (Phase 2): EMA Ribbon × MACD × Order Block 의 *부호 반전*
+ * Modifier 추적 (Phase 2): MACD × Order Block 의 *부호 반전*
  *   long mult 1.20 → short mult 0.80 (`invertMultiplier(2 - x)`)
  *
  * 헌장:

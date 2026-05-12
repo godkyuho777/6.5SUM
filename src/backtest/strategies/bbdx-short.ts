@@ -17,7 +17,7 @@
  *   Tier 2: max(bbLower, entry × 0.95) → 잔여 50%
  *   Stop:   min(bbUpper × 1.03, entry × 1.02)
  *
- * Modifier 추적 (Phase 2): EMA Ribbon × MACD × Order Block 의 *부호 반전*
+ * Modifier 추적 (Phase 2): MACD × Order Block 의 *부호 반전*
  *   long mult 1.20 → short mult 0.80 (`invertMultiplier(2 - x)`)
  *
  * 헌장:
@@ -39,7 +39,6 @@ import {
 } from "../../indicators";
 import { aggregatePatternScore } from "../../patterns/aggregator";
 import {
-  computeEmaRibbon,
   detectMacdDivergence,
   detectOrderBlock,
 } from "../../modifiers";
@@ -132,12 +131,10 @@ export const bbdxShortStrategy: BacktestStrategy = {
     reasons.push("Higher-TF SMA(50) bearish/sideways");
 
     // Phase 2: Modifier multipliers (graceful — 차단 X)
-    let emaRibbonMult = 1.0;
     let macdDivergenceMult = 1.0;
     let orderBlockMult = 1.0;
     try {
       // SHORT 는 LONG mult 부호 반전
-      emaRibbonMult = invertMultiplier(computeEmaRibbon(windowCandles).multiplier);
       macdDivergenceMult = invertMultiplier(
         detectMacdDivergence(windowCandles).multiplier,
       );
@@ -145,7 +142,7 @@ export const bbdxShortStrategy: BacktestStrategy = {
     } catch {
       /* graceful */
     }
-    const modifiersProduct = emaRibbonMult * macdDivergenceMult * orderBlockMult;
+    const modifiersProduct = macdDivergenceMult * orderBlockMult;
 
     return {
       entry: true,
@@ -153,7 +150,6 @@ export const bbdxShortStrategy: BacktestStrategy = {
       metadata: {
         patternConfluenceScore,
         higherTfBearish,
-        emaRibbonMult,
         macdDivergenceMult,
         orderBlockMult,
         modifiersProduct,

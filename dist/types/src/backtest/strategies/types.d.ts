@@ -43,7 +43,6 @@ export interface EntryEvaluation {
         /** Multi-TF confidence (Trend) — 0~100 */
         trendConfidence?: number;
         /** Modifier multipliers (BBDX 와 다른 전략에서도 추적 가능) */
-        emaRibbonMult?: number;
         macdDivergenceMult?: number;
         orderBlockMult?: number;
         modifiersProduct?: number;

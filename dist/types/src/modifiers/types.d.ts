@@ -1,8 +1,7 @@
 /**
  * Additional Strategies — modifier 결과 envelope.
  *
- * 명세서 03_ADDITIONAL_STRATEGIES.md §0~§10 의 6개 추가 전략을 BBDX 코어
- * 시그널의 *가중치(multiplier)* 로만 적용하기 위한 표준 타입.
+ * BBDX 코어 시그널의 *가중치(multiplier)* 로만 적용하기 위한 표준 타입.
  *
  * 헌장 규칙 3 (modifier-only) 준수:
  *   - 단독 시그널 발행 금지. 모든 출력은 multiplier 형태.
@@ -12,8 +11,6 @@
  * 헌장 7차원 매핑:
  *   1 momentum   → MACD Divergence
  *   2 volatility → (없음 — BB/ATR 가 이미 커버)
- *   3 trend      → EMA Ribbon
- *   4 volume     → CVD Divergence (베타)
  *   5 structure  → Order Block (베타)
  *   6 macro      → Market Breadth, Funding Extreme
  *   7 onchain    → (기존 7-modifier 가 커버)

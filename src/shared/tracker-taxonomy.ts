@@ -116,33 +116,8 @@ export const TRACKER_MODIFIERS: readonly TrackerModifier[] = [
     description: "4차원 거래량 — EMA50 baseline 대비 비율",
     source: "bbdx_internal",
   },
-  {
-    slug: "cvd-divergence",
-    displayName: "CVD Divergence",
-    layer: "signal",
-    dimensions: [4],
-    status: "beta",
-    modifierOnly: true,
-    route: "/trackers/signal/cvd-divergence",
-    legacyRoute: "/strategies/cvd",
-    description:
-      "4차원 거래량 — 누적 거래량 델타 다이버전스 (BETA, WebSocket 통합 대기)",
-    source: "tRPC",
-  },
 
   // ─── Wave Tracker (Layer 2 — 며칠~몇주 파동) ─────────────────
-  {
-    slug: "ema-ribbon",
-    displayName: "EMA Ribbon",
-    layer: "wave",
-    dimensions: [3],
-    status: "active",
-    modifierOnly: true,
-    route: "/trackers/wave/ema-ribbon",
-    legacyRoute: "/strategies/ema-ribbon",
-    description: "3차원 추세 (파동) — 다중 EMA 정렬",
-    source: "tRPC",
-  },
   {
     slug: "order-block",
     displayName: "Order Block",

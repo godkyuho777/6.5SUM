@@ -37,7 +37,6 @@ import {
 import { aggregatePatternScore } from "./patterns/aggregator";
 import {
   combineAdditionalModifiers,
-  computeEmaRibbon,
   detectMacdDivergence,
   detectOrderBlock,
 } from "./modifiers";
@@ -64,9 +63,9 @@ import { analyzeTrend } from "./trend/analyze";
  *
  * 공식: 2 - x  (단, [0, 2] clamp 후 [0.30, 2.00] 운영 범위 가정)
  *
- * P1-#1 (2026-05-10): EMA Ribbon / MACD / OrderBlock 의 LONG multiplier 가
- * SHORT 에서도 그대로 곱해지면 추세-반대 약세 시그널이 SHORT 를 잘못 약화.
- * 부호 반전으로 헌장 규칙 3 (modifier-only) 유지하면서 SHORT 알파 측정 가능.
+ * MACD / OrderBlock 의 LONG multiplier 가 SHORT 에서도 그대로 곱해지면
+ * 추세-반대 약세 시그널이 SHORT 를 잘못 약화. 부호 반전으로 헌장 규칙 3
+ * (modifier-only) 유지하면서 SHORT 알파 측정 가능.
  */
 function invertMultiplier(longMult: number): number {
   if (!Number.isFinite(longMult)) return 1.0;
@@ -308,32 +307,23 @@ export async function scanCoin(
 
     // 03_ADDITIONAL_STRATEGIES.md — 추가 modifier 통합 (헌장 규칙 3, multiplier-only).
     // 외부 호출 없이 candles 만으로 산출 가능한 modifier 만 인라인:
-    //   emaRibbon (3rd dim, trend), macdDivergence (1st dim, momentum, rule1Exempt),
+    //   macdDivergence (1st dim, momentum, rule1Exempt),
     //   orderBlock (5th dim, structure, rule1Exempt).
     //
     // 비용 큰 modifier (marketBreadth = 30 코인 일괄 fetch, fundingExtreme = perp API 호출)
     // 는 scanner hot path 에서 제외 → routers `modifiers.all` / `modifiers.fundingExtreme`
     // endpoint 로 별도 호출.
-    //
-    // ✅ DONE (P1-#1, 2026-05-10): combineAdditionalModifiers() 결과 +
-    // wave/vwap multiplier 가 result 객체 생성 시점에 signalStrength 곱셈
-    // 체인에 통합됨 (line ~317 finalLongStrength). signals/confidence.ts 의
-    // computeFinalConfidence 도 `additional` 인자를 받도록 확장됨.
     if (entryDecision || shortDecision) {
       try {
-        const ribbon = computeEmaRibbon(candles);
         const macd = detectMacdDivergence(candles);
         const ob = detectOrderBlock(candles);
-        // LONG modifier 부착 — bullish 정렬 / divergence 가 LONG 강화.
+        // LONG modifier 부착 — bullish divergence / order block 이 LONG 강화.
         if (entryDecision) {
-          entryDecision.emaRibbonMult = ribbon.multiplier;
           entryDecision.macdDivergenceMult = macd.multiplier;
           entryDecision.orderBlockMult = ob.multiplier;
         }
         // SHORT modifier 부착 — multiplier 부호 반전 (LONG 의 1.10 = SHORT 의 0.90).
-        // P1-#1 (2026-05-10): SHORT path 도 additional modifier 적용 받도록.
         if (shortDecision) {
-          shortDecision.emaRibbonMult = invertMultiplier(ribbon.multiplier);
           shortDecision.macdDivergenceMult = invertMultiplier(macd.multiplier);
           shortDecision.orderBlockMult = invertMultiplier(ob.multiplier);
         }
@@ -370,10 +360,9 @@ export async function scanCoin(
     let finalLongStrength = baseLongStrength;
     if (entryDecision) {
       const addMult = combineAdditionalModifiers({
-        emaRibbonMult: entryDecision.emaRibbonMult,
         macdDivergenceMult: entryDecision.macdDivergenceMult,
         orderBlockMult: entryDecision.orderBlockMult,
-        // marketBreadth / fundingExtreme / cvdDivergence 는 scanner hot path
+        // marketBreadth / fundingExtreme 는 scanner hot path
         // 외부에서 별도 endpoint 로 산출 → 여기서는 1.0 (skip).
       });
       const waveMult = entryDecision.waveMult ?? 1.0;
@@ -388,7 +377,6 @@ export async function scanCoin(
     let finalShortStrength = shortSignalStrength;
     if (shortDecision && shortSignalStrength > 0) {
       const addMult = combineAdditionalModifiers({
-        emaRibbonMult: shortDecision.emaRibbonMult,
         macdDivergenceMult: shortDecision.macdDivergenceMult,
         orderBlockMult: shortDecision.orderBlockMult,
       });

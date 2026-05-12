@@ -351,8 +351,6 @@ export function extractSignalsFromCandles(
           : undefined,
       higherTfBullish:
         typeof meta.higherTfBullish === "boolean" ? meta.higherTfBullish : undefined,
-      emaRibbonMult:
-        typeof meta.emaRibbonMult === "number" ? meta.emaRibbonMult : undefined,
       macdDivergenceMult:
         typeof meta.macdDivergenceMult === "number"
           ? meta.macdDivergenceMult

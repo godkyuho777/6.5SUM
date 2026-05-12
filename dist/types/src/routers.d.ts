@@ -1029,5 +1029,122 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             meta: object;
         }>;
     }>>;
+    bbdxV66: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /**
+         * 단일 (symbol, tf) 의 v6.6 LONG/SHORT 양방향 평가.
+         * BBDX_VERSION=v6.6 일 때만 실제 평가. v6.5 일 때는 fallback note 반환.
+         */
+        current: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf: "1h" | "4h" | "1d";
+                limit?: number | undefined;
+            };
+            output: import("./strategies/bbdx-v66").V66EvaluateOutput | {
+                long: null;
+                short: null;
+                meta: {
+                    version: string;
+                    note: string;
+                    bothTriggered: boolean;
+                };
+            };
+            meta: object;
+        }>;
+        /** 특정 (symbol, tf, path, side) 의 현재 production 가중치 */
+        weightsFor: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf: string;
+                path: "NUM" | "PTN" | "BB";
+                side: "long" | "short";
+            };
+            output: import("./strategies/weight-calibration").WeightFetchResult;
+            meta: object;
+        }>;
+        /** 특정 (symbol, tf, side) 의 현재 production 임계 */
+        thresholdFor: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf: string;
+                side: "long" | "short";
+            };
+            output: import("./strategies/weight-calibration").ThresholdFetchResult;
+            meta: object;
+        }>;
+        /** 현재 feature flag 상태 (UI 진단용) */
+        flags: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: {
+                bbdxVersion: "v6.5" | "v6.6";
+                bbdxMarket: "spot" | "perp";
+                enableShortSignals: boolean;
+            };
+            meta: object;
+        }>;
+    }>>;
+    calibrationAdmin: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        triggerManualWeights: import("@trpc/server").TRPCMutationProcedure<{
+            input: {
+                symbol: string;
+                tf: string;
+                path: "NUM" | "PTN" | "BB";
+                side: "long" | "short";
+            };
+            output: import("./strategies/weight-calibration").AutoCorrectionResult;
+            meta: object;
+        }>;
+        triggerManualThreshold: import("@trpc/server").TRPCMutationProcedure<{
+            input: {
+                symbol: string;
+                tf: string;
+                side: "long" | "short";
+            };
+            output: import("./strategies/weight-calibration").ThresholdAutoCorrectionResult;
+            meta: object;
+        }>;
+        history: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf: string;
+                path: "NUM" | "PTN" | "BB";
+                side: "long" | "short";
+                limit?: number | undefined;
+            };
+            output: {
+                id: number;
+                symbol: string;
+                tf: string;
+                path: string;
+                side: string;
+                weightMomentum: number;
+                weightPosition: number;
+                weightTrend: number;
+                weightVolume: number;
+                weightAction: number;
+                source: string;
+                externalSourceId: string | null;
+                metadata: unknown;
+                rSquared: number | null;
+                sampleSize: number | null;
+                oosMatch: number | null;
+                wilsonCiWidth: number | null;
+                status: string;
+                calibratedAt: number;
+                replacedAt: number;
+            }[];
+            meta: object;
+        }>;
+    }>>;
 }>>;
 export type AppRouter = typeof appRouter;

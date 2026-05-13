@@ -21,6 +21,7 @@ export type {
   MultiTfAlignmentPerTf,
 } from "./shared/types";
 export type { VwapDetail } from "./vwap-detail";
+export type { CoinInfo } from "./coin-info";
 export type {
   VolumeProfile,
   VolumeProfileBin,

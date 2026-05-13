@@ -29,6 +29,7 @@ import {
   addCoinEvent,
 } from "./db";
 import { getCoinMeta } from "./coin-meta";
+import { getCoinInfo } from "./coin-info";
 import { computeRollingWinRate } from "./winrate-rolling";
 import { fetchMultiplePrices, fetchKlines } from "./bybit";
 import { runBacktest } from "./backtest/runner";
@@ -1032,6 +1033,19 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
       .input(z.object({ symbol: z.string() }))
       .query(async ({ input }) => {
         return getCoinMeta(input.symbol);
+      }),
+
+    /**
+     * 단일 코인의 상세 정보 (description / category / supply / ATH / links).
+     * CoinGecko Free 기반 + 23-coin 한국어 큐레이션. CoinDetail 페이지의
+     * "코인 정보" 탭에서 사용. 1h in-memory 캐시.
+     *
+     * 헌장: modifier-only (정보 표시만, 단독 시그널 발행 X).
+     */
+    info: publicProcedure
+      .input(z.object({ symbol: z.string() }))
+      .query(async ({ input }) => {
+        return getCoinInfo(input.symbol);
       }),
   }),
 

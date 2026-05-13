@@ -433,3 +433,71 @@ export const calibratedThresholds = pgTable(
 
 export type CalibratedThresholds = typeof calibratedThresholds.$inferSelect;
 export type InsertCalibratedThresholds = typeof calibratedThresholds.$inferInsert;
+
+// ─────────────────────────────────────────────────────────
+// JEON_IN_GU Signal Tracker (Phase 1.1)
+// ─────────────────────────────────────────────────────────
+//
+// 명세서: JEON_IN_GU_SIGNAL_TRACKER.md (§2).
+// Phase 1.1: DB 스키마 + 마이그레이션만. Phase 1.3 ~ 7 은 외부 의존성
+// (YouTube API key, Anthropic key, Telegram bot, 변호사 검토) 으로 대기 — D-002.
+//
+// 헌장 R3 (modifier-only): jeonInGuContents 는 6차원 macro layer 의 보조 데이터.
+// jeonInGuCalibrationHistory 는 가중치 ±0.50 의 alpha 검증 archive.
+
+/**
+ * 전인구 YouTube + 커뮤니티 콘텐츠 raw 저장 + LLM 감정 분류 결과.
+ *
+ * Phase 1.5 (cron 폴링) 가 YouTube Data API → DB INSERT.
+ * Phase 2 (감정 분류) 가 transcript fetch → Claude Haiku → UPDATE sentiment_*.
+ * Phase 3 (modifier) 가 confidence ≥ 0.7 + 36h decay 윈도우로 SELECT.
+ */
+export const jeonInGuContents = pgTable("jeon_in_gu_contents", {
+  id: bigint("id", { mode: "number" }).primaryKey(),
+  contentId: varchar("content_id", { length: 100 }).unique().notNull(),
+  source: varchar("source", { length: 20 }).notNull(), // 'youtube' | 'community'
+  channelName: varchar("channel_name", { length: 100 }),
+  title: text("title").notNull(),
+  description: text("description"),
+  transcript: text("transcript"),
+  publishedAt: bigint("published_at", { mode: "number" }).notNull(),
+
+  // 감정 분류 결과 (Phase 2 에서 채워짐)
+  sentimentScore: real("sentiment_score"),
+  marketDirection: varchar("market_direction", { length: 20 }), // bullish | bearish | neutral | unclear
+  sentimentConfidence: real("sentiment_confidence"),
+  detectedAssets: jsonb("detected_assets"), // ["BTC", "ETH"]
+  detectedKeywords: jsonb("detected_keywords"),
+  reasoning: text("reasoning"),
+
+  processed: boolean("processed").notNull().default(false),
+  processedAt: bigint("processed_at", { mode: "number" }),
+  bbdxSignalsAffected: jsonb("bbdx_signals_affected"),
+});
+
+export type JeonInGuContentRow = typeof jeonInGuContents.$inferSelect;
+export type InsertJeonInGuContentRow = typeof jeonInGuContents.$inferInsert;
+
+/**
+ * 전인구 weight ±0.50 의 자동 calibration archive.
+ *
+ * Phase 5 의 매주 calibration cron 이 INSERT — R², OOS match, sample size 와
+ * 함께 가중치 변경 사유를 기록한다. passed_validation=false 면 가중치 자동 감소
+ * (0.50 → 0.40 → 0.30 → 0.20 FALLBACK_WEIGHT).
+ */
+export const jeonInGuCalibrationHistory = pgTable("jeon_in_gu_calibration_history", {
+  id: bigint("id", { mode: "number" }).primaryKey(),
+  calibratedAt: bigint("calibrated_at", { mode: "number" }).notNull(),
+  weightBefore: real("weight_before").notNull(),
+  weightAfter: real("weight_after").notNull(),
+  rSquared: real("r_squared"),
+  sampleSize: bigint("sample_size", { mode: "number" }),
+  oosMatch: real("oos_match"),
+  reason: text("reason"),
+  passedValidation: boolean("passed_validation"),
+});
+
+export type JeonInGuCalibrationHistoryRow =
+  typeof jeonInGuCalibrationHistory.$inferSelect;
+export type InsertJeonInGuCalibrationHistoryRow =
+  typeof jeonInGuCalibrationHistory.$inferInsert;

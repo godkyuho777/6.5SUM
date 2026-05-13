@@ -33,6 +33,13 @@ import { computeRollingWinRate } from "./winrate-rolling";
 import { fetchMultiplePrices, fetchKlines } from "./bybit";
 import { runBacktest } from "./backtest/runner";
 import { listStrategies } from "./backtest/strategies";
+import {
+  evaluateEmaAdxSignal,
+  scanEmaAdxSignals,
+  META as EMA_ADX_META,
+  ENTRY_THRESHOLD as EMA_ADX_THRESHOLD,
+  CONFIDENCE_WEIGHTS as EMA_ADX_WEIGHTS,
+} from "./trackers/ema-adx-trend";
 import { runSingleIndicatorBacktest } from "./backtest/engines/single-indicator";
 import {
   runMultiStrategyBacktest,
@@ -1256,6 +1263,74 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
             error: String(e?.message ?? e),
           };
         }
+      }),
+  }),
+
+  // ─── EMA + ADX 정배열 추세 (Signal Scanner standalone, 2026-05-11) ────
+  // 사용자 요청: Wave Tracker 의 Trend Analysis 와 구분되는 별도 standalone
+  // Signal Scanner 전략. 5 보조지표 (EMA9/21/50, ADX, ±DI, SMA50, HH/HL) 합성.
+  // LONG/SHORT 양방향. BBDX/Fibonacci/VWAP 와 같은 primary signal layer.
+  emaAdxTrend: router({
+    /** 트래커 메타 (이름/설명/임계/가중치). 프론트엔드 Criteria 탭 용. */
+    meta: publicProcedure.query(() => ({
+      ...EMA_ADX_META,
+      threshold: EMA_ADX_THRESHOLD,
+      weights: EMA_ADX_WEIGHTS,
+    })),
+
+    /** 단일 심볼 시그널 평가. */
+    evaluate: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          tf: intervalSchema.optional(),
+        }),
+      )
+      .query(async ({ input }) => {
+        const tf = (input.tf ?? "4h") as TimeframeValue;
+        try {
+          return await evaluateEmaAdxSignal(input.symbol.toUpperCase(), tf);
+        } catch (e: any) {
+          return {
+            symbol: input.symbol.toUpperCase(),
+            tf,
+            side: "NEUTRAL" as const,
+            triggered: false,
+            finalConfidence: 0,
+            threshold: EMA_ADX_THRESHOLD,
+            breakdown: { emaStack: 0, adx: 0, diDiff: 0, smaSlope: 0, structure: 0 },
+            reasons: [String(e?.message ?? e)],
+            prices: {
+              price: 0, ema9: 0, ema21: 0, ema50: 0, sma50: 0,
+              adx: 0, plusDi: 0, minusDi: 0,
+              target1: 0, target2: 0, stopLoss: 0,
+              target1Pct: 0, target2Pct: 0, stopPct: 0,
+            },
+            computedAt: Date.now(),
+            error: String(e?.message ?? e),
+          };
+        }
+      }),
+
+    /** TOP 코인 스캔 — 시그널 트래커 페이지 리스트 표시 용. */
+    scan: publicProcedure
+      .input(
+        z
+          .object({
+            tf: intervalSchema.optional(),
+            symbols: z.array(z.string()).max(30).optional(),
+          })
+          .optional(),
+      )
+      .query(async ({ input }) => {
+        const tf = (input?.tf ?? "4h") as TimeframeValue;
+        const symbols = input?.symbols ?? TOP_COINS.slice(0, 10);
+        const results = await scanEmaAdxSignals(symbols, tf);
+        return {
+          tf,
+          results,
+          computedAt: Date.now(),
+        };
       }),
   }),
 

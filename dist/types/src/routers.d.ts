@@ -915,6 +915,88 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             meta: object;
         }>;
     }>>;
+    emaAdxTrend: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /** 트래커 메타 (이름/설명/임계/가중치). 프론트엔드 Criteria 탭 용. */
+        meta: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: {
+                threshold: number;
+                weights: {
+                    readonly emaStack: 0.3;
+                    readonly adx: 0.25;
+                    readonly diDiff: 0.2;
+                    readonly smaSlope: 0.15;
+                    readonly structure: 0.1;
+                };
+                id: "ema-adx-trend";
+                labelKo: string;
+                labelEn: string;
+                subtitle: string;
+                description: string;
+            };
+            meta: object;
+        }>;
+        /** 단일 심볼 시그널 평가. */
+        evaluate: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                tf?: "1h" | "4h" | "6h" | "1d" | "1w" | "1M" | undefined;
+            };
+            output: import("./trackers/ema-adx-trend").EmaAdxSignal | {
+                symbol: string;
+                tf: "1h" | "4h" | "6h" | "1d" | "1w" | "1M";
+                side: "NEUTRAL";
+                triggered: boolean;
+                finalConfidence: number;
+                threshold: number;
+                breakdown: {
+                    emaStack: number;
+                    adx: number;
+                    diDiff: number;
+                    smaSlope: number;
+                    structure: number;
+                };
+                reasons: string[];
+                prices: {
+                    price: number;
+                    ema9: number;
+                    ema21: number;
+                    ema50: number;
+                    sma50: number;
+                    adx: number;
+                    plusDi: number;
+                    minusDi: number;
+                    target1: number;
+                    target2: number;
+                    stopLoss: number;
+                    target1Pct: number;
+                    target2Pct: number;
+                    stopPct: number;
+                };
+                computedAt: number;
+                error: string;
+            };
+            meta: object;
+        }>;
+        /** TOP 코인 스캔 — 시그널 트래커 페이지 리스트 표시 용. */
+        scan: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                tf?: "1h" | "4h" | "6h" | "1d" | "1w" | "1M" | undefined;
+                symbols?: string[] | undefined;
+            } | undefined;
+            output: {
+                tf: "1h" | "4h" | "6h" | "1d" | "1w" | "1M";
+                results: import("./trackers/ema-adx-trend").EmaAdxSignal[];
+                computedAt: number;
+            };
+            meta: object;
+        }>;
+    }>>;
     modifiers: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;

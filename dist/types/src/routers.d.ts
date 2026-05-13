@@ -1192,5 +1192,71 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             meta: object;
         }>;
     }>>;
+    jeonInGu: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /** 트래커 설정 + 활성 상태 + Feature Flag. UI Criteria 탭에서 표시. */
+        config: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: {
+                enabled: boolean;
+                featureFlag: boolean;
+                WEIGHT: 0.5;
+                MIN_CONFIDENCE: 0.7;
+                DECAY_HOURS: 36;
+                MIN_FINAL_CONFIDENCE: 50;
+                AUTO_CALIBRATION_ENABLED: true;
+                CALIBRATION_INTERVAL_DAYS: 7;
+                ALPHA_THRESHOLD: 0.1;
+                FALLBACK_WEIGHT: 0.2;
+                POLLING_INTERVAL_MINUTES: 5;
+                LLM_MODEL: "claude-haiku-4-5-20251001";
+                TRANSCRIPT_MAX_LENGTH: 8000;
+            };
+            meta: object;
+        }>;
+        /**
+         * 최근 처리된 콘텐츠 목록 — Phase 1.5 cron 활성 후 DB SELECT.
+         * 현재는 빈 배열 + pending 메시지.
+         */
+        recentContents: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                limit?: number | undefined;
+            };
+            output: {
+                contents: Array<unknown>;
+                message: string;
+                limit: number;
+            };
+            meta: object;
+        }>;
+        /**
+         * 현재 (symbol, side) 의 contrarian modifier 값.
+         * Phase 3 활성 전까지 stub modifier (0) 반환 — 헌장 R3 안전.
+         */
+        currentModifier: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                side: "long" | "short";
+            };
+            output: import("./jeon-in-gu/types").JeonInGuModifierResult;
+            meta: object;
+        }>;
+        /**
+         * 가중치 ±0.50 의 calibration 변경 history.
+         * Phase 5 cron 활성 후 DB SELECT.
+         */
+        calibrationHistory: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: {
+                history: Array<unknown>;
+                message: string;
+            };
+            meta: object;
+        }>;
+    }>>;
 }>>;
 export type AppRouter = typeof appRouter;

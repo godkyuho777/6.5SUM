@@ -723,6 +723,20 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             output: import("./coin-meta").CoinMeta;
             meta: object;
         }>;
+        /**
+         * 단일 코인의 상세 정보 (description / category / supply / ATH / links).
+         * CoinGecko Free 기반 + 23-coin 한국어 큐레이션. CoinDetail 페이지의
+         * "코인 정보" 탭에서 사용. 1h in-memory 캐시.
+         *
+         * 헌장: modifier-only (정보 표시만, 단독 시그널 발행 X).
+         */
+        info: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+            };
+            output: import("./coin-info").CoinInfo;
+            meta: object;
+        }>;
     }>>;
     /** 캘린더 / 매크로 + 코인별 이벤트. */
     events: import("@trpc/server").TRPCBuiltRouter<{

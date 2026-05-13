@@ -40,10 +40,30 @@ export interface WeeklyCalibrationReport {
     }[];
     appliedCount: number;
     fallbackCount: number;
+    /** D-5 (2026-05-12): 실패한 조합 상세 — graceful 추적. */
+    failedCount: number;
+    errors: Array<{
+        kind: "weights" | "threshold" | "outer";
+        symbol?: string;
+        tf?: string;
+        path?: string;
+        side?: string;
+        message: string;
+    }>;
+    /** D-5: 전체 fatal error (outer try/catch — runWeeklyCalibration 자체는 never throw). */
+    fatalError?: string;
+    /** D-5: 50% 이상 실패 시 'degraded', 100% 시 'fatal'. */
+    health: "ok" | "degraded" | "fatal";
 }
 /**
  * runWeeklyCalibration — 모든 조합 calibration 시도.
  *
  * 호출 시점: cron / 수동 admin trigger / CLI.
+ *
+ * D-5 (2026-05-12): graceful failure 강화.
+ *   - 외부 try/catch 추가 → runWeeklyCalibration *never throw*
+ *   - 개별 실패 (weights/threshold) 는 errors[] 에 누적
+ *   - 50% 이상 실패 시 health=degraded, 100% 시 health=fatal
+ *   - production cron 이 실패해도 다음 주 cron 까지 영향 X
  */
 export declare function runWeeklyCalibration(): Promise<WeeklyCalibrationReport>;

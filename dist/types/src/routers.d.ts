@@ -543,7 +543,9 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** 현재 계정 잔액 + equity (mark-to-market). */
         account: import("@trpc/server").TRPCQueryProcedure<{
-            input: void;
+            input: {
+                simUserId: string;
+            };
             output: {
                 available: boolean;
                 cash: number;
@@ -560,9 +562,10 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
         /** 보유 포지션 목록 (open) */
         positions: import("@trpc/server").TRPCQueryProcedure<{
             input: {
+                simUserId: string;
                 includeClosed?: boolean | undefined;
                 limit?: number | undefined;
-            } | undefined;
+            };
             output: {
                 symbol: string;
                 id: number;
@@ -589,8 +592,9 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
         /** 거래 내역 (audit trail) */
         transactions: import("@trpc/server").TRPCQueryProcedure<{
             input: {
+                simUserId: string;
                 limit?: number | undefined;
-            } | undefined;
+            };
             output: {
                 symbol: string | null;
                 id: number;
@@ -631,12 +635,15 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
         /** 포지션 진입 */
         openPosition: import("@trpc/server").TRPCMutationProcedure<{
             input: {
+                simUserId: string;
                 symbol: string;
                 side: "long" | "short";
                 quantity: number;
                 productType?: "spot" | "perp" | undefined;
                 leverage?: number | undefined;
                 entryPrice?: number | undefined;
+                orderType?: "limit" | "market" | undefined;
+                marginMode?: "cross" | "isolated" | undefined;
             };
             output: import("./simulator/db").OpenPositionResult | {
                 error: string;
@@ -646,6 +653,7 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
         /** 포지션 청산 */
         closePosition: import("@trpc/server").TRPCMutationProcedure<{
             input: {
+                simUserId: string;
                 positionId: number;
                 exitPrice?: number | undefined;
             };
@@ -656,7 +664,9 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
         }>;
         /** 계정 리셋 — 모든 open 포지션 강제 close + $200k 재입금 */
         reset: import("@trpc/server").TRPCMutationProcedure<{
-            input: void;
+            input: {
+                simUserId: string;
+            };
             output: {
                 reset: true;
             };
@@ -664,7 +674,9 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
         }>;
         /** Mark-to-market 갱신 — open 포지션 현재가 + unrealized P&L 동기화 */
         refresh: import("@trpc/server").TRPCMutationProcedure<{
-            input: void;
+            input: {
+                simUserId: string;
+            };
             output: {
                 updated: number;
             };

@@ -535,6 +535,142 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             meta: object;
         }>;
     }>>;
+    simulator: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /** 현재 계정 잔액 + equity (mark-to-market). */
+        account: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: {
+                available: boolean;
+                cash: number;
+                realizedPnl: number;
+                totalCommission: number;
+                totalFunding: number;
+                liquidationCount: number;
+                openPositions: number;
+                unrealizedPnl: number;
+                equity: number;
+            };
+            meta: object;
+        }>;
+        /** 보유 포지션 목록 (open) */
+        positions: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                includeClosed?: boolean | undefined;
+                limit?: number | undefined;
+            } | undefined;
+            output: {
+                symbol: string;
+                id: number;
+                entryPrice: number;
+                currentPrice: number | null;
+                status: "closed" | "open" | "liquidated";
+                closedAt: Date | null;
+                userId: string;
+                quantity: number;
+                leverage: number;
+                openedAt: Date;
+                side: string;
+                productType: "spot" | "perp";
+                margin: number;
+                liquidationPrice: number | null;
+                accruedFunding: number;
+                accruedCommission: number;
+                closedPnl: number | null;
+                closedPrice: number | null;
+                closedReason: string | null;
+            }[];
+            meta: object;
+        }>;
+        /** 거래 내역 (audit trail) */
+        transactions: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                limit?: number | undefined;
+            } | undefined;
+            output: {
+                symbol: string | null;
+                id: number;
+                userId: string;
+                ts: Date;
+                positionId: number | null;
+                type: "open" | "close" | "funding" | "commission" | "deposit" | "liquidation";
+                amount: number;
+                price: number | null;
+                note: string | null;
+            }[];
+            meta: object;
+        }>;
+        /** 현재 시장 가격 + funding rate quote (포지션 진입 전 조회) */
+        quote: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+            };
+            output: {
+                symbol: string;
+                price: number;
+                fundingRate: number;
+                fundingHours: number;
+                commissionRate: number;
+                available: boolean;
+                error?: undefined;
+            } | {
+                symbol: string;
+                price: number;
+                fundingRate: number;
+                fundingHours: number;
+                commissionRate: number;
+                available: boolean;
+                error: string;
+            };
+            meta: object;
+        }>;
+        /** 포지션 진입 */
+        openPosition: import("@trpc/server").TRPCMutationProcedure<{
+            input: {
+                symbol: string;
+                side: "long" | "short";
+                quantity: number;
+                productType?: "spot" | "perp" | undefined;
+                leverage?: number | undefined;
+                entryPrice?: number | undefined;
+            };
+            output: import("./simulator/db").OpenPositionResult | {
+                error: string;
+            };
+            meta: object;
+        }>;
+        /** 포지션 청산 */
+        closePosition: import("@trpc/server").TRPCMutationProcedure<{
+            input: {
+                positionId: number;
+                exitPrice?: number | undefined;
+            };
+            output: import("./simulator/db").ClosePositionResult | {
+                error: string;
+            };
+            meta: object;
+        }>;
+        /** 계정 리셋 — 모든 open 포지션 강제 close + $200k 재입금 */
+        reset: import("@trpc/server").TRPCMutationProcedure<{
+            input: void;
+            output: {
+                reset: true;
+            };
+            meta: object;
+        }>;
+        /** Mark-to-market 갱신 — open 포지션 현재가 + unrealized P&L 동기화 */
+        refresh: import("@trpc/server").TRPCMutationProcedure<{
+            input: void;
+            output: {
+                updated: number;
+            };
+            meta: object;
+        }>;
+    }>>;
     cycle: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;

@@ -598,6 +598,205 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
       }),
   }),
 
+  // ─── Investment Simulator (모의투자) — 2026-05-15 ────────────
+  // 가상 자금 $200,000 USD 로 모의 거래. 실제 자본 영향 X.
+  // 모든 procedure 는 protectedProcedure (로그인 필요).
+  simulator: router({
+    /** 현재 계정 잔액 + equity (mark-to-market). */
+    account: protectedProcedure.query(async ({ ctx }) => {
+      const { getOrCreateAccount, listOpenPositions } = await import(
+        "./simulator/db"
+      );
+      const account = await getOrCreateAccount(ctx.user.id);
+      if (!account) {
+        return {
+          available: false,
+          cash: 200000,
+          realizedPnl: 0,
+          totalCommission: 0,
+          totalFunding: 0,
+          liquidationCount: 0,
+          openPositions: 0,
+          unrealizedPnl: 0,
+          equity: 200000,
+        };
+      }
+      const positions = await listOpenPositions(ctx.user.id);
+      let unrealizedPnl = 0;
+      for (const p of positions) {
+        if (p.currentPrice == null) continue;
+        const dir = p.side === "long" ? 1 : -1;
+        unrealizedPnl += dir * (p.currentPrice - p.entryPrice) * p.quantity * p.leverage;
+      }
+      const equity = account.cash + unrealizedPnl;
+      return {
+        available: true,
+        cash: account.cash,
+        realizedPnl: account.realizedPnl,
+        totalCommission: account.totalCommission,
+        totalFunding: account.totalFunding,
+        liquidationCount: account.liquidationCount,
+        openPositions: positions.length,
+        unrealizedPnl,
+        equity,
+      };
+    }),
+
+    /** 보유 포지션 목록 (open) */
+    positions: protectedProcedure
+      .input(
+        z
+          .object({
+            includeClosed: z.boolean().default(false),
+            limit: z.number().min(1).max(200).default(50),
+          })
+          .optional(),
+      )
+      .query(async ({ ctx, input }) => {
+        const { listOpenPositions, listAllPositions } = await import(
+          "./simulator/db"
+        );
+        if (input?.includeClosed) {
+          return listAllPositions(ctx.user.id, input.limit);
+        }
+        return listOpenPositions(ctx.user.id);
+      }),
+
+    /** 거래 내역 (audit trail) */
+    transactions: protectedProcedure
+      .input(z.object({ limit: z.number().min(1).max(200).default(50) }).optional())
+      .query(async ({ ctx, input }) => {
+        const { listTransactions } = await import("./simulator/db");
+        return listTransactions(ctx.user.id, input?.limit ?? 50);
+      }),
+
+    /** 현재 시장 가격 + funding rate quote (포지션 진입 전 조회) */
+    quote: protectedProcedure
+      .input(z.object({ symbol: z.string() }))
+      .query(async ({ input }) => {
+        const symbol = input.symbol.toUpperCase();
+        try {
+          const prices = await fetchMultiplePrices([symbol]);
+          const price = prices.get(symbol) ?? 0;
+          // Funding rate placeholder — Bybit perp funding fetch 별도 작업.
+          // 현재는 BTC 평균 0.01% / 4h 추정값.
+          const fundingRate = 0.0001;
+          return {
+            symbol,
+            price,
+            fundingRate,
+            fundingHours: 4,
+            commissionRate: 0.0001, // 0.01%
+            available: price > 0,
+          };
+        } catch (err) {
+          return {
+            symbol,
+            price: 0,
+            fundingRate: 0,
+            fundingHours: 4,
+            commissionRate: 0.0001,
+            available: false,
+            error: (err as Error)?.message ?? "fetch failed",
+          };
+        }
+      }),
+
+    /** 포지션 진입 */
+    openPosition: protectedProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          productType: z.enum(["spot", "perp"]).default("spot"),
+          side: z.enum(["long", "short"]),
+          leverage: z.number().min(1).max(125).default(1),
+          quantity: z.number().positive(),
+          /** 진입 가격 — 미지정 시 현재 시장가 fetch. */
+          entryPrice: z.number().positive().optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { openPosition } = await import("./simulator/db");
+        const symbol = input.symbol.toUpperCase();
+
+        // spot 은 SHORT 불가
+        if (input.productType === "spot" && input.side === "short") {
+          return { error: "Spot 상품은 SHORT 불가" };
+        }
+        // spot 은 leverage = 1 강제
+        const leverage = input.productType === "spot" ? 1 : input.leverage;
+
+        let entryPrice = input.entryPrice;
+        if (!entryPrice) {
+          const prices = await fetchMultiplePrices([symbol]);
+          entryPrice = prices.get(symbol) ?? 0;
+        }
+        if (!entryPrice || entryPrice <= 0) {
+          return { error: `${symbol} 시장 가격 fetch 실패` };
+        }
+
+        return openPosition({
+          userId: ctx.user.id,
+          symbol,
+          productType: input.productType,
+          side: input.side,
+          leverage,
+          entryPrice,
+          quantity: input.quantity,
+        });
+      }),
+
+    /** 포지션 청산 */
+    closePosition: protectedProcedure
+      .input(
+        z.object({
+          positionId: z.number().int(),
+          /** 청산 가격 — 미지정 시 현재 시장가 fetch. */
+          exitPrice: z.number().positive().optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { closePosition, listOpenPositions } = await import(
+          "./simulator/db"
+        );
+        let exitPrice = input.exitPrice;
+        if (!exitPrice) {
+          // 포지션의 symbol 알아내서 fetch
+          const positions = await listOpenPositions(ctx.user.id);
+          const target = positions.find((p) => p.id === input.positionId);
+          if (!target) return { error: "Position not found" };
+          const prices = await fetchMultiplePrices([target.symbol]);
+          exitPrice = prices.get(target.symbol) ?? 0;
+        }
+        if (!exitPrice || exitPrice <= 0) {
+          return { error: "Exit price fetch 실패" };
+        }
+        return closePosition({
+          userId: ctx.user.id,
+          positionId: input.positionId,
+          exitPrice,
+          reason: "manual",
+        });
+      }),
+
+    /** 계정 리셋 — 모든 open 포지션 강제 close + $200k 재입금 */
+    reset: protectedProcedure.mutation(async ({ ctx }) => {
+      const { resetAccount } = await import("./simulator/db");
+      return resetAccount(ctx.user.id);
+    }),
+
+    /** Mark-to-market 갱신 — open 포지션 현재가 + unrealized P&L 동기화 */
+    refresh: protectedProcedure.mutation(async ({ ctx }) => {
+      const { listOpenPositions, markToMarket } = await import("./simulator/db");
+      const positions = await listOpenPositions(ctx.user.id);
+      if (positions.length === 0) return { updated: 0 };
+      const symbols = Array.from(new Set(positions.map((p) => p.symbol)));
+      const prices = await fetchMultiplePrices(symbols);
+      await markToMarket(ctx.user.id, prices);
+      return { updated: positions.length };
+    }),
+  }),
+
   // ─── Cycle (BTC 200d MA regime) P1-④ 2026-05-11 ─────────────
   // bull / bear / neutral 분류. strategy 별 cycle-aware activation gate.
   cycle: router({

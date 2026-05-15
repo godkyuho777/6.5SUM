@@ -501,3 +501,100 @@ export type JeonInGuCalibrationHistoryRow =
   typeof jeonInGuCalibrationHistory.$inferSelect;
 export type InsertJeonInGuCalibrationHistoryRow =
   typeof jeonInGuCalibrationHistory.$inferInsert;
+
+// ─── Investment Simulator (모의투자) — 2026-05-15 ─────────────
+// 사용자가 가상 자금 ($200,000 USD) 로 시그널을 따라 모의 거래 가능.
+// 실제 자본 영향 X. P&L / leverage / funding rate / commission 모두 시뮬레이션.
+
+/** 시뮬레이터 포지션 상태 */
+export const simPositionStatus = pgEnum("sim_position_status", [
+  "open",
+  "closed",
+  "liquidated",
+]);
+
+/** 시뮬레이터 포지션 종류 (spot 또는 derivative). */
+export const simProductType = pgEnum("sim_product_type", ["spot", "perp"]);
+
+/** 시뮬레이터 거래 종류. */
+export const simTxType = pgEnum("sim_tx_type", [
+  "open",          // 포지션 진입
+  "close",         // 포지션 청산
+  "funding",       // 4h funding payment (perp only)
+  "commission",    // 거래 수수료 0.01% × leverage
+  "deposit",       // 초기 $200k 입금 또는 리셋
+  "liquidation",   // 강제 청산
+]);
+
+/** 사용자별 시뮬레이터 계정 — 1 user = 1 account. */
+export const simAccounts = pgTable("sim_accounts", {
+  id: serial("id").primaryKey(),
+  userId: uuid("user_id").notNull().unique(),
+  /** 현재 가용 현금 잔액 USD. 시작 $200,000. */
+  cash: doublePrecision("cash").notNull().default(200000),
+  /** 누적 P&L (closed positions 만). */
+  realizedPnl: doublePrecision("realized_pnl").notNull().default(0),
+  /** 누적 commission 지출. */
+  totalCommission: doublePrecision("total_commission").notNull().default(0),
+  /** 누적 funding 지출/수입 (perp). */
+  totalFunding: doublePrecision("total_funding").notNull().default(0),
+  /** 강제 청산 카운트. */
+  liquidationCount: integer("liquidation_count").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type SimAccountRow = typeof simAccounts.$inferSelect;
+export type InsertSimAccountRow = typeof simAccounts.$inferInsert;
+
+/** 시뮬레이터 포지션 — open / closed / liquidated. */
+export const simPositions = pgTable("sim_positions", {
+  id: serial("id").primaryKey(),
+  userId: uuid("user_id").notNull(),
+  symbol: varchar("symbol", { length: 20 }).notNull(),
+  productType: simProductType("product_type").notNull().default("spot"),
+  side: varchar("side", { length: 10 }).notNull(), // "long" | "short"
+  leverage: real("leverage").notNull().default(1), // 1 = spot, 2~125 = perp
+  /** 진입 시점 가격 USD. */
+  entryPrice: doublePrecision("entry_price").notNull(),
+  /** 계약 수량 (코인 단위, e.g. 0.5 BTC). */
+  quantity: doublePrecision("quantity").notNull(),
+  /** 진입 시 잠긴 margin USD (positionValue / leverage). */
+  margin: doublePrecision("margin").notNull(),
+  /** 최근 mark price (UI 갱신). */
+  currentPrice: doublePrecision("current_price"),
+  /** 청산가 = entryPrice × (1 - 1/leverage) (long) — 시뮬레이션. */
+  liquidationPrice: doublePrecision("liquidation_price"),
+  /** Open 시 누적 funding payment (perp). */
+  accruedFunding: doublePrecision("accrued_funding").notNull().default(0),
+  /** Open 시 누적 commission. */
+  accruedCommission: doublePrecision("accrued_commission").notNull().default(0),
+  status: simPositionStatus("status").notNull().default("open"),
+  openedAt: timestamp("opened_at", { withTimezone: true }).defaultNow().notNull(),
+  closedAt: timestamp("closed_at", { withTimezone: true }),
+  /** 청산 시 P&L (close 시점에 계산되어 저장). */
+  closedPnl: doublePrecision("closed_pnl"),
+  closedPrice: doublePrecision("closed_price"),
+  closedReason: varchar("closed_reason", { length: 50 }), // "manual" | "liquidation" | "stop_loss" 등
+});
+
+export type SimPositionRow = typeof simPositions.$inferSelect;
+export type InsertSimPositionRow = typeof simPositions.$inferInsert;
+
+/** 시뮬레이터 거래 내역 (audit trail). */
+export const simTransactions = pgTable("sim_transactions", {
+  id: serial("id").primaryKey(),
+  userId: uuid("user_id").notNull(),
+  positionId: integer("position_id"), // null = deposit / 리셋
+  type: simTxType("type").notNull(),
+  symbol: varchar("symbol", { length: 20 }),
+  /** USD 변화 — 음수 = 지출 / 양수 = 수입. */
+  amount: doublePrecision("amount").notNull(),
+  /** 해당 시점 가격 (참고). */
+  price: doublePrecision("price"),
+  note: text("note"),
+  ts: timestamp("ts", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type SimTransactionRow = typeof simTransactions.$inferSelect;
+export type InsertSimTransactionRow = typeof simTransactions.$inferInsert;

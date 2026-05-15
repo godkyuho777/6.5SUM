@@ -29,9 +29,15 @@ import { TOP_COINS } from "@shared/types";
 
 type ExtendedArgs = BacktestCliArgs & {
   calibrate?: boolean;
+  /**
+   * `bbdx-combined` (2026-05-15): runner 가 LONG bbdx + SHORT bbdx-short 둘 다
+   * 호출 후 trade 배열을 concat. metricsBySide 와 함께 단일 백테스트로 양방향
+   * 결과를 반환한다.
+   */
   strategy?:
     | "bbdx"
     | "bbdx-short"
+    | "bbdx-combined"
     | "fibonacci"
     | "vwap"
     | "trend"
@@ -75,7 +81,8 @@ function parseArgs(argv: string[]): ExtendedArgs {
         args.calibrate = true;
         break;
       case "--strategy":
-        // v6.5 multi-strategy: bbdx | fibonacci | vwap | trend
+        // v6.5 multi-strategy: bbdx | bbdx-short | bbdx-combined |
+        //                      fibonacci | vwap | trend | trend-follow
         args.strategy = argv[++i] as ExtendedArgs["strategy"];
         break;
     }

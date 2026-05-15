@@ -6,6 +6,7 @@
  */
 import "./bbdx";
 import "./bbdx-short";
+import "./bbdx-combined";
 import "./fibonacci";
 import "./vwap";
 import "./trend";
@@ -14,6 +15,7 @@ export { STRATEGY_REGISTRY, getStrategy, registerStrategy, } from "./types";
 export type { BacktestStrategy, StrategyName, EntryEvaluation, EntryParams, } from "./types";
 export { bbdxStrategy } from "./bbdx";
 export { bbdxShortStrategy } from "./bbdx-short";
+export { bbdxCombinedStrategy } from "./bbdx-combined";
 export { fibonacciStrategy } from "./fibonacci";
 export { vwapStrategy } from "./vwap";
 export { trendStrategy } from "./trend";

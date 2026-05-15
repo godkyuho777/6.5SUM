@@ -464,7 +464,7 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 cooldownCandles?: number | undefined;
                 saveToDb?: boolean | undefined;
                 runName?: string | undefined;
-                strategy?: "vwap" | "bbdx" | "bbdx-short" | "fibonacci" | "trend" | "trend-follow" | undefined;
+                strategy?: "vwap" | "bbdx" | "bbdx-short" | "bbdx-combined" | "fibonacci" | "trend" | "trend-follow" | undefined;
             };
             output: {
                 runId: number | undefined;
@@ -480,6 +480,11 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 runAt: string;
                 durationMs: number;
                 trades: import("./backtest/types").BacktestTrade[];
+                metricsBySide: {
+                    long: import("./backtest/types").BacktestMetrics | null;
+                    short: import("./backtest/types").BacktestMetrics | null;
+                    combined: import("./backtest/types").BacktestMetrics;
+                } | undefined;
             };
             meta: object;
         }>;

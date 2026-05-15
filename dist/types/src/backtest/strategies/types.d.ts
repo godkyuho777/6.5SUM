@@ -17,9 +17,14 @@
  */
 import type { Candle, TechnicalIndicators } from "@shared/types";
 /** 전략 식별자 */
-export type StrategyName = "bbdx" | "bbdx-short" | "fibonacci" | "vwap" | "trend" | "trend-follow";
-/** 매매 방향 — outcome 측정 시 가격 방향 기준이 됨. */
-export type StrategySide = "long" | "short";
+export type StrategyName = "bbdx" | "bbdx-short" | "bbdx-combined" | "fibonacci" | "vwap" | "trend" | "trend-follow";
+/**
+ * 매매 방향 — outcome 측정 시 가격 방향 기준이 됨.
+ *
+ * "both" — bbdx-combined 전용. signal-extractor 가 직접 처리하지 않고,
+ * runner 가 LONG + SHORT extractor 를 각각 호출하여 trade 배열을 concat 한다.
+ */
+export type StrategySide = "long" | "short" | "both";
 /** 진입 조건 평가 결과 */
 export interface EntryEvaluation {
     /** 진입 여부 */

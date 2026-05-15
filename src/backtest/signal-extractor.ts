@@ -256,7 +256,10 @@ export function extractSignalsFromCandles(
   const { tf, minWarmupCandles, outcomeWindowCandles, cooldownCandles } = config;
   const strategyName = config.strategy ?? "bbdx";
   const strategy = getStrategy(strategyName);
-  const side = strategy.side ?? "long";
+  // strategy.side === "both" 는 bbdx-combined 의 sentinel — runner 가 분기 처리해야
+  // 하고 본 extractor 로 흘러와선 안 됨. 방어적으로 "long" 으로 fallback 하지만
+  // shouldEnter 자체가 false 반환하므로 trade 0 으로 끝난다.
+  const side: "long" | "short" = strategy.side === "short" ? "short" : "long";
 
   const trades: BacktestTrade[] = [];
   const maxSignalIdx = candles.length - outcomeWindowCandles - 1;

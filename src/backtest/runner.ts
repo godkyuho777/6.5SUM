@@ -8,7 +8,7 @@
  * 5. BacktestResult 반환
  */
 
-import type { BacktestConfig, BacktestResult, BacktestTrade } from "./types";
+import type { BacktestConfig, BacktestResult, BacktestTrade, BacktestMetrics } from "./types";
 import { DEFAULT_BACKTEST_CONFIG } from "./types";
 import { fetchAllSymbolsHistorical } from "./data-loader";
 import { extractAllSignals } from "./signal-extractor";
@@ -16,6 +16,7 @@ import {
   computeMetrics,
   computeMetricsBySymbol,
   computeMetricsByTf,
+  computeMetricsBySide,
   classifySampleSufficiency,
   applyCostModel,
   DEFAULT_COST_MODEL,
@@ -154,13 +155,47 @@ export async function runBacktest(
 
   // ── Step 2: 시그널 추출 & 결과 측정 ─────────────────
   console.log("\n▶ Step 2/3: Signal extraction & outcome measurement...");
-  const rawTrades: BacktestTrade[] = extractAllSignals(
-    candleMap,
-    config,
-    (done, total, sym) => {
-      process.stdout.write(`\r   [${done}/${total}] ${sym.padEnd(12)}`);
-    }
-  );
+
+  let rawTrades: BacktestTrade[];
+  if (config.strategy === "bbdx-combined") {
+    // bbdx-combined (2026-05-15): LONG + SHORT 양쪽 extractor 호출하여 concat.
+    //   sub-strategy 별 cooldown / signal 로직은 각자 독립 (signal-extractor
+    //   의 lastSignalIdx 가 호출 단위로 분리됨 → LONG 의 cooldown 이 SHORT 진입을
+    //   차단하지 않는다).
+    console.log("   bbdx-combined: extracting LONG (bbdx)...");
+    const longTrades = extractAllSignals(
+      candleMap,
+      { ...config, strategy: "bbdx" },
+      (done, total, sym) => {
+        process.stdout.write(`\r   [LONG ${done}/${total}] ${sym.padEnd(12)}`);
+      },
+    );
+    console.log(`\n   bbdx-combined: extracting SHORT (bbdx-short)...`);
+    const shortTrades = extractAllSignals(
+      candleMap,
+      { ...config, strategy: "bbdx-short" },
+      (done, total, sym) => {
+        process.stdout.write(`\r   [SHORT ${done}/${total}] ${sym.padEnd(12)}`);
+      },
+    );
+    // signal-extractor 가 각 sub-call 내부에서 signalTs 기준 정렬을 보장하지만,
+    // concat 후에는 LONG-block + SHORT-block 형태가 되어 시간순이 깨질 수 있다.
+    // 다시 정렬하여 equity curve / MDD 계산이 정확하게 시간 순서대로 누적되도록.
+    rawTrades = [...longTrades, ...shortTrades].sort(
+      (a, b) => a.signalTs - b.signalTs,
+    );
+    console.log(
+      `   bbdx-combined: LONG ${longTrades.length} + SHORT ${shortTrades.length} = ${rawTrades.length} signals`,
+    );
+  } else {
+    rawTrades = extractAllSignals(
+      candleMap,
+      config,
+      (done, total, sym) => {
+        process.stdout.write(`\r   [${done}/${total}] ${sym.padEnd(12)}`);
+      },
+    );
+  }
   console.log(`\n   Extracted ${rawTrades.length} signals`);
 
   // ── BACKTEST_DEFECT_AUDIT D1: cost-model 적용 ────────
@@ -195,6 +230,23 @@ export async function runBacktest(
 
   const durationMs = Date.now() - wallStart;
 
+  // ── bbdx-combined: metricsBySide 채우기 (LONG / SHORT 분리 + combined alias) ──
+  // bySide.long.totalTrades === 0 이면 null 로 정규화 — 프론트가 빈 카드를 그리지
+  // 않도록.
+  let metricsBySide: BacktestResult["metricsBySide"] = undefined;
+  if (config.strategy === "bbdx-combined") {
+    const bySide = computeMetricsBySide(trades);
+    const longMetrics: BacktestMetrics | null =
+      bySide.long.totalTrades > 0 ? bySide.long : null;
+    const shortMetrics: BacktestMetrics | null =
+      bySide.short.totalTrades > 0 ? bySide.short : null;
+    metricsBySide = {
+      long: longMetrics,
+      short: shortMetrics,
+      combined: overall,
+    };
+  }
+
   const result: BacktestResult = {
     config,
     overall,
@@ -209,6 +261,7 @@ export async function runBacktest(
       feePct: costModel.fee_pct,
       slippagePct: costModel.slippage_pct,
     },
+    ...(metricsBySide ? { metricsBySide } : {}),
   };
 
   // ── (옵션) DB 저장 ────────────────────────────────────

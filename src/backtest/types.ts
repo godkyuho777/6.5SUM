@@ -15,10 +15,14 @@ import type { TimeframeValue } from "@shared/types";
 
 /**
  * 전략 식별자 — `src/backtest/strategies/` 의 등록된 BacktestStrategy.name 와 일치.
+ *
+ * "bbdx-combined" (2026-05-15): LONG bbdx + SHORT bbdx-short 를 한 백테스트에서
+ * 모두 실행하여 trade 배열을 concat. runner 가 신규 분기로 처리.
  */
 export type BacktestStrategyName =
   | "bbdx"
   | "bbdx-short"
+  | "bbdx-combined"
   | "fibonacci"
   | "vwap"
   | "trend"
@@ -242,6 +246,20 @@ export interface BacktestResult {
   overallSampleSufficiency?: "sufficient" | "marginal" | "insufficient";
   /** 실제 적용된 cost model (round-trip 차감 후 returnPct). */
   appliedCostModel?: { feePct: number; slippagePct: number };
+  /**
+   * Side(LONG/SHORT) 분리 메트릭 + 결합 메트릭 (bbdx-combined 전용, 2026-05-15).
+   *
+   * - `combined` 은 `overall` 과 동일 (편의 alias).
+   * - `long` / `short` 는 해당 side 의 trade 만 추려서 별도 계산.
+   * - LONG/SHORT 한쪽 trade 0건 이면 해당 필드는 `null`.
+   *
+   * 다른 single-side strategy 에서는 미정의 (`undefined`).
+   */
+  metricsBySide?: {
+    long: BacktestMetrics | null;
+    short: BacktestMetrics | null;
+    combined: BacktestMetrics;
+  };
 }
 
 // ─────────────────────────────────────────────────────────

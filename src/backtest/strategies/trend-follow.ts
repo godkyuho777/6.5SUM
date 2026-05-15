@@ -62,7 +62,7 @@ function hasRecentHigherHigh(candles: Candle[], idx: number): boolean {
 
 export const trendFollowStrategy: BacktestStrategy = {
   name: "trend-follow",
-  label: "Trend Follow (EMA / ADX / HH)",
+  label: "EMA+ADX 정배열",
   description:
     "v6.5 P1-③ — EMA 정배열 + ADX≥25 + Higher High 추세 추종. BBDX mean reversion 과 보완 전략.",
   dimensionsCovered: [1, 3, 5],

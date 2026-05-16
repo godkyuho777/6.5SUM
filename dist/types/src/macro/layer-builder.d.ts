@@ -13,7 +13,7 @@
  *   - API key 없으면 stub 반환, 절대 throw X.
  */
 import { macroFreshnessMult, type RawMacroData } from "./composite-signals";
-import { type FredMode, type FredObservation } from "./sources/fred";
+import { type FredFetchResult, type FredMode, type FredObservation } from "./sources/fred";
 import type { MacroLayer } from "./layer-types";
 export interface BuildMacroLayerOpts {
     /** 측정/적용 시점 (epoch ms). */
@@ -66,6 +66,29 @@ export declare function latestValid(obs: FredObservation[]): number | undefined;
  */
 export declare function valueDaysAgo(obs: FredObservation[], days: number): number | undefined;
 /**
+ * 12개 FRED 시리즈 observations 를 일별 RawMacroData 시퀀스로 변환.
+ *
+ * 각 일자 마다:
+ *   - 그 날 가장 최근 valid observation 값 사용 (FRED 는 weekly/monthly
+ *     시리즈도 있음 → step function 으로 forward-fill).
+ *   - 누락이 forward-fill 가능 범위 밖이면 undefined.
+ *
+ * 사용 시리즈: SOFR / IORB / DGS10 / DGS2 / WALCL / RRP / TGA / DXY /
+ *              VIX / FEDFUNDS / CPI (DFII10 는 본 단계 무관 — 옵션).
+ *
+ * CPI YoY 는 각 grid 일자 d 에 대해 d 와 d - 365일 의 CPI 차분으로 계산.
+ * WALCL/DXY 30d 변화율은 d 와 d - 30일 의 변화율로 계산.
+ * RRP+TGA 30d 변화율도 동일 — 둘 다 있어야만 계산.
+ *
+ * @param fredResults `Map<seriesId, FredFetchResult>` 또는 동일 모양의 Record.
+ *                    Map 인 경우만 직접 받아도 무방.
+ * @param endMs       시퀀스 종료 시점 (epoch ms).
+ * @param daysCount   90+ days. default 120 (C4 90d + 여유 30d).
+ * @returns RawMacroData[] — 오래된 → 최신 순.
+ *          `history[history.length - 1]` 가 endMs 시점 (가장 최신).
+ */
+export declare function buildMacroRawHistory(fredResults: Map<string, FredFetchResult>, endMs: number, daysCount?: number): RawMacroData[];
+/**
  * Time-range MacroLayer 빌더 — endMs 시점의 단일 layer 반환.
  *
  * 동작:
@@ -74,13 +97,13 @@ export declare function valueDaysAgo(obs: FredObservation[], days: number): numb
  *   3. 한국 BOK 환율 (731Y004) 호출 (key 없으면 Yahoo fallback).
  *   4. 각 시리즈에서 latest + 30d-ago / 365d-ago 추출 → RawMacroData 채움.
  *   5. release_ts = 가장 늦은 시리즈의 latest obs 시점.
- *   6. buildMacroLayerSnapshot 으로 통합 layer 생성.
+ *   6. buildMacroRawHistory 로 120일 일별 grid + forward-fill 시퀀스 빌드.
+ *   7. buildMacroLayerSnapshot(history) → C3/C4 자동 계산.
  *
  * 본 구현은 단일-point timeline 반환. 일별 stride 시퀀스는 Phase 3.5 에서.
  *
- * C3 (90d net-liquidity) / C4 (cycle phase) 는 history 인자가 필요하나,
- * 본 함수는 단일 snapshot 만 생성 → 0/"neutral" 로 떨어진다. history-aware
- * 빌드는 후속 작업.
+ * C3 (30d net-liquidity) / C4 (90d cycle phase) 는 history 길이만 충분하면
+ * 자동 계산. 데이터 부족 시 0 / "neutral" 로 graceful fallback.
  */
 export declare function buildMacroLayerRange(opts: BuildMacroRangeOpts): Promise<MacroLayer[]>;
 /**

@@ -263,6 +263,184 @@ function latestObsMs(obs: FredObservation[]): number | undefined {
 }
 
 // ─────────────────────────────────────────────────────────
+// Forward-fill helpers — daily-grid history sequence build
+// ─────────────────────────────────────────────────────────
+
+/**
+ * `obs` 를 valid 값만 추출 + date asc 정렬 + epoch ms 부착한
+ * `(t, v)` 시퀀스로 정규화.
+ *
+ * 이후 forward-fill 단계에서 binary-search 친화적 형태로 사용.
+ */
+interface DatedValue {
+  t: number;
+  v: number;
+}
+
+function normalizeObs(obs: FredObservation[]): DatedValue[] {
+  if (!Array.isArray(obs)) return [];
+  const out: DatedValue[] = [];
+  for (const o of obs) {
+    if (Number.isNaN(o.value) || !Number.isFinite(o.value)) continue;
+    const t = new Date(o.date).getTime();
+    if (!Number.isFinite(t)) continue;
+    out.push({ t, v: o.value });
+  }
+  out.sort((a, b) => a.t - b.t);
+  return out;
+}
+
+/**
+ * `series` 에서 `targetMs` 이전 (또는 같은 날) 가장 최근 valid value.
+ * 없으면 undefined.
+ *
+ * Forward-fill semantics: FRED 는 weekly/monthly 시리즈도 있어서 일별
+ * grid 에서는 직전 발표값을 그대로 끌고 간다 (step function).
+ */
+function forwardFillAt(
+  series: DatedValue[],
+  targetMs: number,
+): number | undefined {
+  if (series.length === 0) return undefined;
+  // linear scan from latest backward (대부분 grid 마지막 ~= series 마지막)
+  // O(N*M) 우려 시 binary search 가능하지만 120일 × 12 시리즈는 충분히 빠름.
+  let pick: DatedValue | undefined;
+  for (let i = series.length - 1; i >= 0; i--) {
+    if (series[i].t <= targetMs) {
+      pick = series[i];
+      break;
+    }
+  }
+  return pick?.v;
+}
+
+// ─────────────────────────────────────────────────────────
+// Public — daily-grid history builder (C3/C4 input)
+// ─────────────────────────────────────────────────────────
+
+/**
+ * 12개 FRED 시리즈 observations 를 일별 RawMacroData 시퀀스로 변환.
+ *
+ * 각 일자 마다:
+ *   - 그 날 가장 최근 valid observation 값 사용 (FRED 는 weekly/monthly
+ *     시리즈도 있음 → step function 으로 forward-fill).
+ *   - 누락이 forward-fill 가능 범위 밖이면 undefined.
+ *
+ * 사용 시리즈: SOFR / IORB / DGS10 / DGS2 / WALCL / RRP / TGA / DXY /
+ *              VIX / FEDFUNDS / CPI (DFII10 는 본 단계 무관 — 옵션).
+ *
+ * CPI YoY 는 각 grid 일자 d 에 대해 d 와 d - 365일 의 CPI 차분으로 계산.
+ * WALCL/DXY 30d 변화율은 d 와 d - 30일 의 변화율로 계산.
+ * RRP+TGA 30d 변화율도 동일 — 둘 다 있어야만 계산.
+ *
+ * @param fredResults `Map<seriesId, FredFetchResult>` 또는 동일 모양의 Record.
+ *                    Map 인 경우만 직접 받아도 무방.
+ * @param endMs       시퀀스 종료 시점 (epoch ms).
+ * @param daysCount   90+ days. default 120 (C4 90d + 여유 30d).
+ * @returns RawMacroData[] — 오래된 → 최신 순.
+ *          `history[history.length - 1]` 가 endMs 시점 (가장 최신).
+ */
+export function buildMacroRawHistory(
+  fredResults: Map<string, FredFetchResult>,
+  endMs: number,
+  daysCount: number = 120,
+): RawMacroData[] {
+  if (!Number.isFinite(endMs) || daysCount <= 0) return [];
+
+  // ── 1) 각 시리즈를 정규화 (valid only + asc + epoch ms 부착) ──
+  const sofr = normalizeObs(fredResults.get("SOFR")?.observations ?? []);
+  const iorb = normalizeObs(fredResults.get("IORB")?.observations ?? []);
+  const dgs10 = normalizeObs(fredResults.get("DGS10")?.observations ?? []);
+  const dgs2 = normalizeObs(fredResults.get("DGS2")?.observations ?? []);
+  const walcl = normalizeObs(fredResults.get("WALCL")?.observations ?? []);
+  const rrp = normalizeObs(fredResults.get("RRPONTSYD")?.observations ?? []);
+  const tga = normalizeObs(fredResults.get("WTREGEN")?.observations ?? []);
+  const dxy = normalizeObs(fredResults.get("DTWEXBGS")?.observations ?? []);
+  const vix = normalizeObs(fredResults.get("VIXCLS")?.observations ?? []);
+  const fedFunds = normalizeObs(fredResults.get("FEDFUNDS")?.observations ?? []);
+  const cpi = normalizeObs(fredResults.get("CPIAUCSL")?.observations ?? []);
+
+  const ONE_DAY = 86_400_000;
+  const startMs = endMs - daysCount * ONE_DAY;
+
+  // ── 2) endMs 를 UTC 자정 으로 라운드 후 daysCount + 1 개 grid 생성 ──
+  // (포함하여 history.length === daysCount + 1)
+  // 단, 본 빌더는 명시적으로 daysCount 개 반환을 목표로 함.
+  const history: RawMacroData[] = [];
+
+  for (let i = 0; i <= daysCount; i++) {
+    const d = startMs + i * ONE_DAY;
+
+    const sofrV = forwardFillAt(sofr, d);
+    const iorbV = forwardFillAt(iorb, d);
+    const dgs10V = forwardFillAt(dgs10, d);
+    const dgs2V = forwardFillAt(dgs2, d);
+    const walclV = forwardFillAt(walcl, d);
+    const rrpV = forwardFillAt(rrp, d);
+    const tgaV = forwardFillAt(tga, d);
+    const dxyV = forwardFillAt(dxy, d);
+    const vixV = forwardFillAt(vix, d);
+    const fedFundsV = forwardFillAt(fedFunds, d);
+    const cpiV = forwardFillAt(cpi, d);
+
+    // 30d 변화율
+    const walcl30 = forwardFillAt(walcl, d - 30 * ONE_DAY);
+    const dxy30 = forwardFillAt(dxy, d - 30 * ONE_DAY);
+    const rrp30 = forwardFillAt(rrp, d - 30 * ONE_DAY);
+    const tga30 = forwardFillAt(tga, d - 30 * ONE_DAY);
+
+    let walclChange30d: number | undefined;
+    if (walclV != null && walcl30 != null && walcl30 !== 0) {
+      walclChange30d = (walclV - walcl30) / Math.abs(walcl30);
+    }
+    let dxyChange30d: number | undefined;
+    if (dxyV != null && dxy30 != null && dxy30 !== 0) {
+      dxyChange30d = (dxyV - dxy30) / Math.abs(dxy30);
+    }
+    let rrpTgaChange30d: number | undefined;
+    if (
+      rrpV != null &&
+      tgaV != null &&
+      rrp30 != null &&
+      tga30 != null
+    ) {
+      const sumNow = rrpV + tgaV;
+      const sumPast = rrp30 + tga30;
+      if (sumPast !== 0) {
+        rrpTgaChange30d = (sumNow - sumPast) / Math.abs(sumPast);
+      }
+    }
+
+    // CPI YoY (%) — d 와 d - 365일
+    const cpi12mAgo = forwardFillAt(cpi, d - 365 * ONE_DAY);
+    let cpiYoY: number | undefined;
+    if (cpiV != null && cpi12mAgo != null && cpi12mAgo !== 0) {
+      cpiYoY = ((cpiV - cpi12mAgo) / cpi12mAgo) * 100;
+    }
+
+    history.push({
+      sofr: sofrV,
+      iorb: iorbV,
+      dgs10: dgs10V,
+      dgs2: dgs2V,
+      walcl: walclV,
+      rrp: rrpV,
+      tga: tgaV,
+      dxy: dxyV,
+      dxy_change_30d_pct: dxyChange30d,
+      vix: vixV,
+      fed_funds: fedFundsV,
+      cpi_yoy: cpiYoY,
+      walcl_change_30d_pct: walclChange30d,
+      rrp_tga_change_30d_pct: rrpTgaChange30d,
+      // Korea fields 는 본 history 단계에서 채우지 않음 (BOK 시퀀스 별도)
+    });
+  }
+
+  return history;
+}
+
+// ─────────────────────────────────────────────────────────
 // Multi-series fetch — parallel, graceful per-series
 // ─────────────────────────────────────────────────────────
 

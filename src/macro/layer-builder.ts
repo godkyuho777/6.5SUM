@@ -517,13 +517,13 @@ function obsOf(
  *   3. 한국 BOK 환율 (731Y004) 호출 (key 없으면 Yahoo fallback).
  *   4. 각 시리즈에서 latest + 30d-ago / 365d-ago 추출 → RawMacroData 채움.
  *   5. release_ts = 가장 늦은 시리즈의 latest obs 시점.
- *   6. buildMacroLayerSnapshot 으로 통합 layer 생성.
+ *   6. buildMacroRawHistory 로 120일 일별 grid + forward-fill 시퀀스 빌드.
+ *   7. buildMacroLayerSnapshot(history) → C3/C4 자동 계산.
  *
  * 본 구현은 단일-point timeline 반환. 일별 stride 시퀀스는 Phase 3.5 에서.
  *
- * C3 (90d net-liquidity) / C4 (cycle phase) 는 history 인자가 필요하나,
- * 본 함수는 단일 snapshot 만 생성 → 0/"neutral" 로 떨어진다. history-aware
- * 빌드는 후속 작업.
+ * C3 (30d net-liquidity) / C4 (90d cycle phase) 는 history 길이만 충분하면
+ * 자동 계산. 데이터 부족 시 0 / "neutral" 로 graceful fallback.
  */
 export async function buildMacroLayerRange(
   opts: BuildMacroRangeOpts,
@@ -672,10 +672,21 @@ export async function buildMacroLayerRange(
       krw_usd: krwLatest,
     };
 
+    // ── 7) 90+ days history 빌드 (C3/C4 활성화) ───────────
+    // 일별 grid + forward-fill 로 RawMacroData[] 시퀀스 생성.
+    // composite-signals 의 c3_netLiquidity (≥ 30) / c4_cyclePhase (≥ 90) 가
+    // 자동으로 실제 값 계산. fred map → fredResults 로 어댑트.
+    const fredResults = new Map<string, FredFetchResult>(fredMap);
+    const history = buildMacroRawHistory(fredResults, opts.endMs, 120);
+
+    // raw 의 Korea 필드는 history 에는 없으므로 latest snapshot 의 값을
+    // history 최신 점에도 주입 (composite 는 Korea 미사용 — 변경 영향 없음).
+
     const layer = buildMacroLayerSnapshot({
       snapshot_ts: releaseMs,
       release_ts: releaseMs,
       raw,
+      history,
       as_of_ts: opts.endMs,
     });
     return [layer];

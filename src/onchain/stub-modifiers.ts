@@ -22,8 +22,8 @@
  *   3. 그 외 → status: "stub", value: 0
  */
 
-import axios from "axios";
 import type { OnchainModifierKey, OnchainModifierResult } from "./types";
+import { computeFarsideEtfFlow } from "./etf-flow";
 
 // ─── Mock 유틸 ──────────────────────────────────────────────────────
 
@@ -170,35 +170,9 @@ export async function computeEtfFlow(
     };
   }
 
-  // TODO(v1.1): Farside HTML 스크래핑 — 최근 3 영업일 누적 BTC/ETH ETF flow.
-  //   3d>+$1.5B → +0.20, 3d>+$500M → +0.10
-  //   3d<-$1B → -0.25, 3d<-$300M → -0.10
-  // 위험 요소: HTML 구조 변경, CSP, robots.txt. 실패 시 status="error".
-  try {
-    const url = symbol === "BTCUSDT"
-      ? "https://farside.co.uk/btc/"
-      : "https://farside.co.uk/eth/";
-    const resp = await axios.get<string>(url, {
-      timeout: 10000,
-      headers: { "User-Agent": "tradelab-onchain/1.0" },
-    });
-    // Sanity check 만 — 실제 파싱은 명시적 v1.1 작업.
-    if (resp.data.length < 1000) throw new Error("응답 비정상");
-    return {
-      key: "etf_flow",
-      value: 0,
-      status: "stub",
-      detail: `${symbol} Farside HTML 수신 OK — 파서 v1.1 예정`,
-      raw: { bytes: resp.data.length },
-    };
-  } catch (err: any) {
-    return {
-      key: "etf_flow",
-      value: 0,
-      status: "error",
-      detail: `Farside 호출 실패: ${err.message ?? err}`,
-    };
-  }
+  // Farside HTML 파싱 위임 — `etf-flow.ts` 가 fetch/parse/threshold 적용.
+  // BTC/ETH 만 지원 (상위 가드에서 보장됨).
+  return computeFarsideEtfFlow(symbol as "BTCUSDT" | "ETHUSDT");
 }
 
 // ─── Miner Outflow (BTC only) ───────────────────────────────────────

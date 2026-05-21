@@ -598,3 +598,86 @@ export const simTransactions = pgTable("sim_transactions", {
 
 export type SimTransactionRow = typeof simTransactions.$inferSelect;
 export type InsertSimTransactionRow = typeof simTransactions.$inferInsert;
+
+// ─── Simulator Leaderboard (opt-in, 익명) — 2026-05-21 ─────────
+// 시뮬레이터는 로그인이 없는 익명 모드. 사용자가 ranking 에 참여할 의사를
+// 명시(opt-in)하면, clientToken(UUID, frontend localStorage 발급) 으로
+// 본인 row 를 식별/갱신/제외 가능.
+//
+// 보안 모델:
+//   - clientToken UUID = 단순 ownership token. brute-force 비현실적
+//     (UUID v4 = 122 bit). Supabase Auth 통합 전 임시 방안.
+//   - response 에 clientToken 절대 노출 X. 익명 hash id 만.
+//   - Rate limit: sync 는 5분 간격 (last_synced_at 비교, DB 부하 방지).
+//   - Opt-out 시 opted_out_at 기록 → 이후 fetch 결과에서 영구 제외.
+
+/** 시뮬레이터 리더보드 opt-in 사용자 — 1 clientToken = 1 row. */
+export const simulatorLeaderboardUsers = pgTable("simulator_leaderboard_users", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  /**
+   * Frontend localStorage 의 simUser.id (crypto.randomUUID 발급).
+   * 같은 client 가 sync 할 때 식별용 — UNIQUE.
+   */
+  clientToken: uuid("client_token").notNull().unique(),
+  /** 익명 닉네임 — 중복 가능 (실명 인증 X). 1~24자. */
+  nickname: varchar("nickname", { length: 24 }).notNull(),
+  /** 최초 opt-in 시각. */
+  optedInAt: timestamp("opted_in_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  /** opt-out 시각. NOT NULL 이면 fetch 결과에서 제외. */
+  optedOutAt: timestamp("opted_out_at", { withTimezone: true }),
+  /** 마지막 sync 시각 (rate limit 비교용). */
+  lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
+  /** 현재 총자산 (cash + unrealized) — sync 시 갱신. */
+  currentCapital: doublePrecision("current_capital").notNull().default(200000),
+  /** 시작 자본 — 시뮬레이터 일괄 $200,000. */
+  initialCapital: doublePrecision("initial_capital").notNull().default(200000),
+  /** Total PnL USD. */
+  totalPnl: doublePrecision("total_pnl").notNull().default(0),
+  /** PnL % — 예: 25.0 = +25%. fetch 정렬 기준. */
+  pnlPct: doublePrecision("pnl_pct").notNull().default(0),
+  /** 누적 closed trades. */
+  totalTrades: integer("total_trades").notNull().default(0),
+  wins: integer("wins").notNull().default(0),
+  losses: integer("losses").notNull().default(0),
+  /** 0~1 범위. 예: 0.7 = 70%. */
+  winRate: doublePrecision("win_rate").notNull().default(0),
+  /** 최대 drawdown — 음수 0 ~ -1 (-100%). */
+  maxDrawdownPct: doublePrecision("max_drawdown_pct").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type SimulatorLeaderboardUserRow =
+  typeof simulatorLeaderboardUsers.$inferSelect;
+export type InsertSimulatorLeaderboardUserRow =
+  typeof simulatorLeaderboardUsers.$inferInsert;
+
+/**
+ * 시뮬레이터 리더보드 히스토리 snapshot — 24h/7d/30d period 별 비교용.
+ *
+ * sync 마다 한 행. period query 는 (snapshotAt < threshold) 의 최신 한 행
+ * 과 현재 stats 차이를 계산. Phase 2 (period leaderboard) 시 활용.
+ */
+export const simulatorLeaderboardSnapshots = pgTable(
+  "simulator_leaderboard_snapshots",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => simulatorLeaderboardUsers.id, { onDelete: "cascade" })
+      .notNull(),
+    snapshotAt: timestamp("snapshot_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    currentCapital: doublePrecision("current_capital").notNull(),
+    pnlPct: doublePrecision("pnl_pct").notNull(),
+    totalTrades: integer("total_trades").notNull(),
+  },
+);
+
+export type SimulatorLeaderboardSnapshotRow =
+  typeof simulatorLeaderboardSnapshots.$inferSelect;
+export type InsertSimulatorLeaderboardSnapshotRow =
+  typeof simulatorLeaderboardSnapshots.$inferInsert;

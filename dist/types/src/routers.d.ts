@@ -683,6 +683,84 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             meta: object;
         }>;
     }>>;
+    simulatorLeaderboard: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /**
+         * Opt-in — 시뮬레이터 사용자가 ranking 에 참여.
+         * 같은 clientToken 재호출 시 nickname 갱신 + opt-out 상태 재활성화.
+         */
+        optIn: import("@trpc/server").TRPCMutationProcedure<{
+            input: {
+                clientToken: string;
+                nickname: string;
+            };
+            output: import("./simulator/leaderboard").LeaderboardError | import("./simulator/leaderboard").OptInResult | {
+                ok: false;
+                code: "INTERNAL";
+                message: string;
+            };
+            meta: object;
+        }>;
+        /**
+         * Opt-out — clientToken ownership 확인 후 opted_out_at 설정.
+         * 이후 fetch 결과에서 제외, sync 시도 시 reject.
+         */
+        optOut: import("@trpc/server").TRPCMutationProcedure<{
+            input: {
+                clientToken: string;
+            };
+            output: import("./simulator/leaderboard").LeaderboardError | import("./simulator/leaderboard").OptOutResult | {
+                ok: false;
+                code: "INTERNAL";
+                message: string;
+            };
+            meta: object;
+        }>;
+        /**
+         * Sync stats — clientToken 으로 본인 row 찾아 갱신.
+         * Rate limit: 5분에 1회.
+         */
+        sync: import("@trpc/server").TRPCMutationProcedure<{
+            input: {
+                clientToken: string;
+                currentCapital: number;
+                totalPnl: number;
+                pnlPct: number;
+                totalTrades: number;
+                wins: number;
+                losses: number;
+                winRate: number;
+                maxDrawdownPct: number;
+            };
+            output: import("./simulator/leaderboard").LeaderboardError | import("./simulator/leaderboard").SyncStatsResult | {
+                ok: false;
+                code: "INTERNAL";
+                message: string;
+            };
+            meta: object;
+        }>;
+        /**
+         * Fetch — opted-out 제외, pnlPct DESC 정렬, 익명화 응답.
+         * clientToken 제공 시 본인 entry 에 isYou=true, yourRank 계산.
+         */
+        fetch: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                clientToken?: string | undefined;
+                period?: "all" | "30d" | "7d" | "24h" | undefined;
+                limit?: number | undefined;
+            };
+            output: import("./simulator/leaderboard").LeaderboardError | import("./simulator/leaderboard").FetchLeaderboardResult | {
+                ok: false;
+                code: "INTERNAL";
+                message: string;
+            };
+            meta: object;
+        }>;
+    }>>;
     cycle: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;

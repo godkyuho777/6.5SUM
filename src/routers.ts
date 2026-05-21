@@ -815,6 +815,113 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
       }),
   }),
 
+  // ─── Simulator Leaderboard (opt-in, 익명) — 2026-05-21 ──────────
+  // 시뮬레이터 사용자가 자발적으로 ranking 에 참여 (opt-in).  로그인 없음.
+  // clientToken(UUID, frontend localStorage 발급) = 단순 ownership token.
+  // 자세한 보안 정책: drizzle/APPLY_0008_INSTRUCTIONS.md.
+  simulatorLeaderboard: router({
+    /**
+     * Opt-in — 시뮬레이터 사용자가 ranking 에 참여.
+     * 같은 clientToken 재호출 시 nickname 갱신 + opt-out 상태 재활성화.
+     */
+    optIn: publicProcedure
+      .input(
+        z.object({
+          clientToken: z.string().uuid(),
+          nickname: z.string().min(1).max(24),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        const { optInLeaderboard } = await import("./simulator/leaderboard");
+        try {
+          return await optInLeaderboard(input);
+        } catch (err) {
+          return {
+            ok: false as const,
+            code: "INTERNAL" as const,
+            message: (err as Error)?.message ?? "optIn failed",
+          };
+        }
+      }),
+
+    /**
+     * Opt-out — clientToken ownership 확인 후 opted_out_at 설정.
+     * 이후 fetch 결과에서 제외, sync 시도 시 reject.
+     */
+    optOut: publicProcedure
+      .input(z.object({ clientToken: z.string().uuid() }))
+      .mutation(async ({ input }) => {
+        const { optOutLeaderboard } = await import("./simulator/leaderboard");
+        try {
+          return await optOutLeaderboard(input);
+        } catch (err) {
+          return {
+            ok: false as const,
+            code: "INTERNAL" as const,
+            message: (err as Error)?.message ?? "optOut failed",
+          };
+        }
+      }),
+
+    /**
+     * Sync stats — clientToken 으로 본인 row 찾아 갱신.
+     * Rate limit: 5분에 1회.
+     */
+    sync: publicProcedure
+      .input(
+        z.object({
+          clientToken: z.string().uuid(),
+          currentCapital: z.number(),
+          totalPnl: z.number(),
+          pnlPct: z.number(),
+          totalTrades: z.number().int().nonnegative(),
+          wins: z.number().int().nonnegative(),
+          losses: z.number().int().nonnegative(),
+          winRate: z.number().min(0).max(1),
+          maxDrawdownPct: z.number().min(-1).max(0),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        const { syncLeaderboardStats } = await import(
+          "./simulator/leaderboard"
+        );
+        try {
+          return await syncLeaderboardStats(input);
+        } catch (err) {
+          return {
+            ok: false as const,
+            code: "INTERNAL" as const,
+            message: (err as Error)?.message ?? "sync failed",
+          };
+        }
+      }),
+
+    /**
+     * Fetch — opted-out 제외, pnlPct DESC 정렬, 익명화 응답.
+     * clientToken 제공 시 본인 entry 에 isYou=true, yourRank 계산.
+     */
+    fetch: publicProcedure
+      .input(
+        z.object({
+          clientToken: z.string().uuid().optional(),
+          period: z.enum(["all", "30d", "7d", "24h"]).default("all"),
+          limit: z.number().int().min(1).max(100).default(50),
+        }),
+      )
+      .query(async ({ input }) => {
+        const { fetchLeaderboard } = await import("./simulator/leaderboard");
+        try {
+          return await fetchLeaderboard(input);
+        } catch (err) {
+          return {
+            ok: false as const,
+            code: "INTERNAL" as const,
+            message: (err as Error)?.message ?? "fetch failed",
+          };
+        }
+      }),
+  }),
+
   // ─── Cycle (BTC 200d MA regime) P1-④ 2026-05-11 ─────────────
   // bull / bear / neutral 분류. strategy 별 cycle-aware activation gate.
   cycle: router({

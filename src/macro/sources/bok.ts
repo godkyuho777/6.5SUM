@@ -60,8 +60,11 @@ export interface BokFetchOpts {
 
 const BOK_BASE = "https://ecos.bok.or.kr/api/StatisticSearch";
 const CACHE_DIR = ".macro-cache";
-const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 const REQUEST_TIMEOUT_MS = 15_000;
+
+// P2-#13: TTL 을 cache-policy.ts 로 통합 (macro source 일관화).
+// 기존 값 (12h) 그대로 유지 — realtime tier 정책과 일치.
+import { isMacroCacheExpired } from "../cache-policy";
 
 /** BOK 통계마다 cycle code (월/일) 가 다름 — API 가 의존. */
 const STAT_CYCLE: Record<BokStatCode, "M" | "D"> = {
@@ -85,7 +88,8 @@ async function readCache(opts: BokFetchOpts): Promise<BokFetchResult | null> {
   try {
     const file = path.join(CACHE_DIR, `${cacheKey(opts)}.json`);
     const stat = await fs.stat(file);
-    if (Date.now() - stat.mtimeMs > CACHE_TTL_MS) return null;
+    // P2-#13: 통합 정책으로 만료 검사 — realtime tier (12h)
+    if (isMacroCacheExpired(stat.mtimeMs, "realtime")) return null;
     const raw = await fs.readFile(file, "utf-8");
     return { ...(JSON.parse(raw) as BokFetchResult), cacheHit: true };
   } catch {

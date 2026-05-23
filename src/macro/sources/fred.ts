@@ -86,8 +86,10 @@ export interface FredSeriesSnapshot {
 
 const FRED_API_BASE = "https://api.stlouisfed.org/fred/series/observations";
 const CACHE_DIR = ".macro-cache";
-const REALTIME_TTL_MS = 12 * 60 * 60 * 1000; // 12h
 const REQUEST_TIMEOUT_MS = 15_000;
+
+// P2-#13: TTL 을 cache-policy.ts 로 통합. backtest 모드는 영구 캐시 유지.
+import { isMacroCacheExpired } from "../cache-policy";
 
 // ─────────────────────────────────────────────────────────
 // Cache helpers (disk-based, mode-aware TTL)
@@ -110,11 +112,10 @@ async function readCache(opts: FredFetchOpts): Promise<FredFetchResult | null> {
   try {
     const file = path.join(CACHE_DIR, `${cacheKey(opts)}.json`);
     const stat = await fs.stat(file);
-    // realtime TTL 검사 — backtest 는 무기한 (vintage 데이터 불변)
-    if (opts.mode === "realtime") {
-      const age = Date.now() - stat.mtimeMs;
-      if (age > REALTIME_TTL_MS) return null;
-    }
+    // P2-#13: 통합 정책 — realtime tier (12h) vs backtestVintage tier (영구).
+    // 모드에 따라 tier 선택하여 isMacroCacheExpired 호출.
+    const tier = opts.mode === "realtime" ? "realtime" : "backtestVintage";
+    if (isMacroCacheExpired(stat.mtimeMs, tier)) return null;
     const raw = await fs.readFile(file, "utf-8");
     const parsed = JSON.parse(raw) as FredFetchResult;
     return { ...parsed, cacheHit: true };

@@ -12,11 +12,14 @@
  * 적용. 자체 백테스트 기반 calibration 은 별도 CLI (cli-compare-v65-v66.ts) 또는
  * admin 수동 트리거에서 처리.
  *
- * 결과 alerting: 텔레그램/Discord 미구현. console.log 만 — production 시 별도 추가.
+ * 결과 alerting (P2-#14, 2026-05-23):
+ *   - health=degraded/fatal 시 Discord webhook 알림 발송 (DISCORD_WEBHOOK_URL 환경변수)
+ *   - webhook 미설정 시 silent skip — 운영자가 startup-validation 로 미설정 인지
  */
 
 import { autoCorrectThreshold, autoCorrectWeights } from "../strategies/weight-calibration";
 import { childLogger } from "../_core/logger";
+import { sendAlert } from "../_core/webhook-alerts";
 
 // P2-#7 (2026-05-23): pino structured logging — Railway / Datadog parsing.
 //   각 cron 실행에 jobId 부여 → log 전체에 자동 첨부 (`module: "cron:v66"`).
@@ -185,6 +188,31 @@ export async function runWeeklyCalibration(): Promise<WeeklyCalibrationReport> {
         { health, failedCount, expectedTotal },
         `⚠ health=${health} — ${failedCount}/${expectedTotal} combinations failed`,
       );
+
+      // P2-#14: cron health=degraded/fatal 시 Discord webhook 알림 발송.
+      // sendAlert 는 never throw — webhook 실패가 cron 흐름을 깨지 않음.
+      const alertLevel = health === "fatal" ? "fatal" : "error";
+      await sendAlert({
+        level: alertLevel,
+        source: "cron:v66",
+        title: `Weekly calibration ${health}`,
+        message:
+          `${failedCount}/${expectedTotal} combinations failed ` +
+          `(applied=${appliedCount}, fallback=${fallbackCount}).`,
+        context: {
+          jobId,
+          failedCount,
+          expectedTotal,
+          appliedCount,
+          fallbackCount,
+          durationMs: endedAt - startedAt,
+          // 첫 3개 에러만 — Discord embed field 한도 보호
+          firstErrors: errors
+            .slice(0, 3)
+            .map((e) => `[${e.kind}] ${e.symbol ?? "-"}/${e.tf ?? "-"}: ${e.message}`)
+            .join("\n"),
+        },
+      });
     }
 
     jobLog.info(
@@ -217,6 +245,19 @@ export async function runWeeklyCalibration(): Promise<WeeklyCalibrationReport> {
     jobLog.fatal({ err }, `🚨 FATAL: cron 자체 실패 — ${message}`);
 
     errors.push({ kind: "outer", message });
+
+    // P2-#14: outer fatal — 최우선 알림
+    await sendAlert({
+      level: "fatal",
+      source: "cron:v66",
+      title: "Weekly calibration FATAL — cron 자체 throw",
+      message,
+      context: {
+        jobId,
+        stage: "outer",
+        partialResults: `${weightResults.length} weights + ${thresholdResults.length} threshold logged before crash`,
+      },
+    });
 
     return {
       startedAt,

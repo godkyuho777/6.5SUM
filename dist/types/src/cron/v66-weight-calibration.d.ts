@@ -12,7 +12,9 @@
  * 적용. 자체 백테스트 기반 calibration 은 별도 CLI (cli-compare-v65-v66.ts) 또는
  * admin 수동 트리거에서 처리.
  *
- * 결과 alerting: 텔레그램/Discord 미구현. console.log 만 — production 시 별도 추가.
+ * 결과 alerting (P2-#14, 2026-05-23):
+ *   - health=degraded/fatal 시 Discord webhook 알림 발송 (DISCORD_WEBHOOK_URL 환경변수)
+ *   - webhook 미설정 시 silent skip — 운영자가 startup-validation 로 미설정 인지
  */
 export interface WeeklyCalibrationReport {
     startedAt: number;

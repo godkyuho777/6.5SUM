@@ -22,6 +22,7 @@
 
 import { childLogger } from "./logger";
 import { ENV } from "./env";
+import { hasAnyWebhookConfigured } from "./webhook-alerts";
 
 const log = childLogger("startup");
 
@@ -155,6 +156,17 @@ export function validateStartup(): ValidationResult[] {
     passed: true,
     level: "info",
     message: `BBDX version: ${bbdxVersion}`,
+  });
+
+  // ── 7. Webhook alerts (P2-#14) ────────────────────────────
+  const webhookConfigured = hasAnyWebhookConfigured();
+  results.push({
+    category: "alerts",
+    passed: webhookConfigured,
+    level: isProd && !webhookConfigured ? "warn" : "info",
+    message: webhookConfigured
+      ? "Discord webhook ✓ — cron health=degraded/fatal 시 알림 발송"
+      : "DISCORD_WEBHOOK_URL 미설정 — cron 실패가 console.log 만 남음 (운영 모니터링 권장)",
   });
 
   return results;

@@ -1,0 +1,96 @@
+name: Test & Type Check
+
+# P2-#5 (2026-05-23, AUDIT.md): push / PR 시 자동 테스트 + 타입 체크 + coverage.
+#
+# 정책:
+#   - dev / main / feat/* 브랜치 push 시 자동 실행
+#   - PR 에서 base 가 dev / main 일 때 실행
+#   - 외부 API 키 (FRED, Bybit 등) 없이도 통과해야 함 (stub-first 정책)
+#   - Coverage 임계값: src/ 기준 70% (점진 상승 목표)
+
+on:
+  push:
+    branches: [dev, main, "feat/**"]
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.4.1
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: SKIP_PREPARE=1 pnpm install --frozen-lockfile
+
+      - name: Build types (frontend ↔ shared)
+        run: pnpm build:types
+
+      - name: Type check
+        run: pnpm check
+
+      - name: Run tests
+        env:
+          NODE_ENV: test
+          # 외부 API 미설정 → stub-first fallback 동작 확인
+          FRED_API_KEY: ""
+          BOK_API_KEY: ""
+          DATABASE_URL: ""
+          OPENROUTER_API_KEY: ""
+        run: pnpm test --run
+
+      - name: Test coverage (informational)
+        env:
+          NODE_ENV: test
+        run: pnpm test --run --coverage || true
+        continue-on-error: true
+
+  lookahead-audit-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.4.1
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: SKIP_PREPARE=1 pnpm install --frozen-lockfile
+
+      - name: Build types
+        run: pnpm build:types
+
+      # P1-#1 backtest lookahead-auditor 검증 — 단독 실행으로 회귀 확인
+      - name: Lookahead auditor unit tests
+        run: pnpm test --run src/backtest/__tests__/lookahead-auditor.test.ts

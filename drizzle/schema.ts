@@ -3,6 +3,7 @@ import {
   bigserial,
   boolean,
   doublePrecision,
+  index,
   integer,
   jsonb,
   pgEnum,
@@ -31,6 +32,10 @@ export const positionStatus = pgEnum("position_status", [
 
 /**
  * Trading signals detected by the bot.
+ *
+ * P2-#6 (2026-05-23): composite indexes via 3rd-arg callback.
+ *   - idx_signals_symbol_created: 가장 빈번한 쿼리 (symbol 별 최근 시그널)
+ *   - idx_signals_status_created: status='active' 시그널 모니터링
  */
 export const signals = pgTable("signals", {
   id: serial("id").primaryKey(),
@@ -73,7 +78,11 @@ export const signals = pgTable("signals", {
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
-});
+}, (t) => ({
+  // P2-#6: composite indexes
+  symbolCreated: index("idx_signals_symbol_created").on(t.symbol, t.createdAt.desc()),
+  statusCreated: index("idx_signals_status_created").on(t.status, t.createdAt.desc()),
+}));
 
 export type Signal = typeof signals.$inferSelect;
 export type InsertSignal = typeof signals.$inferInsert;
@@ -83,6 +92,8 @@ export type InsertSignal = typeof signals.$inferInsert;
  * userId references Supabase auth.users(id) — no FK declared at the Drizzle
  * level because that schema lives outside this codebase. Integrity is enforced
  * by the application layer, which always derives userId from the verified JWT.
+ *
+ * P2-#6 (2026-05-23): composite indexes + signal_id FK constraint.
  */
 export const positions = pgTable("positions", {
   id: serial("id").primaryKey(),
@@ -120,13 +131,28 @@ export const positions = pgTable("positions", {
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
-});
+}, (t) => ({
+  // P2-#6: composite indexes — 사용자별 / symbol별 조회 최적화
+  userStatusOpened: index("idx_positions_user_status_opened").on(
+    t.userId,
+    t.status,
+    t.openedAt.desc(),
+  ),
+  userSymbolStatus: index("idx_positions_user_symbol_status").on(
+    t.userId,
+    t.symbol,
+    t.status,
+  ),
+  signalId: index("idx_positions_signal_id").on(t.signalId),
+}));
 
 export type Position = typeof positions.$inferSelect;
 export type InsertPosition = typeof positions.$inferInsert;
 
 /**
  * User alert settings for customized monitoring.
+ *
+ * P2-#6: user + enabled composite index — cron 의 alert dispatcher 최적화.
  */
 export const alertSettings = pgTable("alert_settings", {
   id: serial("id").primaryKey(),
@@ -147,7 +173,9 @@ export const alertSettings = pgTable("alert_settings", {
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
-});
+}, (t) => ({
+  userEnabled: index("idx_alert_settings_user_enabled").on(t.userId, t.enabled),
+}));
 
 export type AlertSetting = typeof alertSettings.$inferSelect;
 export type InsertAlertSetting = typeof alertSettings.$inferInsert;

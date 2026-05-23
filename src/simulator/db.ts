@@ -156,58 +156,70 @@ export async function openPosition(
       ? input.entryPrice * (1 - liqDistance)
       : input.entryPrice * (1 + liqDistance);
 
-  // Insert position
-  const [position] = await db
-    .insert(simPositions)
-    .values({
-      userId: input.userId,
-      symbol: input.symbol,
-      productType: input.productType,
-      side: input.side,
-      leverage: input.leverage,
-      entryPrice: input.entryPrice,
-      quantity: input.quantity,
-      margin,
-      currentPrice: input.entryPrice,
-      liquidationPrice,
-      accruedCommission: commission,
-      status: "open",
-    } satisfies InsertSimPositionRow)
-    .returning();
+  // P2-#3 (2026-05-23, AUDIT.md): DB transaction 으로 atomic 처리.
+  //
+  // 기존: position insert → account update → transactions insert 가 3개의
+  // 별개 round-trip. 동시 호출 / 중간 실패 시 partial state 발생 가능.
+  //   - position 만 생성되고 cash 미차감 → 무한 진입 가능
+  //   - cash 차감되었으나 transactions 미기록 → audit trail 누락
+  //
+  // 해결: db.transaction 으로 wrap. 모든 query 가 한 트랜잭션 안에서 실행 →
+  // 어느 하나 실패하면 전체 rollback. 동시 호출 시 PostgreSQL row-level lock 으로
+  // SELECT FOR UPDATE 등도 추후 추가 가능.
+  return db.transaction(async (tx) => {
+    // Insert position
+    const [position] = await tx
+      .insert(simPositions)
+      .values({
+        userId: input.userId,
+        symbol: input.symbol,
+        productType: input.productType,
+        side: input.side,
+        leverage: input.leverage,
+        entryPrice: input.entryPrice,
+        quantity: input.quantity,
+        margin,
+        currentPrice: input.entryPrice,
+        liquidationPrice,
+        accruedCommission: commission,
+        status: "open",
+      } satisfies InsertSimPositionRow)
+      .returning();
 
-  // Deduct cash + record transactions
-  const newCash = account.cash - totalCost;
-  await db
-    .update(simAccounts)
-    .set({
-      cash: newCash,
-      totalCommission: account.totalCommission + commission,
-      updatedAt: new Date(),
-    })
-    .where(eq(simAccounts.userId, input.userId));
+    // Deduct cash + record transactions
+    const newCash = account.cash - totalCost;
+    await tx
+      .update(simAccounts)
+      .set({
+        cash: newCash,
+        totalCommission: account.totalCommission + commission,
+        updatedAt: new Date(),
+      })
+      .where(eq(simAccounts.userId, input.userId));
 
-  await db.insert(simTransactions).values([
-    {
-      userId: input.userId,
-      positionId: position.id,
-      type: "open",
-      symbol: input.symbol,
-      amount: -margin,
-      price: input.entryPrice,
-      note: `${input.side.toUpperCase()} ${input.symbol} ${input.quantity} @ $${input.entryPrice.toFixed(2)} (${input.leverage}x ${input.productType})`,
-    },
-    {
-      userId: input.userId,
-      positionId: position.id,
-      type: "commission",
-      symbol: input.symbol,
-      amount: -commission,
-      price: input.entryPrice,
-      note: `Open commission (0.01% × ${input.leverage}x)`,
-    },
-  ] satisfies InsertSimTransactionRow[]);
+    await tx.insert(simTransactions).values([
+      {
+        userId: input.userId,
+        positionId: position.id,
+        type: "open",
+        symbol: input.symbol,
+        amount: -margin,
+        price: input.entryPrice,
+        note: `${input.side.toUpperCase()} ${input.symbol} ${input.quantity} @ $${input.entryPrice.toFixed(2)} (${input.leverage}x ${input.productType})`,
+      },
+      {
+        userId: input.userId,
+        positionId: position.id,
+        type: "commission",
+        symbol: input.symbol,
+        amount: -commission,
+        price: input.entryPrice,
+        note: `Open commission (0.01% × ${input.leverage}x)`,
+      },
+    ] satisfies InsertSimTransactionRow[]);
 
-  return { position, commission, marginLocked: margin, newCash };
+    return { position, commission, marginLocked: margin, newCash };
+  });
 }
 
 export interface ClosePositionInput {
@@ -261,64 +273,69 @@ export async function closePosition(
   const netReturn = pos.margin + pnlRaw - exitCommission - pos.accruedFunding;
   const reason = input.reason ?? "manual";
 
-  // Update position
-  const [updated] = await db
-    .update(simPositions)
-    .set({
-      status: reason === "liquidation" ? "liquidated" : "closed",
-      closedAt: new Date(),
-      closedPnl: pnlRaw - exitCommission - pos.accruedFunding,
-      closedPrice: input.exitPrice,
-      closedReason: reason,
-      currentPrice: input.exitPrice,
-      accruedCommission: pos.accruedCommission + exitCommission,
-    })
-    .where(eq(simPositions.id, input.positionId))
-    .returning();
+  // P2-#3: DB transaction 으로 atomic 처리. 포지션 update + account update +
+  // transaction log 3개를 한 transaction 안에서 실행. partial state 방지.
+  return db.transaction(async (tx) => {
+    // Update position
+    const [updated] = await tx
+      .update(simPositions)
+      .set({
+        status: reason === "liquidation" ? "liquidated" : "closed",
+        closedAt: new Date(),
+        closedPnl: pnlRaw - exitCommission - pos.accruedFunding,
+        closedPrice: input.exitPrice,
+        closedReason: reason,
+        currentPrice: input.exitPrice,
+        accruedCommission: pos.accruedCommission + exitCommission,
+      })
+      .where(eq(simPositions.id, input.positionId))
+      .returning();
 
-  // Update account
-  const newCash = account.cash + netReturn;
-  const liquidationDelta = reason === "liquidation" ? 1 : 0;
-  await db
-    .update(simAccounts)
-    .set({
-      cash: newCash,
-      realizedPnl: account.realizedPnl + (pnlRaw - exitCommission - pos.accruedFunding),
-      totalCommission: account.totalCommission + exitCommission,
-      liquidationCount: account.liquidationCount + liquidationDelta,
-      updatedAt: new Date(),
-    })
-    .where(eq(simAccounts.userId, input.userId));
+    // Update account
+    const newCash = account.cash + netReturn;
+    const liquidationDelta = reason === "liquidation" ? 1 : 0;
+    await tx
+      .update(simAccounts)
+      .set({
+        cash: newCash,
+        realizedPnl:
+          account.realizedPnl + (pnlRaw - exitCommission - pos.accruedFunding),
+        totalCommission: account.totalCommission + exitCommission,
+        liquidationCount: account.liquidationCount + liquidationDelta,
+        updatedAt: new Date(),
+      })
+      .where(eq(simAccounts.userId, input.userId));
 
-  // Record transactions
-  await db.insert(simTransactions).values([
-    {
-      userId: input.userId,
-      positionId: pos.id,
-      type: reason === "liquidation" ? "liquidation" : "close",
-      symbol: pos.symbol,
-      amount: pos.margin + pnlRaw,
-      price: input.exitPrice,
-      note: `Close ${pos.side} ${pos.symbol} @ $${input.exitPrice.toFixed(2)} — PnL ${(pnlRaw - exitCommission - pos.accruedFunding).toFixed(2)} (${reason})`,
-    },
-    {
-      userId: input.userId,
-      positionId: pos.id,
-      type: "commission",
-      symbol: pos.symbol,
-      amount: -exitCommission,
-      price: input.exitPrice,
-      note: `Close commission (0.01% × ${pos.leverage}x)`,
-    },
-  ] satisfies InsertSimTransactionRow[]);
+    // Record transactions
+    await tx.insert(simTransactions).values([
+      {
+        userId: input.userId,
+        positionId: pos.id,
+        type: reason === "liquidation" ? "liquidation" : "close",
+        symbol: pos.symbol,
+        amount: pos.margin + pnlRaw,
+        price: input.exitPrice,
+        note: `Close ${pos.side} ${pos.symbol} @ $${input.exitPrice.toFixed(2)} — PnL ${(pnlRaw - exitCommission - pos.accruedFunding).toFixed(2)} (${reason})`,
+      },
+      {
+        userId: input.userId,
+        positionId: pos.id,
+        type: "commission",
+        symbol: pos.symbol,
+        amount: -exitCommission,
+        price: input.exitPrice,
+        note: `Close commission (0.01% × ${pos.leverage}x)`,
+      },
+    ] satisfies InsertSimTransactionRow[]);
 
-  return {
-    position: updated,
-    pnl: pnlRaw - exitCommission - pos.accruedFunding,
-    exitCommission,
-    netCashReturn: netReturn,
-    newCash,
-  };
+    return {
+      position: updated,
+      pnl: pnlRaw - exitCommission - pos.accruedFunding,
+      exitCommission,
+      netCashReturn: netReturn,
+      newCash,
+    };
+  });
 }
 
 /** 거래 내역 */

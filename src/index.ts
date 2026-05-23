@@ -9,6 +9,7 @@ import { appRouter } from "./routers";
 import { createContext } from "./_core/context";
 import { ENV } from "./_core/env";
 import { childLogger, logger } from "./_core/logger";
+import { metricsMiddleware, metricsRegistry } from "./_core/metrics";
 import { getDb } from "./db";
 import { startBackgroundWarmup } from "./scanner";
 
@@ -61,6 +62,10 @@ async function startServer() {
   });
   app.use(globalLimiter);
 
+  // P2-#11: Prometheus metrics middleware — 모든 HTTP request latency 자동 측정.
+  // helmet / rate-limit 다음, body parser 전에 배치.
+  app.use(metricsMiddleware());
+
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
@@ -86,6 +91,13 @@ async function startServer() {
       process.env.VERCEL_GIT_COMMIT_REF ??
       "local";
     res.json({ ok: true, branch, timestamp: Date.now() });
+  });
+
+  // P2-#11: Prometheus /metrics endpoint — Railway / Datadog / Grafana scrape.
+  // No auth — production 에서는 internal network 또는 reverse proxy 로 access 제한 권장.
+  app.get("/metrics", async (_req, res) => {
+    res.set("Content-Type", metricsRegistry.contentType);
+    res.end(await metricsRegistry.metrics());
   });
 
   app.get("/api/debug/connectivity", async (_req, res) => {

@@ -1085,12 +1085,16 @@ export function detectBBStructureShort(
  *   SHORT_NUM_RSI_LOW=62: winRate 37.0%, Sharpe -0.17, PF 0.66
  *   → 65 로 상향 + 365일 재측정 권고.
  */
-const SHORT_NUM_RSI_LOW = 65;
-const SHORT_NUM_RSI_HIGH = 75;
-const SHORT_NUM_BB_TOLERANCE = 0.02;
-const SHORT_NUM_ADX_MAX = 20;
-const SHORT_PTN_BB_TOLERANCE = 0.05;
-const SHORT_PTN_ADX_MAX = 25;
+// P2-#1 (2026-05-23): 임계값 단일 출처. src/config/signal-thresholds.ts.
+// 기존 값과 정확히 일치 — 회귀 안전성 확보. 백테스트 sweep 시 override 가능.
+import { SIGNAL_THRESHOLDS as _SIG } from "./config/signal-thresholds";
+
+const SHORT_NUM_RSI_LOW = _SIG.short.num.rsiLow;
+const SHORT_NUM_RSI_HIGH = _SIG.short.num.rsiHigh;
+const SHORT_NUM_BB_TOLERANCE = _SIG.short.num.bbTolerance;
+const SHORT_NUM_ADX_MAX = _SIG.short.num.adxMax;
+const SHORT_PTN_BB_TOLERANCE = _SIG.short.ptn.bbTolerance;
+const SHORT_PTN_ADX_MAX = _SIG.short.ptn.adxMax;
 
 /**
  * SHORT 진입 결정. LONG `decideEntry` 의 미러.
@@ -1206,12 +1210,13 @@ export function calculateShortSignalStrength(
 
 // ── 진입 결정 (3가지 경로) ────────────────────────────────────────────────
 
-const NUM_RSI_LOW = 25;
-const NUM_RSI_HIGH = 38;
-const NUM_BB_TOLERANCE = 0.02;
-const NUM_ADX_MAX = 20;
-const PTN_BB_TOLERANCE = 0.05;
-const PTN_ADX_MAX = 25;
+// P2-#1: LONG 임계값도 config 에서 import (위 SHORT 와 동일 패턴).
+const NUM_RSI_LOW = _SIG.long.num.rsiLow;
+const NUM_RSI_HIGH = _SIG.long.num.rsiHigh;
+const NUM_BB_TOLERANCE = _SIG.long.num.bbTolerance;
+const NUM_ADX_MAX = _SIG.long.num.adxMax;
+const PTN_BB_TOLERANCE = _SIG.long.ptn.bbTolerance;
+const PTN_ADX_MAX = _SIG.long.ptn.adxMax;
 
 /**
  * 3가지 진입 경로 중 가장 우선순위 높은 1개를 반환.
@@ -1276,9 +1281,10 @@ export function decideEntry(
 
 // ── EXIT 결정 ─────────────────────────────────────────────────────────────
 
-const EXIT_RSI_THRESHOLD = 65;
-const EXIT_ADX_THRESHOLD = 30;
-const EXIT_PLUSDI_THRESHOLD = 25;
+// P2-#1: EXIT 임계값 config 에서.
+const EXIT_RSI_THRESHOLD = _SIG.exit.rsiThreshold;
+const EXIT_ADX_THRESHOLD = _SIG.exit.adxThreshold;
+const EXIT_PLUSDI_THRESHOLD = _SIG.exit.plusDiThreshold;
 
 /**
  * v6.3 EXIT decision (Part II.1).
@@ -1441,9 +1447,10 @@ export function calculateSignalStrengthV2(
 
 // ─── VWAP Strategy (Parker Brooks Style) ─────────────────────────────────
 
-const VWAP_AT_TOLERANCE = 0.001; // ±0.1% counts as "AT"
-const PULLBACK_PROXIMITY = 0.005; // within 0.5% of VWAP/EMA = approaching
-const VWAP_SIGNAL_THRESHOLD = 50;
+// P2-#1: VWAP 임계값 config 에서.
+const VWAP_AT_TOLERANCE = _SIG.vwap.atTolerance; // ±0.1% counts as "AT"
+const PULLBACK_PROXIMITY = _SIG.vwap.pullbackProximity; // within 0.5% of VWAP/EMA = approaching
+const VWAP_SIGNAL_THRESHOLD = _SIG.vwap.signalThreshold;
 
 /**
  * Volume-weighted average price across the supplied candle range.

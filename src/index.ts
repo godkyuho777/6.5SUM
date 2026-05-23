@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { sql } from "drizzle-orm";
 import { appRouter } from "./routers";
@@ -22,6 +24,38 @@ async function warmDbPool() {
 
 async function startServer() {
   const app = express();
+
+  // ── P1-#2 (2026-05-23): Security middleware ────────────────
+  //
+  // helmet — 보안 헤더 (CSP, X-Frame-Options, HSTS, X-Content-Type-Options 등)
+  //   기본 설정. Production 에서 자동 보안 강화. CSP 는 inline scripts 가 필요한
+  //   기존 페이지가 있을 수 있어 contentSecurityPolicy: false 로 두고 (helmet
+  //   default 외 다른 헤더만 적용). 추후 CSP 정책 명확화되면 다시 활성.
+  app.use(
+    helmet({
+      contentSecurityPolicy: false, // 일부 페이지에서 inline script 사용 가능성
+      crossOriginEmbedderPolicy: false, // Bybit chart embeds 호환
+    }),
+  );
+
+  // Trust proxy 1단계 (Railway / Vercel) — rate limit 가 정확한 client IP
+  // 인식하도록. 0 (default) 면 X-Forwarded-For 무시 → 모든 요청이 같은 IP 로
+  // 처리되어 rate limit 가 즉시 도달.
+  app.set("trust proxy", 1);
+
+  // express-rate-limit — 전역 IP 기반 rate limit (DDoS 1차 방어)
+  //   기본 60 req / 분 / IP. Read 위주 endpoint 대상으로 충분히 관대.
+  //   백테스트 / AI insight 같은 무거운 endpoint 는 별도 limiter 필요 (Phase 2).
+  const globalLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    limit: 60, // 60 req per IP per minute
+    standardHeaders: "draft-7", // RFC 9239 RateLimit headers
+    legacyHeaders: false,
+    message: { error: "TooManyRequests", retryAfter: 60 },
+    // /api/health 는 limit 적용 안 함 — Railway / Vercel healthcheck 자유
+    skip: (req) => req.path === "/api/health",
+  });
+  app.use(globalLimiter);
 
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));

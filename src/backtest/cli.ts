@@ -42,6 +42,8 @@ type ExtendedArgs = BacktestCliArgs & {
     | "vwap"
     | "trend"
     | "trend-follow";
+  /** P1-#1: lookahead audit 엄격 모드 — 위반 시 saveToDb 차단 */
+  auditStrict?: boolean;
 };
 
 function parseArgs(argv: string[]): ExtendedArgs {
@@ -84,6 +86,10 @@ function parseArgs(argv: string[]): ExtendedArgs {
         // v6.5 multi-strategy: bbdx | bbdx-short | bbdx-combined |
         //                      fibonacci | vwap | trend | trend-follow
         args.strategy = argv[++i] as ExtendedArgs["strategy"];
+        break;
+      case "--audit-strict":
+        // P1-#1: lookahead audit 위반 시 saveToDb 차단
+        args.auditStrict = true;
         break;
     }
   }
@@ -143,6 +149,7 @@ async function main() {
     saveToDb: args.saveToDb ?? false,
     runName: args.runName ?? `${strategy}_${tf}_${symbols.length}coins`,
     strategy,
+    lookaheadAuditStrict: args.auditStrict ?? false,
   });
 
   // 리포트 저장

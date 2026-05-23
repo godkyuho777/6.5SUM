@@ -22,6 +22,7 @@ import {
   DEFAULT_COST_MODEL,
 } from "./metrics";
 import { wilsonScoreInterval } from "./calibration";
+import { auditNoLookahead, formatAuditSummary } from "./lookahead-auditor";
 
 /**
  * Look-ahead bias 보장 (P1.G — DUAL_BACKTEST §1.3):
@@ -30,9 +31,11 @@ import { wilsonScoreInterval } from "./calibration";
  *   결과 측정은 `candles[i+1..i+window]` 만. 두 데이터 집합이 절대 섞이지
  *   않는다 (해당 파일 doc 참조).
  *
- *   본 runner 단계에서 별도 assertNoLookahead 호출 X — signal-extractor
- *   가 이미 lookahead-free 보장 (구조적). Timeline 기반 엔진 A/B 는
- *   `timeline-types.ts:assertNoLookahead` 별도 호출.
+ *   2026-05-23 (P1-#1): `auditNoLookahead` 자동 호출 추가. Step 2 직후 모든
+ *   trade 의 temporal monotonicity / candle alignment / holding consistency
+ *   / partial-exits ordering 등을 검사하여 위반 시 console.error 출력 +
+ *   결과에 `lookaheadAudit` 필드로 노출. strict 모드는 saveToDb 차단까지
+ *   가능 (config.lookaheadAuditStrict).
  */
 
 // ─── DB 저장 (옵션) ──────────────────────────────────────
@@ -214,6 +217,25 @@ export async function runBacktest(
     };
   });
 
+  // ── Lookahead-free audit (P1-#1, 2026-05-23) ──────────
+  // signal-extractor 가 구조적으로 lookahead-free 를 보장하나, 자동 검증으로
+  // temporal monotonicity / candle alignment / holding consistency 확인.
+  const auditResult = auditNoLookahead(trades, { endMs });
+  console.log(`\n   ${formatAuditSummary(auditResult)}`);
+  const lookaheadAudit = {
+    passed: auditResult.passed,
+    totalTrades: auditResult.totalTrades,
+    violationCount: auditResult.violationCount,
+    byKind: auditResult.byKind as Record<string, number>,
+    sampleViolations: auditResult.violations.slice(0, 10),
+  };
+  if (!auditResult.passed) {
+    console.error(
+      `[Runner] ⚠ Lookahead audit detected ${auditResult.violationCount} violation(s). ` +
+        `strict=${config.lookaheadAuditStrict ? "ON — saveToDb 차단" : "OFF — 경고만 출력"}`,
+    );
+  }
+
   // ── Step 3: 통계 계산 ────────────────────────────────
   console.log("\n▶ Step 3/3: Computing metrics...");
   const overall = computeMetrics(trades);
@@ -261,11 +283,20 @@ export async function runBacktest(
       feePct: costModel.fee_pct,
       slippagePct: costModel.slippage_pct,
     },
+    lookaheadAudit,
     ...(metricsBySide ? { metricsBySide } : {}),
   };
 
   // ── (옵션) DB 저장 ────────────────────────────────────
-  if (config.saveToDb) {
+  // P1-#1: strict 모드일 때 lookahead audit 실패하면 saveToDb 차단.
+  const shouldSave = config.saveToDb && (auditResult.passed || !config.lookaheadAuditStrict);
+  if (config.saveToDb && !shouldSave) {
+    console.warn(
+      "[Runner] saveToDb 차단됨 — lookaheadAuditStrict=true 인데 audit 실패. " +
+        "결과는 반환되나 DB 미저장.",
+    );
+  }
+  if (shouldSave) {
     console.log("\n▶ Saving to database...");
     const runId = await saveRunToDb(result);
     if (runId) result.runId = runId;

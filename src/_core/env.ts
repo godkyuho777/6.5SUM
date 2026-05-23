@@ -19,4 +19,10 @@ export const ENV = {
     process.env.OPENROUTER_MODEL ?? "anthropic/claude-sonnet-4.6",
   openrouterSiteUrl: process.env.OPENROUTER_SITE_URL ?? "",
   openrouterAppName: process.env.OPENROUTER_APP_NAME ?? "Tradelab",
+
+  // P2-#4 (2026-05-23): LLM fallback (Anthropic direct).
+  // OpenRouter 장애 시 backup. .env.example 의 ANTHROPIC_API_KEY 와 동일 변수
+  // 재사용 (JeonInGu 트래커도 같은 키 사용).
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? "",
+  anthropicModel: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5-20250929",
 };

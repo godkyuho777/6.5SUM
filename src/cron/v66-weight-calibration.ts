@@ -16,6 +16,11 @@
  */
 
 import { autoCorrectThreshold, autoCorrectWeights } from "../strategies/weight-calibration";
+import { childLogger } from "../_core/logger";
+
+// P2-#7 (2026-05-23): pino structured logging — Railway / Datadog parsing.
+//   각 cron 실행에 jobId 부여 → log 전체에 자동 첨부 (`module: "cron:v66"`).
+const log = childLogger("cron:v66");
 
 const SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "XRPUSDT", "ADAUSDT"];
 const TFS = ["1h", "4h", "1d"] as const;
@@ -77,13 +82,20 @@ export interface WeeklyCalibrationReport {
  */
 export async function runWeeklyCalibration(): Promise<WeeklyCalibrationReport> {
   const startedAt = Date.now();
+  // P2-#7: 각 실행마다 unique jobId — 분산 로그 추적 가능
+  const jobId =
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `cron-${startedAt}`;
+  const jobLog = log.child({ jobId, cronName: "weekly_calibration" });
+
   const totalCombinations =
     SYMBOLS.length * TFS.length * SIDES.length * PATHS.length;
   const weightResults: WeeklyCalibrationReport["weightResults"] = [];
   const thresholdResults: WeeklyCalibrationReport["thresholdResults"] = [];
   const errors: WeeklyCalibrationReport["errors"] = [];
 
-  console.log("[CRON] v6.6 주간 calibration 시작");
+  jobLog.info({ totalCombinations }, "v6.6 주간 calibration 시작");
 
   try {
     for (const symbol of SYMBOLS) {
@@ -104,8 +116,9 @@ export async function runWeeklyCalibration(): Promise<WeeklyCalibrationReport> {
               });
             } catch (err) {
               const message = (err as Error)?.message ?? String(err);
-              console.error(
-                `[CRON] weights ${symbol} ${tf} ${path} ${side}: ${message}`,
+              jobLog.error(
+                { err, symbol, tf, path, side, kind: "weights" },
+                `weights calibration failed: ${message}`,
               );
               errors.push({
                 kind: "weights",
@@ -133,8 +146,9 @@ export async function runWeeklyCalibration(): Promise<WeeklyCalibrationReport> {
             });
           } catch (err) {
             const message = (err as Error)?.message ?? String(err);
-            console.error(
-              `[CRON] threshold ${symbol} ${tf} ${side}: ${message}`,
+            jobLog.error(
+              { err, symbol, tf, side, kind: "threshold" },
+              `threshold calibration failed: ${message}`,
             );
             errors.push({
               kind: "threshold",
@@ -167,14 +181,22 @@ export async function runWeeklyCalibration(): Promise<WeeklyCalibrationReport> {
     }
 
     if (health !== "ok") {
-      console.warn(
-        `[CRON] ⚠ health=${health} — ${failedCount}/${expectedTotal} combinations failed`,
+      jobLog.warn(
+        { health, failedCount, expectedTotal },
+        `⚠ health=${health} — ${failedCount}/${expectedTotal} combinations failed`,
       );
     }
 
-    console.log(
-      `[CRON] 완료. ${appliedCount}/${total} calibrated, ${fallbackCount} fallback, ` +
-        `${failedCount} failed. Elapsed ${((endedAt - startedAt) / 1000).toFixed(1)}s. health=${health}`,
+    jobLog.info(
+      {
+        appliedCount,
+        total,
+        fallbackCount,
+        failedCount,
+        durationMs: endedAt - startedAt,
+        health,
+      },
+      `완료. ${appliedCount}/${total} calibrated, ${fallbackCount} fallback, ${failedCount} failed`,
     );
 
     return {
@@ -192,9 +214,7 @@ export async function runWeeklyCalibration(): Promise<WeeklyCalibrationReport> {
   } catch (err) {
     // D-5: outer try/catch — runWeeklyCalibration 자체 never throw
     const message = (err as Error)?.message ?? String(err);
-    const stack = (err as Error)?.stack;
-    console.error(`[CRON] 🚨 FATAL: cron 자체 실패 — ${message}`);
-    if (stack) console.error(stack);
+    jobLog.fatal({ err }, `🚨 FATAL: cron 자체 실패 — ${message}`);
 
     errors.push({ kind: "outer", message });
 

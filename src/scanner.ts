@@ -150,6 +150,78 @@ const scanCache = new Map<string, CacheEntry>();
 const klinesCache = new Map<string, KlinesCacheEntry>();
 const CACHE_TTL = 10 * 60 * 1000; // 10분
 
+/**
+ * P1-#5 (2026-05-23, AUDIT.md): scanner race condition fix.
+ *
+ * 기존: startBackgroundWarmup (무한 loop) ↔ HTTP scanCoinsPage 가 동시에
+ * scanCache / klinesCache / tickerCache 에 read/write 발생. JavaScript
+ * single-threaded 라도 await 사이의 yield point 에서 다른 핸들러가 들어와
+ * partial 상태를 읽거나 같은 key 를 중복 fetch 할 수 있음.
+ *
+ * 본 mutex 들은 *write* 경로만 보호 (read 는 native Map 의 atomic 한
+ * snapshot 가정). 같은 cacheKey 에 대한 동시 fetch+write 시 두 번째 호출은
+ * 첫 fetch 완료 후 cache hit 로 reuse.
+ *
+ * Lock granularity: per-key (cacheKey) — 다른 symbol/interval 은 병렬 fetch
+ * 허용. 단일 global lock 은 throughput 저하.
+ */
+import { Mutex } from "async-mutex";
+
+const cacheKeyLocks = new Map<string, Mutex>();
+const tickerCacheLock = new Mutex();
+
+function getKeyLock(key: string): Mutex {
+  let m = cacheKeyLocks.get(key);
+  if (!m) {
+    m = new Mutex();
+    cacheKeyLocks.set(key, m);
+  }
+  return m;
+}
+
+/**
+ * 만료된 캐시 항목 정리 — 주기적 호출 권장 (cron 또는 manual).
+ * 메모리 누적 방지. P1-#5 의 두 번째 부분.
+ *
+ * @returns 제거된 항목 수
+ */
+export function cleanupExpiredCaches(): {
+  scanCacheCleaned: number;
+  klinesCacheCleaned: number;
+  keyLocksCleaned: number;
+} {
+  const now = Date.now();
+  let scanCleaned = 0;
+  let klinesCleaned = 0;
+  let keyLocksCleaned = 0;
+
+  for (const [key, entry] of scanCache.entries()) {
+    if (now - entry.timestamp > CACHE_TTL * 2) {
+      scanCache.delete(key);
+      scanCleaned++;
+    }
+  }
+  for (const [key, entry] of klinesCache.entries()) {
+    if (now - entry.timestamp > CACHE_TTL * 2) {
+      klinesCache.delete(key);
+      klinesCleaned++;
+    }
+  }
+  // mutex 객체 자체는 light 하지만, 사용되지 않는 key 의 lock 도 정리
+  // (active scan 없으면 lock 잡힌 상태도 아님)
+  for (const [key, mutex] of cacheKeyLocks.entries()) {
+    if (!mutex.isLocked() && !scanCache.has(key) && !klinesCache.has(key)) {
+      cacheKeyLocks.delete(key);
+      keyLocksCleaned++;
+    }
+  }
+  return {
+    scanCacheCleaned: scanCleaned,
+    klinesCacheCleaned: klinesCleaned,
+    keyLocksCleaned,
+  };
+}
+
 // 티커 캐시 (전체 심볼 가격 - 1분 TTL)
 let tickerCache: { data: Map<string, { price: number; change24h: number; volume24h: number }>; timestamp: number } | null = null;
 const TICKER_CACHE_TTL = 60 * 1000; // 1분
@@ -169,15 +241,24 @@ function cacheKey(symbol: string, interval: TimeframeValue): string {
 }
 
 /**
- * 캐시된 티커 데이터 가져오기 (1분 캐시)
+ * 캐시된 티커 데이터 가져오기 (1분 캐시).
+ *
+ * P1-#5 mutex 보호: 동시 호출 시 첫 호출만 fetch 수행, 나머지는 첫 호출의
+ * 결과를 reuse → Bybit 호출 빈도 절약 + rate-limit 위험 ↓.
  */
 async function getCachedTickers() {
   if (tickerCache && Date.now() - tickerCache.timestamp < TICKER_CACHE_TTL) {
     return tickerCache.data;
   }
-  const tickers = await fetchAll24hTickers();
-  tickerCache = { data: tickers, timestamp: Date.now() };
-  return tickers;
+  // mutex 안에서 다시 한번 cache 검사 (double-checked locking)
+  return tickerCacheLock.runExclusive(async () => {
+    if (tickerCache && Date.now() - tickerCache.timestamp < TICKER_CACHE_TTL) {
+      return tickerCache.data;
+    }
+    const tickers = await fetchAll24hTickers();
+    tickerCache = { data: tickers, timestamp: Date.now() };
+    return tickers;
+  });
 }
 
 /**
@@ -204,6 +285,30 @@ export async function scanCoin(
     }
     return cached.data;
   }
+
+  // P1-#5: 같은 key 에 대한 동시 호출 보호 — 첫 호출이 fetch+write 중이면
+  // 두 번째 호출은 wait 후 cache hit 로 reuse (double-checked locking).
+  return getKeyLock(key).runExclusive(async () => {
+    // mutex 안 재검사 — 첫 호출이 이미 cache 채웠을 가능성
+    const recached = scanCache.get(key);
+    if (recached && Date.now() - recached.timestamp < CACHE_TTL) {
+      if (tickerData) {
+        recached.data.price = tickerData.price;
+        recached.data.change24h = tickerData.change24h;
+        recached.data.volume24h = tickerData.volume24h;
+        recached.data.isStopLossHit =
+          tickerData.price <= recached.data.stopLossPrice;
+        recached.data.vwapPosition = vwapPosition(
+          tickerData.price,
+          recached.data.vwap,
+        );
+        recached.data.emaPosition = emaPosition(
+          tickerData.price,
+          recached.data.ema9,
+        );
+      }
+      return recached.data;
+    }
 
   try {
     const candles = await fetchKlines(symbol, interval, 100);
@@ -446,6 +551,7 @@ export async function scanCoin(
     console.error(`[Scanner] Failed to scan ${symbol}:`, error.message);
     return null;
   }
+  }); // P1-#5: end of getKeyLock(key).runExclusive
 }
 
 /**

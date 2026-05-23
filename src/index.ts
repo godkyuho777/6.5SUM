@@ -145,10 +145,70 @@ async function startServer() {
     })
   );
 
-  app.listen(ENV.port, () => {
+  const server = app.listen(ENV.port, () => {
     log.info({ port: ENV.port }, `server running on http://localhost:${ENV.port}/`);
     void warmDbPool();
     startBackgroundWarmup();
+  });
+
+  // ── P1-#6 (2026-05-23): Graceful shutdown ──────────────────
+  //
+  // AUDIT.md 권장: SIGTERM/SIGINT 핸들러 없음 → Railway 가 deploy / restart
+  // 시 진행 중 request 가 즉시 끊김. 결과: 사용자 일부가 incomplete response
+  // 받음, DB 트랜잭션 dangling 가능.
+  //
+  // 정책:
+  //   1. SIGTERM (Railway / Docker shutdown) → 새 connection 받지 않음
+  //   2. 진행 중 request 완료 대기 (최대 30s, hard timeout)
+  //   3. DB pool 종료 (있다면)
+  //   4. process.exit(0)
+  //
+  // 30s timeout 은 Railway 의 graceful shutdown 한도와 일치 (이후 SIGKILL).
+  const shutdown = async (signal: string) => {
+    log.info({ signal }, "graceful shutdown started");
+    // 1) 새 connection 차단
+    server.close((err) => {
+      if (err) {
+        log.error({ err }, "server.close failed");
+        process.exit(1);
+      }
+      log.info("server closed — no new connections");
+    });
+
+    // 2) Hard timeout — 30s 후 강제 종료
+    const forceExitTimer = setTimeout(() => {
+      log.warn("graceful shutdown timed out (30s) — forcing exit");
+      process.exit(1);
+    }, 30_000);
+    forceExitTimer.unref(); // 타이머 자체가 event loop 잡지 않도록
+
+    // 3) DB pool 종료 (있다면)
+    try {
+      const db = await getDb();
+      // drizzle/postgres 의 pool 은 client 가 노출하므로 명시적 종료
+      const client = (db as any)?.$client;
+      if (client && typeof client.end === "function") {
+        await client.end({ timeout: 5 });
+        log.info("DB pool closed");
+      }
+    } catch (err) {
+      log.warn({ err }, "DB pool close failed (ignoring)");
+    }
+
+    // 4) Exit
+    log.info("graceful shutdown complete");
+    process.exit(0);
+  };
+
+  process.on("SIGTERM", () => void shutdown("SIGTERM"));
+  process.on("SIGINT", () => void shutdown("SIGINT"));
+
+  // Uncaught exceptions → log but don't crash (Railway 재시작 정책)
+  process.on("uncaughtException", (err) => {
+    logger.error({ err }, "uncaughtException — logging but continuing");
+  });
+  process.on("unhandledRejection", (reason) => {
+    logger.error({ reason }, "unhandledRejection — logging but continuing");
   });
 }
 

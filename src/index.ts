@@ -10,6 +10,7 @@ import { createContext } from "./_core/context";
 import { ENV } from "./_core/env";
 import { childLogger, logger } from "./_core/logger";
 import { metricsMiddleware, metricsRegistry } from "./_core/metrics";
+import { logStartupValidation } from "./_core/startup-validation";
 import { getDb } from "./db";
 import { startBackgroundWarmup } from "./scanner";
 
@@ -28,6 +29,9 @@ async function warmDbPool() {
 }
 
 async function startServer() {
+  // P2-#12: startup validation 가장 먼저 — config 누락 / API key 상태 노출
+  logStartupValidation();
+
   const app = express();
 
   // ── P1-#2 (2026-05-23): Security middleware ────────────────

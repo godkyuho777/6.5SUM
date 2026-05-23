@@ -41,6 +41,11 @@ import {
   detectOrderBlock,
 } from "./modifiers";
 import { analyzeTrend } from "./trend/analyze";
+import { childLogger } from "./_core/logger";
+
+// P2-#9 (2026-05-23): structured logging migration.
+// 기존 [Scanner] prefix console.* → pino childLogger (module: "scanner").
+const log = childLogger("scanner");
 
 /**
  * Aggregator 결과 → CoinScanResult 의 PatternConfluenceSummary.
@@ -439,8 +444,9 @@ export async function scanCoin(
         }
       } catch (err: any) {
         // graceful — 추가 modifier 실패가 BBDX 시그널을 깨지 않도록.
-        console.warn(
-          `[Scanner] Additional modifiers failed for ${symbol}: ${String(err?.message ?? err)}`
+        log.warn(
+          { err, symbol },
+          `Additional modifiers failed for ${symbol}`,
         );
       }
     }
@@ -455,9 +461,7 @@ export async function scanCoin(
         entryDecision.waveMult = trend.waveMult;
       } catch (err: any) {
         // graceful — 실패 시 multiplier 미설정 (= 1.0 동치).
-        console.warn(
-          `[Scanner] Trend analysis failed for ${symbol}: ${String(err?.message ?? err)}`
-        );
+        log.warn({ err, symbol }, `Trend analysis failed for ${symbol}`);
       }
     }
 
@@ -548,7 +552,7 @@ export async function scanCoin(
 
     return result;
   } catch (error: any) {
-    console.error(`[Scanner] Failed to scan ${symbol}:`, error.message);
+    log.error({ err: error, symbol }, `Failed to scan ${symbol}`);
     return null;
   }
   }); // P1-#5: end of getKeyLock(key).runExclusive
@@ -671,7 +675,10 @@ export async function scanAllCoins(
 
   try {
     const tickers = await getCachedTickers();
-    console.log(`[Scanner] Got ${tickers.size} tickers, scanning ${symbols.length} coins on ${interval}...`);
+    log.info(
+      { tickersCount: tickers.size, symbolCount: symbols.length, interval },
+      `Got ${tickers.size} tickers, scanning ${symbols.length} coins on ${interval}...`,
+    );
 
     // 10개씩 배치 처리
     const batchSize = 10;
@@ -697,9 +704,12 @@ export async function scanAllCoins(
       }
     }
 
-    console.log(`[Scanner] Full scan complete: ${allResults.length}/${symbols.length} coins on ${interval}`);
+    log.info(
+      { completed: allResults.length, total: symbols.length, interval },
+      `Full scan complete: ${allResults.length}/${symbols.length} coins on ${interval}`,
+    );
   } catch (error: any) {
-    console.error(`[Scanner] Scan failed:`, error.message);
+    log.error({ err: error }, "Scan failed");
   } finally {
     scanProgress.isRunning = false;
   }
@@ -784,15 +794,15 @@ export function clearCache() {
  * 첫 페이지(10개) 데이터를 미리 로드하여 즉시 응답 가능하게 함
  */
 export function startBackgroundWarmup() {
-  console.log("[Scanner] Starting background warmup...");
+  log.info("Starting background warmup...");
   // 첫 페이지 10개만 빠르게 로드
   scanCoinsPage(1, 10, "4h").then((result) => {
-    console.log(`[Scanner] Quick warmup complete: ${result.coins.length} coins loaded`);
+    log.info({ coinsLoaded: result.coins.length }, `Quick warmup complete: ${result.coins.length} coins loaded`);
     // 나머지는 천천히 백그라운드에서
     scanAllCoins(TOP_COINS, "4h").then((results) => {
-      console.log(`[Scanner] Full background warmup complete: ${results.length} coins`);
+      log.info({ coinsLoaded: results.length }, `Full background warmup complete: ${results.length} coins`);
     }).catch(() => {});
   }).catch((err) => {
-    console.error("[Scanner] Background warmup failed:", err.message);
+    log.error({ err }, "Background warmup failed");
   });
 }

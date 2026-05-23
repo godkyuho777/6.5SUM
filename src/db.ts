@@ -14,6 +14,10 @@ import {
   type InsertCoinEvent,
   type CoinEvent,
 } from "../drizzle/schema";
+import { childLogger } from "./_core/logger";
+
+// P2-#9 (2026-05-23): pino structured logging.
+const log = childLogger("db");
 
 let _client: ReturnType<typeof postgres> | null = null;
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -30,7 +34,7 @@ export async function getDb() {
     });
     _db = drizzle(_client);
   } catch (error) {
-    console.warn("[Database] Failed to connect:", error);
+    log.warn({ err: error }, "Failed to connect");
     _db = null;
   }
   return _db;

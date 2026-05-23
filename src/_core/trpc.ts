@@ -5,6 +5,20 @@ import type { TrpcContext } from "./context";
 
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
+  // P1-#4 (2026-05-23): tradelabCode + tradelabContext 를 client error.data 로 전송.
+  // tradelabError(code, opts) 헬퍼로 throw 시 자동으로 metadata 첨부됨.
+  errorFormatter({ shape, error }) {
+    const tradelabCode = (error as any).tradelabCode;
+    const tradelabContext = (error as any).tradelabContext;
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        ...(tradelabCode ? { tradelabCode } : {}),
+        ...(tradelabContext ? { tradelabContext } : {}),
+      },
+    };
+  },
 });
 
 export const router = t.router;

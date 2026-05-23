@@ -8,17 +8,21 @@ import { sql } from "drizzle-orm";
 import { appRouter } from "./routers";
 import { createContext } from "./_core/context";
 import { ENV } from "./_core/env";
+import { childLogger, logger } from "./_core/logger";
 import { getDb } from "./db";
 import { startBackgroundWarmup } from "./scanner";
+
+const log = childLogger("server");
 
 async function warmDbPool() {
   const db = await getDb();
   if (!db) return;
+  const dbLog = childLogger("db");
   try {
     await db.execute(sql`SELECT 1`);
-    console.log("[db] pool warm");
+    dbLog.info("pool warm");
   } catch (err) {
-    console.warn("[db] warmup failed:", err);
+    dbLog.warn({ err }, "warmup failed");
   }
 }
 
@@ -142,13 +146,13 @@ async function startServer() {
   );
 
   app.listen(ENV.port, () => {
-    console.log(`[server] running on http://localhost:${ENV.port}/`);
+    log.info({ port: ENV.port }, `server running on http://localhost:${ENV.port}/`);
     void warmDbPool();
     startBackgroundWarmup();
   });
 }
 
-startServer().catch(err => {
-  console.error("[server] failed to start", err);
+startServer().catch((err) => {
+  logger.fatal({ err }, "[server] failed to start");
   process.exit(1);
 });

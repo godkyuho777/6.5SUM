@@ -1,14 +1,35 @@
-import type { LiteCoinCard, LitePositionCard, LiteDashboard } from "./lite/types";
 export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     ctx: import("./_core/context").TrpcContext;
     meta: object;
-    errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+    errorShape: {
+        data: {
+            tradelabContext?: any;
+            tradelabCode?: any;
+            code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+            httpStatus: number;
+            path?: string;
+            stack?: string;
+        };
+        message: string;
+        code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+    };
     transformer: true;
 }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
     system: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         health: import("@trpc/server").TRPCQueryProcedure<{
@@ -24,7 +45,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     coins: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         list: import("@trpc/server").TRPCQueryProcedure<{
@@ -39,7 +71,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     signals: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** 페이지 단위 코인 스캔 - 10개씩 빠르게 반환 */
@@ -170,7 +213,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     positions: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         list: import("@trpc/server").TRPCQueryProcedure<{
@@ -243,7 +297,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     alerts: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         get: import("@trpc/server").TRPCQueryProcedure<{
@@ -298,7 +363,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     ai: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         analyze: import("@trpc/server").TRPCMutationProcedure<{
@@ -336,7 +412,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     backtest: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /**
@@ -538,7 +625,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     simulator: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** 현재 계정 잔액 + equity (mark-to-market). */
@@ -686,7 +784,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     simulatorLeaderboard: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /**
@@ -764,7 +873,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     cycle: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** BTC 200d MA cycle regime (bull / bear / neutral) */
@@ -777,7 +897,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     onchain: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** 단일 심볼의 7-modifier 점수 + regime + breakdown */
@@ -843,22 +974,27 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     lite: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
-        /**
-         * Lite 대시보드: top buy / top sell + 시장 분위기.
-         * scanForSignals → entryDecision/exitDecision 가진 코인만 골라
-         * deriveRecommendation 으로 라벨 변환.
-         */
         dashboard: import("@trpc/server").TRPCQueryProcedure<{
             input: {
                 interval?: "1h" | "4h" | "6h" | "1d" | "1w" | "1M" | undefined;
             } | undefined;
-            output: LiteDashboard;
+            output: import("./lite/types").LiteDashboard;
             meta: object;
         }>;
-        /** 단일 코인의 Lite 추천 카드 + 메타 (Pro chip 매핑용). */
         coin: import("@trpc/server").TRPCQueryProcedure<{
             input: {
                 symbol: string;
@@ -898,20 +1034,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             } | null;
             meta: object;
         }>;
-        /** 사용자 포지션 요약 (Lite Portfolio). 인증 필요. */
         portfolio: import("@trpc/server").TRPCQueryProcedure<{
             input: void;
             output: {
                 totalEquity: number;
                 pnl24h: number;
                 pnl7d: number;
-                positions: LitePositionCard[];
+                positions: import("./lite/types").LitePositionCard[];
                 pendingAlerts: number;
                 computedAt: string;
             };
             meta: object;
         }>;
-        /** 학습 카드용 — 단일 raw 값을 자연어 라벨로 변환. */
         translate: import("@trpc/server").TRPCQueryProcedure<{
             input: {
                 kind: "regime" | "rsi" | "adx" | "path" | "strength" | "phase" | "bb_position";
@@ -924,19 +1058,12 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             };
             meta: object;
         }>;
-        /**
-         * Lite 단일 코인 카드 (Coin Detail Workstation 용 별칭).
-         *
-         * 기존 lite.coin 과 거의 동일하지만 입력 TF 가 대문자 ("1H","4H",...) 로
-         * 들어와도 받도록 설계 + LiteCoinCard shape 으로 정규화 응답.
-         * BBDX 시그널 산출은 scanForSignals 가 담당하고, 본 procedure 는 라벨 번역만.
-         */
         translateCoin: import("@trpc/server").TRPCQueryProcedure<{
             input: {
                 symbol: string;
                 tf?: "1h" | "1H" | "4h" | "4H" | "1d" | "1D" | "1w" | "1W" | undefined;
             };
-            output: LiteCoinCard | null;
+            output: import("./lite/types").LiteCoinCard | null;
             meta: object;
         }>;
     }>>;
@@ -944,7 +1071,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     coin: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         meta: import("@trpc/server").TRPCQueryProcedure<{
@@ -973,7 +1111,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     events: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         list: import("@trpc/server").TRPCQueryProcedure<{
@@ -1028,7 +1177,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     winRate: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         rolling: import("@trpc/server").TRPCQueryProcedure<{
@@ -1044,7 +1204,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     wave: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** Composite Sentiment + Wave Matrix 한 번에 받기 (가장 자주 쓰는 엔드포인트). */
@@ -1075,7 +1246,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     vwap: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         detail: import("@trpc/server").TRPCQueryProcedure<{
@@ -1136,7 +1318,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     trend: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /**
@@ -1163,7 +1356,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     emaAdxTrend: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** 트래커 메타 (이름/설명/임계/가중치). 프론트엔드 Criteria 탭 용. */
@@ -1245,7 +1449,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     modifiers: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** Market Breadth (6차원: macro/sentiment) — 96 코인 일괄 RSI 분포 */
@@ -1310,7 +1525,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     taxonomy: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** 모든 modifier 메타데이터 — layer 필터 없음 */
@@ -1339,7 +1565,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     dualEngine: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** Engine A — 단일 지표 백테스트 실행 */
@@ -1376,7 +1613,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     macroV2: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** 현재 시점 macro snapshot (단일 layer 객체) */
@@ -1405,7 +1653,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     bbdxV66: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /**
@@ -1464,7 +1723,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     calibrationAdmin: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         triggerManualWeights: import("@trpc/server").TRPCMutationProcedure<{
@@ -1522,7 +1792,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
     jeonInGu: import("@trpc/server").TRPCBuiltRouter<{
         ctx: import("./_core/context").TrpcContext;
         meta: object;
-        errorShape: import("@trpc/server").TRPCDefaultErrorShape;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
         transformer: true;
     }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
         /** 트래커 설정 + 활성 상태 + Feature Flag. UI Criteria 탭에서 표시. */

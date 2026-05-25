@@ -31,6 +31,7 @@ import {
 } from "./db";
 import { getCoinMeta } from "./coin-meta";
 import { getCoinInfo } from "./coin-info";
+import { fetchCoinTickers } from "./coin-tickers";
 import { computeRollingWinRate } from "./winrate-rolling";
 import { fetchMultiplePrices, fetchKlines } from "./bybit";
 import { runBacktest } from "./backtest/runner";
@@ -992,6 +993,34 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
       .input(z.object({ symbol: z.string() }))
       .query(async ({ input }) => {
         return getCoinInfo(input.symbol);
+      }),
+
+    /**
+     * 거래소 상장 정보 (tickers) — "이 코인 어디서 사지?" 답변용.
+     *
+     * CoinGecko Free 의 /coins/{id}/tickers 응답을 trust_score (green>yellow>red)
+     * + 24h USD volume 으로 정렬해 상위 N개 (기본 10) 반환. 23-coin 화이트리스트
+     * 외 심볼은 ok:false + code:"NOT_FOUND" 로 graceful 처리. 1h in-memory 캐시.
+     *
+     * 헌장: modifier-only (정보 표시만, 단독 시그널 발행 X).
+     */
+    tickers: publicProcedure
+      .input(
+        z.object({
+          symbol: z.string(),
+          limit: z.number().int().min(1).max(20).default(10),
+        })
+      )
+      .query(async ({ input }) => {
+        try {
+          return await fetchCoinTickers(input);
+        } catch (err) {
+          return {
+            ok: false as const,
+            code: "INTERNAL" as const,
+            message: (err as Error)?.message ?? "fetch failed",
+          };
+        }
       }),
   }),
 

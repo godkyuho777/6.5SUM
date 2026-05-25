@@ -1106,6 +1106,23 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             output: import("./coin-info").CoinInfo;
             meta: object;
         }>;
+        /**
+         * 거래소 상장 정보 (tickers) — "이 코인 어디서 사지?" 답변용.
+         *
+         * CoinGecko Free 의 /coins/{id}/tickers 응답을 trust_score (green>yellow>red)
+         * + 24h USD volume 으로 정렬해 상위 N개 (기본 10) 반환. 23-coin 화이트리스트
+         * 외 심볼은 ok:false + code:"NOT_FOUND" 로 graceful 처리. 1h in-memory 캐시.
+         *
+         * 헌장: modifier-only (정보 표시만, 단독 시그널 발행 X).
+         */
+        tickers: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+                limit?: number | undefined;
+            };
+            output: import("./coin-tickers").CoinTickersResult;
+            meta: object;
+        }>;
     }>>;
     /** 캘린더 / 매크로 + 코인별 이벤트. */
     events: import("@trpc/server").TRPCBuiltRouter<{

@@ -24,6 +24,8 @@
 
 import type { OnchainModifierKey, OnchainModifierResult } from "./types";
 import { computeFarsideEtfFlow } from "./etf-flow";
+import { fetchCryptoQuant } from "./sources/cryptoquant";
+import { fetchGlassnode, type GlassnodeAsset } from "./sources/glassnode";
 
 // ─── Mock 유틸 ──────────────────────────────────────────────────────
 
@@ -67,9 +69,43 @@ function isMockMode(): boolean {
 
 // ─── Exchange Netflow ───────────────────────────────────────────────
 
+/**
+ * z-score → modifier value 매핑.
+ *
+ * 거래소 netflow (BTC) — z 가 양수면 거래소로 유입 (매도 압력),
+ * 음수면 거래소에서 유출 (보유/축적 의향).
+ *
+ *   z >= +2  → -0.25  (강한 유입, 매도 압력)
+ *   z >= +1  → -0.10  (선형 보간)
+ *   z <= -2  → +0.20  (강한 유출, 보유 의향)
+ *   z <= -1  → +0.10  (선형 보간)
+ *   |z| < 1  → 0  (중립)
+ *
+ * @internal — 테스트용 export.
+ */
+export function applyNetflowZscoreThreshold(z: number): number {
+  if (!Number.isFinite(z)) return 0;
+  if (z >= 2) return -0.25;
+  if (z <= -2) return 0.2;
+  if (z >= 1) return -0.1;
+  if (z <= -1) return 0.1;
+  return 0;
+}
+
 export async function computeExchangeNetflow(
   symbol: string
 ): Promise<OnchainModifierResult> {
+  // v1: BTC 전용 (CryptoQuant Free tier 가 btc/* 시리즈만 제공).
+  // 다른 symbol 은 score.ts 의 tier-aware enabled 가 별도 처리.
+  if (!symbol.startsWith("BTC")) {
+    return {
+      key: "exchange_netflow",
+      value: 0,
+      status: "stub",
+      detail: `${symbol} BTC 전용 (v1) — 영향 없음`,
+    };
+  }
+
   const key = process.env.CRYPTOQUANT_API_KEY;
   if (!key) {
     if (isMockMode()) {
@@ -89,15 +125,35 @@ export async function computeExchangeNetflow(
     };
   }
 
-  // TODO(v1.1): CryptoQuant API 호출 — 24h netflow + 30d baseline.
-  //   z-score 산출:
-  //     z<-2 → +0.20, z<-1 → +0.10, z>+2 → -0.25, z>+1 → -0.10
+  // 실데이터 호출 — CryptoQuant Free, 30d 일별 netflow.
+  const result = await fetchCryptoQuant("btc/exchange-flows/netflow", 30);
+  if (result.status !== "ok" || result.data.length < 7) {
+    return {
+      key: "exchange_netflow",
+      value: 0,
+      status: result.status === "stub" ? "stub" : "error",
+      detail: result.detail ?? `${symbol} CryptoQuant netflow 데이터 부족 (n=${result.data.length})`,
+    };
+  }
+
+  // z-score: 가장 최근 24h vs 30일 평균/표준편차.
+  // CryptoQuant 의 day cadence 응답에서 마지막 행 = 가장 최근 일.
+  const values = result.data.map((d) => d.value);
+  const latest = values[values.length - 1];
+  const mean = values.reduce((s, v) => s + v, 0) / values.length;
+  const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length;
+  const std = Math.sqrt(variance);
+  const z = std > 0 ? (latest - mean) / std : 0;
+
+  const value = applyNetflowZscoreThreshold(z);
+  const signV = value >= 0 ? "+" : "";
+
   return {
     key: "exchange_netflow",
-    value: 0,
-    status: "stub",
-    detail: `${symbol} CryptoQuant 통합 미구현 (key 감지됨, 다음 릴리스)`,
-    raw: { hasKey: true },
+    value,
+    status: "ok",
+    detail: `${symbol} 24h netflow ${latest.toFixed(0)} BTC · z=${z.toFixed(2)} (30d, ${signV}${value.toFixed(2)})`,
+    raw: { latest, z, mean, std, samples: values.length },
   };
 }
 
@@ -177,6 +233,27 @@ export async function computeEtfFlow(
 
 // ─── Miner Outflow (BTC only) ───────────────────────────────────────
 
+/**
+ * Miner outflow z-score → modifier value 매핑.
+ *
+ * 채굴자 outflow (BTC) — 7d 합산을 30d 분포 대비 z-score 화. z 가 양수면
+ * 채굴자가 평소보다 많이 출금 (거래소 이동 → 매도 압력 가능), 음수면 보유 의향.
+ *
+ *   z >= +2    → -0.15  (강한 매도 압력)
+ *   z >= +1    → -0.05  (약한 매도 압력)
+ *   z <= -1.5  → +0.10  (채굴자 holding, 공급 축소)
+ *   그 외       → 0  (중립)
+ *
+ * @internal — 테스트용 export.
+ */
+export function applyMinerOutflowZscoreThreshold(z: number): number {
+  if (!Number.isFinite(z)) return 0;
+  if (z >= 2) return -0.15;
+  if (z >= 1) return -0.05;
+  if (z <= -1.5) return 0.1;
+  return 0;
+}
+
 export async function computeMinerOutflow(
   symbol: string
 ): Promise<OnchainModifierResult> {
@@ -208,18 +285,71 @@ export async function computeMinerOutflow(
     };
   }
 
-  // TODO(v1.1): CryptoQuant miner outflow 7d sum + 90d baseline.
-  //   z>+2 → -0.15, z>+1 → -0.05, z<-1.5 → +0.10
+  // 실데이터 호출 — CryptoQuant Free, 30d 일별 miner outflow.
+  const result = await fetchCryptoQuant("btc/miner-flows/outflow", 30);
+  if (result.status !== "ok" || result.data.length < 7) {
+    return {
+      key: "miner_outflow",
+      value: 0,
+      status: result.status === "stub" ? "stub" : "error",
+      detail:
+        result.detail ??
+        `${symbol} CryptoQuant miner outflow 데이터 부족 (n=${result.data.length})`,
+    };
+  }
+
+  // 7d 합산을 전 구간 rolling-7d-sum 분포 대비 z-score 화.
+  // 일별 outflow → 24개 이상의 7일 합산 시계열을 만들고, 마지막(최근 7d)을
+  // 분포 평균/표준편차로 정규화한다.
+  const daily = result.data.map((d) => d.value);
+  const rollingSums: number[] = [];
+  for (let i = 6; i < daily.length; i++) {
+    let s = 0;
+    for (let j = i - 6; j <= i; j++) s += daily[j];
+    rollingSums.push(s);
+  }
+  const latest7d = rollingSums[rollingSums.length - 1];
+  const mean = rollingSums.reduce((s, v) => s + v, 0) / rollingSums.length;
+  const variance =
+    rollingSums.reduce((s, v) => s + (v - mean) ** 2, 0) / rollingSums.length;
+  const std = Math.sqrt(variance);
+  const z = std > 0 ? (latest7d - mean) / std : 0;
+
+  const value = applyMinerOutflowZscoreThreshold(z);
+  const signV = value >= 0 ? "+" : "";
+
   return {
     key: "miner_outflow",
-    value: 0,
-    status: "stub",
-    detail: "Miner outflow 통합 미구현 (key 감지됨, 다음 릴리스)",
-    raw: { hasKey: true },
+    value,
+    status: "ok",
+    detail: `${symbol} 7d miner outflow ${latest7d.toFixed(0)} BTC · z=${z.toFixed(2)} (30d, ${signV}${value.toFixed(2)})`,
+    raw: { latest7d, z, mean, std, samples: rollingSums.length },
   };
 }
 
 // ─── LTH Supply (BTC/ETH) ───────────────────────────────────────────
+
+/**
+ * LTH supply 30d 변화율 → modifier value 매핑.
+ *
+ * Long-Term Holder supply 의 30일 변화율 (소수, 예: 0.05 = +5%).
+ * 양수면 장기 보유자 축적 (공급 잠김 → bullish), 음수면 분배 (매도 → bearish).
+ *
+ *   >= +2%  → +0.10  (강한 축적, cap)
+ *   <= -2%  → -0.15  (강한 분배, cap)
+ *   작은 양수 → value × 5  로 선형 보간 (+0.02 에서 +0.10 cap 도달)
+ *   작은 음수 → value × 7.5 로 선형 보간 (-0.02 에서 -0.15 cap 도달)
+ *   0       → 0
+ *
+ * @internal — 테스트용 export.
+ */
+export function applyLthSupplyChangeThreshold(changePct: number): number {
+  if (!Number.isFinite(changePct)) return 0;
+  if (changePct >= 0.02) return 0.1;
+  if (changePct <= -0.02) return -0.15;
+  if (changePct >= 0) return changePct * 5;
+  return changePct * 7.5;
+}
 
 export async function computeLthSupply(
   symbol: string
@@ -252,17 +382,46 @@ export async function computeLthSupply(
     };
   }
 
-  // TODO(v1.1): Glassnode lth-supply 30일 변화율.
-  //   change_pct > +2% → +0.10, < -2% → -0.15
+  // 실데이터 호출 — Glassnode Free, 30d LTH supply 시계열.
+  const asset: GlassnodeAsset = symbol === "BTCUSDT" ? "BTC" : "ETH";
+  const result = await fetchGlassnode("supply/lth_sum", asset, 30);
+  if (result.status !== "ok" || result.data.length < 2) {
+    return {
+      key: "lth_supply",
+      value: 0,
+      status: result.status === "stub" ? "stub" : "error",
+      detail:
+        result.detail ??
+        `${symbol} Glassnode LTH supply 데이터 부족 (n=${result.data.length})`,
+    };
+  }
+
+  // 30d 변화율: (마지막 - 처음) / 처음. 시계열은 시간 오름차순 가정.
+  const first = result.data[0].v;
+  const last = result.data[result.data.length - 1].v;
+  const changePct = first !== 0 ? (last - first) / first : 0;
+
+  const value = applyLthSupplyChangeThreshold(changePct);
+  const signV = value >= 0 ? "+" : "";
+  const pctStr = (changePct * 100).toFixed(2);
+
   return {
     key: "lth_supply",
-    value: 0,
-    status: "stub",
-    detail: `${symbol} Glassnode LTH 통합 미구현 (key 감지됨, 다음 릴리스)`,
-    raw: { hasKey: true },
+    value,
+    status: "ok",
+    detail: `${symbol} LTH supply 30d ${changePct >= 0 ? "+" : ""}${pctStr}% (${signV}${value.toFixed(2)})`,
+    raw: { changePct, first, last, asset, samples: result.data.length },
   };
 }
 
 // ─── Test exports ───────────────────────────────────────────────────
-// 테스트에서 결정론 검증 용 — 프로덕션 코드는 사용 X.
-export const __testing = { simpleHash, hashUnit, mockValue, isMockMode };
+// 테스트에서 결정론 검증 + 임계값 helper 단위 검증 용 — 프로덕션 코드는 사용 X.
+export const __testing = {
+  simpleHash,
+  hashUnit,
+  mockValue,
+  isMockMode,
+  applyNetflowZscoreThreshold,
+  applyMinerOutflowZscoreThreshold,
+  applyLthSupplyChangeThreshold,
+};

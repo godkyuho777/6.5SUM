@@ -10,4 +10,6 @@ export declare const ENV: {
     openrouterModel: string;
     openrouterSiteUrl: string;
     openrouterAppName: string;
+    anthropicApiKey: string;
+    anthropicModel: string;
 };

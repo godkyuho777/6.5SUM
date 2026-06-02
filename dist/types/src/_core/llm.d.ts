@@ -98,3 +98,31 @@ export type ResponseFormat = {
     json_schema: JsonSchema;
 };
 export declare function invokeLLM(params: InvokeParams): Promise<InvokeResult>;
+/**
+ * P2-#4: LLM invoke with automatic fallback.
+ *
+ * Primary: OpenRouter (multi-model gateway, cost-effective)
+ * Fallback: Anthropic direct (장애 시 backup)
+ *
+ * @param params 표준 InvokeParams
+ * @param options.skipFallback true 면 OpenRouter 실패 시 즉시 throw (test 용)
+ * @returns InvokeResult — OpenRouter 또는 Anthropic 어느 쪽이든 통일 형식
+ */
+export declare function invokeLLMWithFallback(params: InvokeParams, options?: {
+    skipFallback?: boolean;
+}): Promise<InvokeResult>;
+/**
+ * P2-#4: Prompt injection 방어 헬퍼.
+ *
+ * 사용자 입력을 LLM 의 system prompt 내부에 직접 삽입하기 전에 호출.
+ * Markdown / 특수 문자 escape + length cap.
+ *
+ * 한계:
+ *   - 완벽한 방어 X — LLM 자체가 학습 데이터에서 prompt injection 패턴 인식
+ *   - 본 헬퍼는 *첫 번째 방어선* — 명백한 escape attempts 차단
+ *   - 진짜 보안 critical 한 경우는 user/system message 분리 (별도 messages 배열) 사용
+ *
+ * @param input 사용자 raw 입력
+ * @param maxLength 최대 문자 수 (default 4000 — Claude context 비례)
+ */
+export declare function sanitizeUserPrompt(input: string, maxLength?: number): string;

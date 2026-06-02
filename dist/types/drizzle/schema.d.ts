@@ -2,6 +2,10 @@ export declare const signalStatus: import("drizzle-orm/pg-core").PgEnum<["active
 export declare const positionStatus: import("drizzle-orm/pg-core").PgEnum<["open", "closed", "liquidated"]>;
 /**
  * Trading signals detected by the bot.
+ *
+ * P2-#6 (2026-05-23): composite indexes via 3rd-arg callback.
+ *   - idx_signals_symbol_created: 가장 빈번한 쿼리 (symbol 별 최근 시그널)
+ *   - idx_signals_status_created: status='active' 시그널 모니터링
  */
 export declare const signals: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "signals";
@@ -575,6 +579,8 @@ export type InsertSignal = typeof signals.$inferInsert;
  * userId references Supabase auth.users(id) — no FK declared at the Drizzle
  * level because that schema lives outside this codebase. Integrity is enforced
  * by the application layer, which always derives userId from the verified JWT.
+ *
+ * P2-#6 (2026-05-23): composite indexes + signal_id FK constraint.
  */
 export declare const positions: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "positions";
@@ -963,6 +969,8 @@ export type Position = typeof positions.$inferSelect;
 export type InsertPosition = typeof positions.$inferInsert;
 /**
  * User alert settings for customized monitoring.
+ *
+ * P2-#6: user + enabled composite index — cron 의 alert dispatcher 최적화.
  */
 export declare const alertSettings: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "alert_settings";

@@ -39,15 +39,62 @@ declare function hashUnit(input: string): number;
  */
 declare function mockValue(symbol: string, key: OnchainModifierKey, maxAbs: number): number;
 declare function isMockMode(): boolean;
+/**
+ * z-score → modifier value 매핑.
+ *
+ * 거래소 netflow (BTC) — z 가 양수면 거래소로 유입 (매도 압력),
+ * 음수면 거래소에서 유출 (보유/축적 의향).
+ *
+ *   z >= +2  → -0.25  (강한 유입, 매도 압력)
+ *   z >= +1  → -0.10  (선형 보간)
+ *   z <= -2  → +0.20  (강한 유출, 보유 의향)
+ *   z <= -1  → +0.10  (선형 보간)
+ *   |z| < 1  → 0  (중립)
+ *
+ * @internal — 테스트용 export.
+ */
+export declare function applyNetflowZscoreThreshold(z: number): number;
 export declare function computeExchangeNetflow(symbol: string): Promise<OnchainModifierResult>;
 export declare function computeWhaleAlert(symbol: string): Promise<OnchainModifierResult>;
 export declare function computeEtfFlow(symbol: string): Promise<OnchainModifierResult>;
+/**
+ * Miner outflow z-score → modifier value 매핑.
+ *
+ * 채굴자 outflow (BTC) — 7d 합산을 30d 분포 대비 z-score 화. z 가 양수면
+ * 채굴자가 평소보다 많이 출금 (거래소 이동 → 매도 압력 가능), 음수면 보유 의향.
+ *
+ *   z >= +2    → -0.15  (강한 매도 압력)
+ *   z >= +1    → -0.05  (약한 매도 압력)
+ *   z <= -1.5  → +0.10  (채굴자 holding, 공급 축소)
+ *   그 외       → 0  (중립)
+ *
+ * @internal — 테스트용 export.
+ */
+export declare function applyMinerOutflowZscoreThreshold(z: number): number;
 export declare function computeMinerOutflow(symbol: string): Promise<OnchainModifierResult>;
+/**
+ * LTH supply 30d 변화율 → modifier value 매핑.
+ *
+ * Long-Term Holder supply 의 30일 변화율 (소수, 예: 0.05 = +5%).
+ * 양수면 장기 보유자 축적 (공급 잠김 → bullish), 음수면 분배 (매도 → bearish).
+ *
+ *   >= +2%  → +0.10  (강한 축적, cap)
+ *   <= -2%  → -0.15  (강한 분배, cap)
+ *   작은 양수 → value × 5  로 선형 보간 (+0.02 에서 +0.10 cap 도달)
+ *   작은 음수 → value × 7.5 로 선형 보간 (-0.02 에서 -0.15 cap 도달)
+ *   0       → 0
+ *
+ * @internal — 테스트용 export.
+ */
+export declare function applyLthSupplyChangeThreshold(changePct: number): number;
 export declare function computeLthSupply(symbol: string): Promise<OnchainModifierResult>;
 export declare const __testing: {
     simpleHash: typeof simpleHash;
     hashUnit: typeof hashUnit;
     mockValue: typeof mockValue;
     isMockMode: typeof isMockMode;
+    applyNetflowZscoreThreshold: typeof applyNetflowZscoreThreshold;
+    applyMinerOutflowZscoreThreshold: typeof applyMinerOutflowZscoreThreshold;
+    applyLthSupplyChangeThreshold: typeof applyLthSupplyChangeThreshold;
 };
 export {};

@@ -1,5 +1,16 @@
 import type { CoinScanResult, TechnicalIndicators, Candle, TimeframeValue } from "@shared/types";
 /**
+ * 만료된 캐시 항목 정리 — 주기적 호출 권장 (cron 또는 manual).
+ * 메모리 누적 방지. P1-#5 의 두 번째 부분.
+ *
+ * @returns 제거된 항목 수
+ */
+export declare function cleanupExpiredCaches(): {
+    scanCacheCleaned: number;
+    klinesCacheCleaned: number;
+    keyLocksCleaned: number;
+};
+/**
  * 단일 코인 스캔 (ticker 데이터를 외부에서 주입 가능)
  */
 export declare function scanCoin(symbol: string, interval?: TimeframeValue, tickerData?: {

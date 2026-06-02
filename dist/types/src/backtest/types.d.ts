@@ -56,6 +56,17 @@ export interface BacktestConfig {
      * BACKTEST_DEFECT_AUDIT.md D1 — 거래 비용 누적.
      */
     slippagePct?: number;
+    /**
+     * Lookahead-free strict 모드 (P1-#1, 2026-05-23).
+     *
+     * true → auditNoLookahead 가 위반을 발견하면 saveToDb 차단 + 결과의
+     *        runId 미지정 (백테스트 자체는 수행되어 metric 은 반환).
+     * false (default) → 위반은 console.error 출력 + result.lookaheadAudit 에
+     *                   기록만 하고 saveToDb 진행.
+     *
+     * CLI 의 `--audit-strict` 플래그 또는 config 에서 직접 설정.
+     */
+    lookaheadAuditStrict?: boolean;
 }
 export declare const DEFAULT_BACKTEST_CONFIG: Omit<BacktestConfig, "symbols" | "startDate" | "endDate">;
 export type ExitReason = "target_hit" | "stop_loss" | "window_expired" | "tier1_then_window" | "tier2_full" | "tier1_then_stop";
@@ -209,6 +220,29 @@ export interface BacktestResult {
         long: BacktestMetrics | null;
         short: BacktestMetrics | null;
         combined: BacktestMetrics;
+    };
+    /**
+     * Lookahead-free auditor 결과 (P1-#1, 2026-05-23).
+     *
+     * `auditNoLookahead(trades)` 가 모든 trade 의 temporal monotonicity /
+     * candle alignment / holding consistency / partial-exits ordering 등을
+     * 검사한 요약. `passed=false` 면 lookahead bias 의심이 있다는 의미.
+     *
+     * strict 모드 (config.lookaheadAuditStrict=true) 에서는 위반 발견 시
+     * saveToDb 차단 + result.runId 미지정.
+     */
+    lookaheadAudit?: {
+        passed: boolean;
+        totalTrades: number;
+        violationCount: number;
+        byKind: Record<string, number>;
+        sampleViolations: Array<{
+            kind: string;
+            tradeIndex: number;
+            symbol: string;
+            signalTs: number;
+            detail: string;
+        }>;
     };
 }
 export interface FetchHistoricalOptions {

@@ -859,7 +859,7 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
         fetch: import("@trpc/server").TRPCQueryProcedure<{
             input: {
                 clientToken?: string | undefined;
-                period?: "all" | "30d" | "7d" | "24h" | undefined;
+                period?: "24h" | "all" | "30d" | "7d" | undefined;
                 limit?: number | undefined;
             };
             output: import("./simulator/leaderboard").LeaderboardError | import("./simulator/leaderboard").FetchLeaderboardResult | {

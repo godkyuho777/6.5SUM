@@ -179,15 +179,17 @@ describe("stub-modifiers: ONCHAIN_MOCK=1 (deterministic mock)", () => {
 // ─── 4. Real key takes precedence over mock ─────────────────────────
 
 describe("stub-modifiers: real key precedence", () => {
-  it("CRYPTOQUANT_API_KEY set + ONCHAIN_MOCK=1 → real-data path stub (not mock)", async () => {
+  it("CRYPTOQUANT_API_KEY set + ONCHAIN_MOCK=1 → real-data path (not mock)", async () => {
     process.env.CRYPTOQUANT_API_KEY = "fake-key-for-test";
     process.env.ONCHAIN_MOCK = "1";
     const r = await computeExchangeNetflow("BTCUSDT");
-    // 실데이터 경로 placeholder 는 status: "stub" 반환 (TODO v1.1).
-    expect(r.status).toBe("stub");
+    // 실데이터 경로가 활성화됨 — fake key 라 401/403/등 호출 실패 → status="error".
+    // 또는 네트워크 자체가 단절된 환경에서는 status="error".
+    // 핵심: status !== "mock" (실데이터 경로 진입 확인).
+    expect(r.status).not.toBe("mock");
     expect(r.value).toBe(0);
     // 환경변수 정리는 afterEach 가 처리.
-  });
+  }, 15_000);
 });
 
 // ─── 5. Hash helper sanity ──────────────────────────────────────────

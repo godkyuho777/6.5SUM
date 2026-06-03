@@ -39,6 +39,7 @@ import {
   combineAdditionalModifiers,
   detectMacdDivergence,
   detectOrderBlock,
+  computeCRS,
 } from "./modifiers";
 import { analyzeTrend } from "./trend/analyze";
 import { childLogger } from "./_core/logger";
@@ -436,6 +437,9 @@ export async function scanCoin(
         if (entryDecision) {
           entryDecision.macdDivergenceMult = macd.multiplier;
           entryDecision.orderBlockMult = ob.multiplier;
+          // CRS-lite (6차원, 청산 반전) — mean-reversion 롱 전용. 게이트
+          // 미통과 시 1.0 (불변). SHORT 미러 X (청산 플러시 반등은 롱 셋업).
+          entryDecision.crsMult = computeCRS(candles, interval).multiplier;
         }
         // SHORT modifier 부착 — multiplier 부호 반전 (LONG 의 1.10 = SHORT 의 0.90).
         if (shortDecision) {
@@ -476,6 +480,7 @@ export async function scanCoin(
       const addMult = combineAdditionalModifiers({
         macdDivergenceMult: entryDecision.macdDivergenceMult,
         orderBlockMult: entryDecision.orderBlockMult,
+        crsMult: entryDecision.crsMult,
         // marketBreadth / fundingExtreme 는 scanner hot path
         // 외부에서 별도 endpoint 로 산출 → 여기서는 1.0 (skip).
       });

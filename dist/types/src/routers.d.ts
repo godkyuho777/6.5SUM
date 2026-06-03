@@ -1533,6 +1533,7 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 macdDivergence: import("./modifiers").MacdDivergenceResult | null;
                 fundingExtreme: import("./modifiers").FundingExtremeResult | null;
                 orderBlock: import("./modifiers").OrderBlockResult | null;
+                crs: import("./modifiers").ModifierResult | null;
                 combinedMultiplier: number;
                 computedAt: number;
             };

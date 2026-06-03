@@ -14,6 +14,7 @@
 
 import type { Candle } from "@shared/types";
 import { calculateAllIndicators } from "../indicators";
+import { computeCRS } from "../modifiers";
 import { getStrategy } from "./strategies";
 // strategies/index.ts 의 side-effect import 가 모든 전략을 STRATEGY_REGISTRY 에 등록.
 // signal-extractor 는 BacktestConfig.strategy (default 'bbdx') 로 lookup.
@@ -325,7 +326,18 @@ export function extractSignalsFromCandles(
     );
 
     // 메타 추출 (각 전략별 다른 필드)
-    const meta = evaluation.metadata ?? {};
+    const meta: Record<string, unknown> = { ...(evaluation.metadata ?? {}) };
+
+    // ── CRS-lite 세그먼트 훅 (docs/2026-06-03-CRS §8) ──────────────────
+    // 청산 반전 modifier 의 활성 subset 메트릭을 사후 분리하기 위해
+    // strategyMeta 에 crsActive(게이트 통과) + crsMult 를 기록.
+    // LONG mean-reversion 전용 신호 → side==="long" 일 때만. windowCandles
+    // (= candles[0..i]) 만 사용 → lookahead-free. computeCRS 는 throw X.
+    if (side === "long") {
+      const crs = computeCRS(windowCandles, tf);
+      meta.crsActive = crs.multiplier > 1.0;
+      meta.crsMult = crs.multiplier;
+    }
 
     const trade: BacktestTrade = {
       signalTs: candles[i].openTime,

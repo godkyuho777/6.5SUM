@@ -31,6 +31,7 @@ export { detectMacdDivergence } from "./macd-divergence";
 export { computeFundingExtreme } from "./funding-extreme";
 export { computeMarketBreadth } from "./market-breadth";
 export { detectOrderBlock } from "./order-block";
+export { computeCRS } from "./crs";
 
 /**
  * 모든 추가 modifier 의 multiplier 를 합산 (단순 product).
@@ -49,6 +50,8 @@ export function combineAdditionalModifiers(decision: {
   macdDivergenceMult?: number;
   fundingExtremeMult?: number;
   orderBlockMult?: number;
+  /** CRS-lite (6차원: 청산 반전) — 1.00~1.10. 게이트 미통과 시 1.0 (불변). */
+  crsMult?: number;
 }): number {
   const m = (v: number | undefined) =>
     v != null && Number.isFinite(v) ? v : 1.0;
@@ -56,6 +59,7 @@ export function combineAdditionalModifiers(decision: {
     m(decision.marketBreadthMult) *
     m(decision.macdDivergenceMult) *
     m(decision.fundingExtremeMult) *
-    m(decision.orderBlockMult)
+    m(decision.orderBlockMult) *
+    m(decision.crsMult)
   );
 }

@@ -197,6 +197,13 @@ export interface EntryDecision {
   /** Order Block (5차원: structure, 베타) — 0.95~1.05 */
   orderBlockMult?: number;
   /**
+   * CRS-lite (6차원: 청산 반전 / derivatives positioning) — 1.00~1.10.
+   * 청산 플러시 + 저점 흡수 @ BB 하단 → mean-reversion 롱 증폭 (LONG 전용).
+   * 게이트 미통과 시 1.0 (불변). funding-extreme 와 차원 같지만 측정 각도 다름
+   * (펀딩 state vs 청산 event). 헌장 규칙 3 준수: multiplier-only.
+   */
+  crsMult?: number;
+  /**
    * Wave Alignment (Trend Analysis Engine v2.0) — 0.30~1.30.
    * 멀티-TF 추세 정합. ADX/EMA 와 같은 3차원 지표를 사용하지만 측정 각도가
    * 다름 (단일 TF strength vs 멀티-TF alignment). 헌장 규칙 1 면제.

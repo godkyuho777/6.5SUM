@@ -2,7 +2,7 @@
 
 > **한 줄 요약**: 청산 cascade(롱 강제 청산 플러시)가 **BB 하단**에 착지한 뒤 **falling-knife가 풀린 첫 반등 캔들**에서, 숏 과밀(음수 펀딩) 환경이면 = 고확률 mean-reversion 롱. BBDX 롱 진입 신뢰도를 **곱셈 modifier(1.00~1.15)** 로만 증폭. 단독 시그널 발행 X(헌장 규칙3).
 >
-> **상태**: 🟡 설계 검토 완료(signal-engineer, 2026-06-03) — **수정필요(Conditional)**. 라이브 한정 승인, 백테스트는 CRS-lite로 선검증.
+> **상태**: ❌ **백테스트 FAIL (2026-06-04)** — CRS-lite alpha 미입증(§10.1). 설계·헌장·lookahead 무결성은 유효하나 현 3-신호 게이트(vel+wick+BB하단)가 BBDX 롱 승률을 개선 못함(CRS활성 27.6% vs baseline 33.0%, n=58). **main 승격 보류** — P2(ΔOI/funding) 추가 또는 exit-신호 재포지셔닝 후 재검토. (설계검토: signal-engineer 2026-06-03 수정필요→Conditional)
 > **차원**: 6 (Macro / Derivatives positioning)
 > **배치**: 백엔드 modifier (`tradelab-backend/src/modifiers/crs.ts` 신규) → `combineAdditionalModifiers`
 
@@ -112,3 +112,20 @@ multiplier = 1.00 + strength × 0.15                       // 상한 1.15 (검�
 ## 10. 갱신 이력
 
 - 2026-06-03 — 초안 작성 + signal-engineer 설계 검토(수정필요/Conditional). CRS-lite를 P1 백테스트 대상으로 확정. 현재 국면(숏 과밀 66일·청산 cascade 활성·BTC 박스권) 정합성 근거.
+- 2026-06-04 — CRS-lite 코드 초안(crs.ts) dev 푸시 + **백테스트 FAIL**(§10.1). main 승격 보류.
+
+## 10.1 백테스트 결과 (2026-06-04) — ❌ FAIL
+
+- **실행**: top-20 메이저, 4h, 730일(2024-06-04~2026-06-04), 5500 BBDX 롱. cost model(fee 0.1% + slip 0.05%) 차감. lookahead audit 0 violations (PASS).
+- **성격**: CRS는 **관측적(observational)** — `bbdx.ts shouldEnter`가 CRS 미참조라 entry set 불변, signal-extractor가 crsActive/crsMult 기록만. "CRS 셋업과 겹친 BBDX 롱이 더 이기는가"를 측정.
+
+| subset | n | winRate | Sharpe | PF | Wilson 95% CI |
+|---|---|---|---|---|---|
+| Baseline(전체) | 5500 | 33.0% | −0.24 | 0.52 | 31.7~34.2% |
+| **CRS 활성** | 58 | **27.6%** | −0.42 | 0.41 | **17.8~40.2%** |
+| CRS 비활성 | 5442 | 33.0% | −0.24 | 0.52 | 31.8~34.3% |
+
+- **판정 FAIL**: CRS활성 winRate(27.6%)가 baseline(33.0%)보다 **낮고**, Wilson CI[17.8,40.2]가 baseline을 포함 → 분리 알파 없음.
+- **부가 발견**: BBDX 롱 자체가 2년 횡보/하락장에서 winRate 33%·음수 expectancy·MDD 100%로 전반 부진 — CRS 책임 아니라 BBDX 롱 진입 알파 부재가 더 큰 그림(별도 트랙).
+- **재검토 옵션**: (a) wick 임계 bucket calibration, (b) P2 ΔOI/funding gate 추가 후 재측정(3-신호로는 separator 약함), (c) CRS를 롱 증폭이 아니라 **exit/타이밍 신호**로 재포지셔닝.
+- **권고**: main 승격 X. dev 코드는 regression-safe(entry set 불변)라 잔존 무해하나 confidence 증폭 정당성 없음 → 프로덕션 wiring 비활성 또는 P2까지 dormant 권장.

@@ -2,7 +2,7 @@
 
 > **한 줄 요약**: BBDX가 알트에 롱 진입할 때, 그 알트가 **BTC 벤치마크 대비 상대강도(RS)** 가 강하면(자금 로테이션 유입) 신뢰도 ↑, 약하면 ↓. 고도미넌스·선택적 알트장에서 "약한 알트 롱"을 억제하고 "리더 알트 롱"을 증폭. 곱셈 modifier(단독 시그널 X, 헌장 규칙3).
 >
-> **상태**: 🟢 설계 검토 완료(signal-engineer, 2026-06-03) — **신규 가치 있음**. CRS와 달리 **OI 불필요 → 즉시 풀 백테스트 가능**(검증 비용 최저).
+> **상태**: ❌ **백테스트 FAIL (2026-06-04, 설계대로)** — 단 **부호 반전(weak_laggard) 알파 발견**(§10.1). "리더를 사라" 가설 기각, 오히려 가장 약한 알트가 winRate 40.1%(Wilson 37.5~42.8% > baseline 34.8% = 통계적 유의). BBDX(mean-reversion) vs momentum RS의 구조적 충돌. → **RS-MeanRevert(부호 반전)로 재설계 권장**. (설계검토 2026-06-03 신규가치)
 > **차원**: 1 (Momentum) — 차원 6(market-breadth/funding/CRS) 과밀 회피
 > **배치**: 백엔드 `src/modifiers/rs-rotation.ts` (신규) → `combineAdditionalModifiers` `rsRotationMult` 키
 
@@ -97,3 +97,24 @@ weak_laggard  : rs30 < −0.05 AND rs7 < 0  → 0.85   (BTC에 5%+ 뒤지고 둔
 ## 10. 갱신 이력
 
 - 2026-06-03 — 초안 + signal-engineer 검토(신규 가치 있음). CRS와 형제 제안이나 **OI 불필요로 백테스트 즉시 가능**이 차별점. 현재 선택적 알트장(도미넌스 58%·알트시즌 39~49) 정합.
+- 2026-06-04 — rs-rotation.ts 코드 + 백테스트. **설계대로 FAIL, 부호 반전 알파 발견**(§10.1). wiring 안 함.
+
+## 10.1 백테스트 결과 (2026-06-04) — ❌ FAIL(설계대로) / 🔄 역방향 알파 발견
+
+- **실행**: top-20 + BTCUSDT 벤치, 4h, 730일, 알트 4620 trade. openTime 조인, lookahead-free. 관측적(entry set 불변, RS는 진입시점 독립 계산).
+
+**5-bin 비교 (설계서 regime):**
+
+| bin | n | winRate | Wilson 95% CI | PF |
+|---|---|---|---|---|
+| strong_leader (rs30>+5%) | 680 | 33.2% | 29.8~36.9% | 0.41 |
+| leader | 718 | 33.3% | 29.9~36.8% | 0.49 |
+| neutral | 634 | 31.4% | 27.9~35.1% | 0.53 |
+| laggard | 1282 | 32.9% | 30.4~35.5% | 0.49 |
+| **weak_laggard (rs30<−5% & rs7<0)** | 1306 | **40.1%** | **37.5~42.8%** | **0.69** |
+| baseline(알트전체) | 4620 | 34.8% | 33.5~36.2% | 0.53 |
+
+- **판정 FAIL(설계대로)**: leader(33.3%) > laggard(36.5%) 가설 **기각**. multiplier를 설계대로 연결하면 좋은 trade를 깎고 나쁜 trade를 키우는 **역최적화**.
+- **🔄 핵심 발견**: **weak_laggard winRate 40.1%, Wilson 하한 37.5% > baseline 점추정 34.8% → CI 비중첩 = 통계적 유의한 분리 알파.** 단조: 약할수록 승률↑.
+- **이유**: BBDX = mean-reversion(BB 하단 바운스). "BTC에 가장 뒤진 알트"가 BB 하단에서 가장 강하게 반등. momentum("강한 거 사라")과 정반대로 작동.
+- **다음**: RS 부호를 뒤집은 **RS-MeanRevert** 모디파이어로 재설계 — signal-engineer가 헌장 프레이밍(momentum 아닌 relative mean-reversion) + 절대 과매도(RSI/BB)와의 중복 비검증 필요. 코드는 기존 `rs-rotation.ts` bin 부호 반전이라 사소. `rs-rotation.ts`는 트리에 남김(미wiring, 미커밋).

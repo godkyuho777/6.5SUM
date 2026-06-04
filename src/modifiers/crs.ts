@@ -1,3 +1,7 @@
+// DORMANT: P1 백테스트 FAIL(2026-06-04). P2(ΔOI/funding) 후 재검토. 프로덕션 미배선.
+//   scanner.ts / routers.ts 프로덕션 경로 및 combineAdditionalModifiers 곱셈 체인에서
+//   분리됨. computeCRS 자체는 P2 OI/funding 확장 + 백테스트 세그먼트(signal-extractor
+//   crsActive/crsMult 기록) 용으로 보존. crs.test.ts 도 유지(회귀 안전망).
 /**
  * CRS — Capitulation Reversal Score (청산 반전 점수) — docs/2026-06-03-CRS/00-DESIGN.md.
  *

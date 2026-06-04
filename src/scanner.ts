@@ -39,7 +39,7 @@ import {
   combineAdditionalModifiers,
   detectMacdDivergence,
   detectOrderBlock,
-  computeCRS,
+  computeRsMeanRevert,
 } from "./modifiers";
 import { analyzeTrend } from "./trend/analyze";
 import { childLogger } from "./_core/logger";
@@ -155,6 +155,60 @@ interface KlinesCacheEntry {
 const scanCache = new Map<string, CacheEntry>();
 const klinesCache = new Map<string, KlinesCacheEntry>();
 const CACHE_TTL = 10 * 60 * 1000; // 10분
+
+/**
+ * RS-MeanRevert 용 BTC 벤치 캔들 캐시 (interval 별).
+ *
+ * RS-MeanRevert 는 모든 코인을 *동일* BTCUSDT 벤치에 조인하므로, 스캔 사이클
+ * 내 코인마다 BTC 캔들을 재fetch 하면 N배 낭비 + rate-limit 위험. analyzeTrend
+ * 의 5분 캐시(scanner hot path 안전) 패턴을 그대로 차용 — module-level 시간기반
+ * 캐시로 스캔 사이클당 interval 별 1회만 Bybit 호출.
+ *
+ * rs30=180 캔들 + 1 = 최소 181 필요 → 여유 250 fetch (routers `modifiers.all` 과 동일).
+ */
+const RS_BTC_BENCH_SYMBOL = "BTCUSDT";
+const RS_BTC_BENCH_FETCH = 250;
+const RS_BTC_BENCH_TTL = 5 * 60 * 1000; // 5분 (analyzeTrend 캐시와 동일 정책)
+interface BtcBenchCacheEntry {
+  candles: Candle[];
+  timestamp: number;
+}
+const btcBenchCache = new Map<TimeframeValue, BtcBenchCacheEntry>();
+const btcBenchLock = new Mutex();
+
+/**
+ * RS-MeanRevert 벤치용 BTCUSDT 캔들 확보 (interval 별 5분 캐시).
+ *
+ * 헌장 준수 — fetch 실패는 throw 하지 않고 [] 반환 (호출부에서 캔들 부족 →
+ * computeRsMeanRevert 가 stub 1.0 neutral 처리). 스캔을 깨지 않는다.
+ *
+ * double-checked locking — 동시 스캔 배치가 같은 interval 을 중복 fetch 하지 않도록.
+ */
+async function getBtcBenchCandles(interval: TimeframeValue): Promise<Candle[]> {
+  const cached = btcBenchCache.get(interval);
+  if (cached && Date.now() - cached.timestamp < RS_BTC_BENCH_TTL) {
+    return cached.candles;
+  }
+  return btcBenchLock.runExclusive(async () => {
+    const recached = btcBenchCache.get(interval);
+    if (recached && Date.now() - recached.timestamp < RS_BTC_BENCH_TTL) {
+      return recached.candles;
+    }
+    try {
+      const candles = await fetchKlines(
+        RS_BTC_BENCH_SYMBOL,
+        interval,
+        RS_BTC_BENCH_FETCH,
+      );
+      btcBenchCache.set(interval, { candles, timestamp: Date.now() });
+      return candles;
+    } catch (err: any) {
+      // graceful — RS 벤치 fetch 실패는 RS modifier 만 1.0 으로 떨어뜨림.
+      log.warn({ err, interval }, "BTC bench candles fetch failed (RS-MeanRevert → 1.0)");
+      return [];
+    }
+  });
+}
 
 /**
  * P1-#5 (2026-05-23, AUDIT.md): scanner race condition fix.
@@ -317,7 +371,10 @@ export async function scanCoin(
     }
 
   try {
-    const candles = await fetchKlines(symbol, interval, 100);
+    // RS-MeanRevert(rs30=180캔들 + 1 = 최소 181 필요) 산출을 위해 200 fetch.
+    // 모든 indicator/pattern 계산은 series 마지막값 또는 slice(-period) 윈도우만
+    // 참조하므로 100→200 확대는 마지막값 불변(워밍업만 길어져 ADX/RSI 정확도↑).
+    const candles = await fetchKlines(symbol, interval, 200);
     if (!candles.length) return null;
 
     const indicators = calculateAllIndicators(candles);
@@ -437,9 +494,16 @@ export async function scanCoin(
         if (entryDecision) {
           entryDecision.macdDivergenceMult = macd.multiplier;
           entryDecision.orderBlockMult = ob.multiplier;
-          // CRS-lite (6차원, 청산 반전) — mean-reversion 롱 전용. 게이트
-          // 미통과 시 1.0 (불변). SHORT 미러 X (청산 플러시 반등은 롱 셋업).
-          entryDecision.crsMult = computeCRS(candles, interval).multiplier;
+          // RS-MeanRevert (1차원, BTC 대비 상대 평균회귀) — weak_laggard(BTC 에
+          // 과도하게 뒤진 알트)면 BB 하단 반등 탄성 ×1.12, 그 외 1.0. mean-reversion
+          // 롱 전용 (SHORT 미러 X). BTC 벤치는 interval 별 5분 캐시(스캔당 1회 fetch).
+          // 벤치 부족/조인실패/BTCUSDT 자기참조 → computeRsMeanRevert 가 1.0 neutral.
+          const btcBench = await getBtcBenchCandles(interval);
+          entryDecision.rsMeanRevertMult = computeRsMeanRevert(
+            candles,
+            btcBench,
+            symbol,
+          ).multiplier;
         }
         // SHORT modifier 부착 — multiplier 부호 반전 (LONG 의 1.10 = SHORT 의 0.90).
         if (shortDecision) {
@@ -470,7 +534,9 @@ export async function scanCoin(
     }
 
     // ── v6.5 multiplier 통합 (P1-#1 fix, 2026-05-10) ──
-    // base BBDX strength × Additional Strategies 6 modifier × wave × vwap.
+    // base BBDX strength × Additional Strategies modifier × wave × vwap.
+    // (scanner inline modifier: macdDivergence + orderBlock + rsMeanRevert.
+    //  CRS 는 2026-06-04 dormant 처리되어 제외.)
     // entryDecision 이 있을 때만 modifier 적용 (없으면 base 그대로).
     // 헌장 규칙 3 준수: modifier 단독 시그널 X — entry path 가 trigger 한 후의
     // *가중치* 로만 작동. 결과는 [0, 100] clamp.
@@ -480,7 +546,7 @@ export async function scanCoin(
       const addMult = combineAdditionalModifiers({
         macdDivergenceMult: entryDecision.macdDivergenceMult,
         orderBlockMult: entryDecision.orderBlockMult,
-        crsMult: entryDecision.crsMult,
+        rsMeanRevertMult: entryDecision.rsMeanRevertMult,
         // marketBreadth / fundingExtreme 는 scanner hot path
         // 외부에서 별도 endpoint 로 산출 → 여기서는 1.0 (skip).
       });

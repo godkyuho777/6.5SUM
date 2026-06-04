@@ -138,11 +138,18 @@ export interface EntryDecision {
     orderBlockMult?: number;
     /**
      * CRS-lite (6차원: 청산 반전 / derivatives positioning) — 1.00~1.10.
-     * 청산 플러시 + 저점 흡수 @ BB 하단 → mean-reversion 롱 증폭 (LONG 전용).
-     * 게이트 미통과 시 1.0 (불변). funding-extreme 와 차원 같지만 측정 각도 다름
-     * (펀딩 state vs 청산 event). 헌장 규칙 3 준수: multiplier-only.
+     * DORMANT (2026-06-04): P1 백테스트 FAIL → 프로덕션 곱셈 체인에서 분리됨.
+     * 필드는 타입 호환(프론트 미러)/백테스트 info 용으로 보존하되, scanner/routers
+     * 프로덕션 경로는 더 이상 이 값을 산출/전달하지 않는다. P2(ΔOI/funding) 후 재검토.
      */
     crsMult?: number;
+    /**
+     * RS-MeanRevert (1차원: BTC 대비 상대 평균회귀) — weak_laggard → 1.12, 그 외 1.00.
+     * BBDX 롱 진입 시 BTC 벤치 대비 과도하게 뒤처진(weak_laggard) 알트의 BB 하단
+     * 반등 탄성을 증폭. regime-split 백테스트(UP/SIDEWAYS/DOWN 전부 baseline 상회)로
+     * 라이브 wiring. 게이트/벤치/데이터부족 미통과 시 1.0 (불변). 헌장 규칙 3 준수.
+     */
+    rsMeanRevertMult?: number;
     /**
      * Wave Alignment (Trend Analysis Engine v2.0) — 0.30~1.30.
      * 멀티-TF 추세 정합. ADX/EMA 와 같은 3차원 지표를 사용하지만 측정 각도가

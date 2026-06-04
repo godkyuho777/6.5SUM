@@ -66,12 +66,13 @@ describe("scanCoin", () => {
   });
 
   it("passes correct interval to fetchKlines", async () => {
+    // RS-MeanRevert(rs30=180캔들)용으로 scanCoin 은 200 캔들 fetch (2026-06-04).
     await scanCoin("BTCUSDT", "1h");
-    expect(fetchKlines).toHaveBeenCalledWith("BTCUSDT", "1h", 100);
+    expect(fetchKlines).toHaveBeenCalledWith("BTCUSDT", "1h", 200);
 
     clearCache();
     await scanCoin("BTCUSDT", "1d");
-    expect(fetchKlines).toHaveBeenCalledWith("BTCUSDT", "1d", 100);
+    expect(fetchKlines).toHaveBeenCalledWith("BTCUSDT", "1d", 200);
   });
 
   it("uses cache for repeated calls with same symbol+interval", async () => {
@@ -128,8 +129,9 @@ describe("scanAllCoins", () => {
     const symbols = ["BTCUSDT", "ETHUSDT"];
     await scanAllCoins(symbols, "4h");
     expect(fetchAll24hTickers).toHaveBeenCalledTimes(1);
-    expect(fetchKlines).toHaveBeenCalledWith("BTCUSDT", "4h", 100);
-    expect(fetchKlines).toHaveBeenCalledWith("ETHUSDT", "4h", 100);
+    // RS-MeanRevert 산출용 200 캔들 fetch (2026-06-04).
+    expect(fetchKlines).toHaveBeenCalledWith("BTCUSDT", "4h", 200);
+    expect(fetchKlines).toHaveBeenCalledWith("ETHUSDT", "4h", 200);
   });
 
   it("uses cached results and skips klines fetch for cached coins", async () => {

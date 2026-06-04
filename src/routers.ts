@@ -64,7 +64,6 @@ import {
   detectMacdDivergence,
   computeFundingExtreme,
   detectOrderBlock,
-  computeCRS,
   combineAdditionalModifiers,
 } from "./modifiers";
 // Lite translator / types — 이제 src/lite/router.ts 안에서만 사용 (2026-05-24
@@ -1419,16 +1418,15 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
 
         const macd = candles.length ? detectMacdDivergence(candles) : null;
         const orderBlock = candles.length ? detectOrderBlock(candles) : null;
-        // CRS-lite (6차원, 청산 반전) — LONG mean-reversion 전용. 게이트
-        // 미통과 시 1.0 (불변). computeCRS 내부 try/catch → throw X.
-        const crs = candles.length ? computeCRS(candles, input.tf) : null;
+        // CRS-lite 는 DORMANT (2026-06-04, P1 백테스트 FAIL) — modifiers.all 의
+        // combined multiplier / 응답에서 분리. computeCRS 는 modifiers/crs.ts 에
+        // P2(ΔOI/funding) 용으로 보존되지만 프로덕션 endpoint 에는 미배선.
 
         const combinedMultiplier = combineAdditionalModifiers({
           marketBreadthMult: breadth?.multiplier,
           macdDivergenceMult: macd?.multiplier,
           fundingExtremeMult: funding?.multiplier,
           orderBlockMult: orderBlock?.multiplier,
-          crsMult: crs?.multiplier,
         });
 
         return {
@@ -1438,7 +1436,6 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
           macdDivergence: macd,
           fundingExtreme: funding,
           orderBlock,
-          crs,
           combinedMultiplier,
           computedAt: Date.now(),
         };

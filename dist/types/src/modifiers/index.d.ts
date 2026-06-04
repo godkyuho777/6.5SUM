@@ -37,8 +37,6 @@ export declare function combineAdditionalModifiers(decision: {
     macdDivergenceMult?: number;
     fundingExtremeMult?: number;
     orderBlockMult?: number;
-    /** CRS-lite (6차원: 청산 반전) — 1.00~1.10. 게이트 미통과 시 1.0 (불변). */
-    crsMult?: number;
     /**
      * RS-MeanRevert (1차원: BTC 대비 상대 평균회귀) — weak_laggard → 1.12, 그 외 1.00.
      * 게이트(weak_laggard)/벤치/데이터부족 미통과 시 1.0 (불변, 영향 없음).

@@ -13,11 +13,13 @@ export type { MacdDivergenceType, MacdDivergenceResult, } from "./macd-divergenc
 export type { FundingRegime, FundingExtremeResult, } from "./funding-extreme";
 export type { MarketBreadthSentiment, MarketBreadthResult, } from "./market-breadth";
 export type { OrderBlockZoneType, OrderBlockResult, } from "./order-block";
+export type { RsMeanRevertRegime, RsMeanRevertResult, } from "./rs-mean-revert";
 export { detectMacdDivergence } from "./macd-divergence";
 export { computeFundingExtreme } from "./funding-extreme";
 export { computeMarketBreadth } from "./market-breadth";
 export { detectOrderBlock } from "./order-block";
 export { computeCRS } from "./crs";
+export { computeRsMeanRevert } from "./rs-mean-revert";
 /**
  * 모든 추가 modifier 의 multiplier 를 합산 (단순 product).
  *
@@ -37,4 +39,10 @@ export declare function combineAdditionalModifiers(decision: {
     orderBlockMult?: number;
     /** CRS-lite (6차원: 청산 반전) — 1.00~1.10. 게이트 미통과 시 1.0 (불변). */
     crsMult?: number;
+    /**
+     * RS-MeanRevert (1차원: BTC 대비 상대 평균회귀) — weak_laggard → 1.12, 그 외 1.00.
+     * 게이트(weak_laggard)/벤치/데이터부족 미통과 시 1.0 (불변, 영향 없음).
+     * regime-split 백테스트(UP/SIDEWAYS/DOWN 전부 baseline 상회 = ROBUST)로 wiring.
+     */
+    rsMeanRevertMult?: number;
 }): number;

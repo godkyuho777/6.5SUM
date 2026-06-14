@@ -52,6 +52,7 @@ import { buildMacroLayer } from "./macro/layer-builder";
 import { fetchFred } from "./macro/sources/fred";
 import { fetchOnchainScore } from "./onchain/score-fetch";
 import { applyOnchainToEntry, applyOnchainToExit } from "./onchain/bbdx-integration";
+import { fetchRiskScore, fetchMarketRisk } from "./risk";
 import {
   getOnchainProviderStatus,
   summarizeProviderStatus,
@@ -84,6 +85,14 @@ import { calculateAllIndicators } from "./indicators";
 // ── JEON_IN_GU Signal Tracker (Phase 1.2 stub — Phase 1.3+ D-002 대기)
 import { JEON_IN_GU_CONFIG, isJeonInGuEnabled } from "./jeon-in-gu/constants";
 import { computeJeonInGuModifier } from "./jeon-in-gu/modifier";
+
+// ── Research 퍼블리싱 허브 (stub-first seed, DB 없음 — 2026-06-14)
+import {
+  listResearch,
+  getResearchBySlug,
+  getRelatedResearch,
+  type ResearchSectorId,
+} from "./research";
 
 const intervalSchema = z.enum(["1h", "4h", "6h", "1d", "1w", "1M"]).default("4h");
 
@@ -965,6 +974,21 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
       }),
   }),
 
+  // ─── Risk Score (DISPLAY-ONLY 정보성 지표) ────────────────
+  // ⚠ 헌장 규칙 3 보존: Risk Score 는 BBDX 진입/청산 시그널, signalStrength,
+  // position sizing 어디에도 영향을 주지 않는다. modifier 조차 아니며 BBDX
+  // 점수를 전혀 건드리지 않는다 — 오직 UI 표시 용으로 산출/반환한다.
+  // 5개 차원(volatility/liquidity/leverage/trend/regime) 각 0-100, 높을수록 위험.
+  risk: router({
+    /** 단일 심볼의 5-차원 종합 위험 점수 + band + breakdown (display-only). */
+    score: publicProcedure
+      .input(z.object({ symbol: z.string().default("BTCUSDT") }))
+      .query(async ({ input }) => fetchRiskScore(input.symbol.toUpperCase())),
+
+    /** 시장 전체(systemic) 위험 — Fear & Greed + macro 유동성 regime. */
+    market: publicProcedure.query(async () => fetchMarketRisk()),
+  }),
+
   // ─── Lite Mode (일반인 친화) ─────────────────────────────
   // 헌장 규칙 3 준수: 모든 procedure 는 BBDX 시그널 결과를 *번역*만 한다.
   // 새 시그널 산출 X. raw 지표는 응답에 포함하지 않고 자연어 라벨만 노출.
@@ -1835,6 +1859,57 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
         message: "Phase 5 pending — calibration cron 미구현",
       };
     }),
+  }),
+
+  // ─── Research 퍼블리싱 허브 (2026-06-14) ──────────────────────────────
+  // 리서치/교육 콘텐츠 디스커버리. stub-first: DB 테이블 없이 in-memory seed
+  // (src/research/articles.ts) 를 서빙. 외부 API 호출 없음 → try/catch 不要.
+  // 헌장: 리서치는 디스커버리/교육 콘텐츠로 BBDX 시그널과 무관, 단독 매매
+  // 시그널을 발행하지 않는다.
+  // TODO: research_articles 테이블 + publish(protectedProcedure) — Phase 2
+  research: router({
+    /**
+     * 카드/목록 — type/sector/q 필터 후 최신순. payload 절감을 위해 bodyHtml
+     * 제외(ResearchArticleSummary). featured 판별·요약 표시 필드는 모두 포함.
+     */
+    list: publicProcedure
+      .input(
+        z
+          .object({
+            type: z.enum(["weekly", "deepdive", "flash"]).optional(),
+            sector: z.string().optional(),
+            q: z.string().optional(),
+          })
+          .optional(),
+      )
+      .query(({ input }) => {
+        return listResearch({
+          type: input?.type,
+          // sector 는 ResearchSectorId literal union 이지만 input 은 자유 문자열로
+          // 받아 미지의 섹터도 graceful(빈 결과). 캐스팅으로 타입만 좁힘.
+          sector: input?.sector as ResearchSectorId | undefined,
+          q: input?.q,
+        });
+      }),
+
+    /** 단일 기사 상세 — bodyHtml 포함. 미존재 slug 는 null 반환(throw 금지). */
+    detail: publicProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(({ input }) => {
+        return getResearchBySlug(input.slug);
+      }),
+
+    /** 연관 기사 — 같은 섹터 우선 + 최신순, bodyHtml 제외 요약. */
+    related: publicProcedure
+      .input(
+        z.object({
+          slug: z.string(),
+          limit: z.number().int().min(1).max(12).default(2),
+        }),
+      )
+      .query(({ input }) => {
+        return getRelatedResearch(input.slug, input.limit);
+      }),
   }),
 });
 

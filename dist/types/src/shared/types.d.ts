@@ -347,6 +347,9 @@ export interface CoinScanResult {
     pullbackDetected: boolean;
     /** LONG/SHORT signal derived from VWAP+EMA confluence. null if neither. */
     vwapSignal: VwapSignal | null;
+    /** 0-100 (4-dim lightweight: volatility, liquidity, trend, regime). */
+    riskScore?: number;
+    riskBand?: import("../risk/types").RiskBand;
 }
 /** 시그널 상세 */
 export interface SignalDetail {

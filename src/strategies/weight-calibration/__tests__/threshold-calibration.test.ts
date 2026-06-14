@@ -11,6 +11,23 @@ function makeSignals(n: number, signalToWinMap: (confidence: number) => 0 | 1): 
   });
 }
 
+/**
+ * xorshift32 — 결정적 의사난수. no_lookahead.test.ts 와 동일 패턴.
+ * unseeded Math.random() 은 학습 표본의 win-rate 가 매 실행마다 흔들려
+ * 노이즈 F1 가 가끔 0.7 가드를 넘겨 테스트가 flaky 였음 (999/1000 통과).
+ * 시드를 고정하면 동일 시퀀스 → 동일 F1 → 재현 가능.
+ */
+function makeSeededRng(seed: number): () => number {
+  let s = seed | 0;
+  return () => {
+    s ^= s << 13;
+    s ^= s >>> 17;
+    s ^= s << 5;
+    s = s | 0;
+    return ((s >>> 0) % 10000) / 10000;
+  };
+}
+
 describe("calibrateThreshold", () => {
   it("표본 < 100 → null", () => {
     const sigs = makeSignals(50, () => 1);
@@ -28,14 +45,18 @@ describe("calibrateThreshold", () => {
     expect(r.f1_score).toBeGreaterThan(0.5);
   });
 
-  it("랜덤 outcome → F1 < 0.5 → null", () => {
-    const sigs = makeSignals(200, () => (Math.random() > 0.5 ? 1 : 0));
+  it("노이즈 outcome (시드 고정) → 강한 신호 없음 (F1 < 0.7)", () => {
+    // confidence 와 무관한 결정적 의사난수 outcome — 대표적 ~50% 노이즈.
+    // seed 0xDEADBEEF → 학습 win-rate ≈ 0.494, best threshold 30,
+    // F1 ≈ 0.661 (predict-all 베이스라인). 매 실행 동일.
+    const next = makeSeededRng(0xdeadbeef);
+    const sigs = makeSignals(200, () => (next() > 0.5 ? 1 : 0));
     const r = calibrateThreshold(sigs);
-    // 랜덤이라 F1 가 0.5 미만일 가능성 ↑ — null 또는 약한 결과
-    if (r.threshold !== null) {
-      // 통과해도 F1 < 0.6 (랜덤이라)
-      expect(r.f1_score).toBeLessThan(0.7);
-    }
+    // 노이즈엔 착취할 신호가 없음 → threshold 를 채택해도 F1 는 predict-all
+    // 베이스라인 수준에 머물러야 함. 테스트 2 의 "진짜 신호"(F1 강함)와 대비.
+    // 0.7 이상이면 calibrator 가 노이즈를 신호로 오인 (overfitting).
+    expect(r.threshold).not.toBeNull();
+    expect(r.f1_score).toBeLessThan(0.7);
   });
 
   it("결과에 precision/recall 포함", () => {

@@ -435,6 +435,14 @@ export interface CoinScanResult {
   pullbackDetected: boolean;
   /** LONG/SHORT signal derived from VWAP+EMA confluence. null if neither. */
   vwapSignal: VwapSignal | null;
+
+  // ─── Risk Score (DISPLAY-ONLY, 헌장 규칙 3) ─────────────────────────────
+  // ⚠ 정보성 지표. BBDX 시그널/strength/포지션 결정에 절대 영향 X. scanner 가
+  // 산출하는 lightweight 4-dim (volatility, liquidity, trend, regime — leverage
+  // 제외, 코인당 파생 API 호출 회피). UI 표시 전용.
+  /** 0-100 (4-dim lightweight: volatility, liquidity, trend, regime). */
+  riskScore?: number;
+  riskBand?: import("../risk/types").RiskBand;
 }
 
 /** 시그널 상세 */

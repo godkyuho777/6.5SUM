@@ -42,6 +42,10 @@ import {
   computeRsMeanRevert,
 } from "./modifiers";
 import { analyzeTrend } from "./trend/analyze";
+import { calculateATR } from "./indicators";
+import { computeRiskScore } from "./risk";
+import { fetchFearGreed } from "./sentiment/fear-greed";
+import { buildMacroLayer } from "./macro/layer-builder";
 import { childLogger } from "./_core/logger";
 
 // P2-#9 (2026-05-23): structured logging migration.
@@ -208,6 +212,56 @@ async function getBtcBenchCandles(interval: TimeframeValue): Promise<Candle[]> {
       return [];
     }
   });
+}
+
+/**
+ * Risk Score 용 market-wide 입력 캐시 (F&G + macro 유동성 regime).
+ *
+ * ⚠ DISPLAY-ONLY (헌장 규칙 3): riskScore 는 정보성 지표로, BBDX 시그널/
+ * strength/포지션 결정에 절대 영향을 주지 않는다. scanner 가 코인마다 4-dim
+ * lightweight risk 를 산출할 때 regime 차원 입력으로만 쓰인다.
+ *
+ * BTC 벤치 캐시와 동일한 "스캔 사이클당 1회 fetch" 패턴 — 5분 시간기반 캐시로
+ * 코인 N개를 스캔해도 F&G/macro 호출은 사이클당 최대 1회. 두 소스 모두 독립
+ * try/catch — 실패해도 해당 입력만 빠지고(차원 graceful skip) 스캔을 깨지 않는다.
+ */
+interface RiskMarketInputs {
+  fearGreed?: number;
+  macroRegime?: string;
+}
+const RISK_MARKET_TTL = 5 * 60 * 1000; // 5분
+let riskMarketCache: { ts: number; data: RiskMarketInputs } | null = null;
+let riskMarketInflight: Promise<RiskMarketInputs> | null = null;
+
+async function getRiskMarketInputs(): Promise<RiskMarketInputs> {
+  if (riskMarketCache && Date.now() - riskMarketCache.ts < RISK_MARKET_TTL) {
+    return riskMarketCache.data;
+  }
+  if (riskMarketInflight) return riskMarketInflight;
+
+  riskMarketInflight = (async () => {
+    const out: RiskMarketInputs = {};
+    try {
+      const points = await fetchFearGreed(1);
+      const v = points[0]?.value;
+      if (typeof v === "number" && Number.isFinite(v)) out.fearGreed = v;
+    } catch (err: any) {
+      log.warn({ err }, "Risk: fear & greed fetch failed (regime dim → partial)");
+    }
+    try {
+      const now = Date.now();
+      const layers = await buildMacroLayer(now - 120 * 86_400_000, now, "realtime");
+      const latest = layers[layers.length - 1];
+      if (latest?.regime) out.macroRegime = latest.regime;
+    } catch (err: any) {
+      log.warn({ err }, "Risk: macro regime fetch failed (regime dim → partial)");
+    }
+    riskMarketCache = { ts: Date.now(), data: out };
+    riskMarketInflight = null;
+    return out;
+  })();
+
+  return riskMarketInflight;
 }
 
 /**
@@ -533,6 +587,44 @@ export async function scanCoin(
       }
     }
 
+    // ── Risk Score (DISPLAY-ONLY, 헌장 규칙 3) ──
+    // ⚠ 정보성 지표 — BBDX 시그널/strength/포지션 결정에 절대 영향 X. 아래
+    // 산출값은 result.riskScore / result.riskBand 표시 용으로만 쓰이고, 그 어떤
+    // entryDecision/shortDecision/signalStrength 계산에도 들어가지 않는다.
+    //
+    // lightweight 4-dim (volatility / liquidity / trend / regime) — leverage 는
+    // 코인당 파생 API(funding/OI/LS) N배 호출을 피하려 제외. computeRiskScore 가
+    // 남은 차원으로 자동 재정규화. 추가 네트워크 호출 없음:
+    //   - atrPct: 이미 fetch 한 일/현재 interval 캔들에서 ATR 산출.
+    //   - volumeUsd: ticker turnover24h (= quote USD 거래량).
+    //   - drawdown/fallingKnife: 캔들 + 위에서 계산한 fallingKnife 재사용.
+    //   - F&G/macro regime: 스캔 사이클당 1회 캐시 (getRiskMarketInputs).
+    let riskScore: number | undefined;
+    let riskBand: CoinScanResult["riskBand"];
+    try {
+      const atr = calculateATR(candles, 14);
+      const atrPct = atr > 0 && price > 0 ? (atr / price) * 100 : undefined;
+      // 최근 30 캔들 고점 대비 낙폭(%). interval 무관하게 "최근 30 구간" 근사.
+      const window = candles.slice(-30);
+      const high30 = window.reduce((m, c) => Math.max(m, c.high), 0);
+      const drawdownFromHigh30 =
+        high30 > 0 ? Math.max(0, ((high30 - price) / high30) * 100) : undefined;
+      const market = await getRiskMarketInputs();
+      const risk = computeRiskScore(symbol, {
+        atrPct,
+        volumeUsd: volume24h > 0 ? volume24h : undefined,
+        drawdownFromHigh30,
+        fallingKnife,
+        fearGreed: market.fearGreed,
+        macroRegime: market.macroRegime,
+      });
+      riskScore = risk.score;
+      riskBand = risk.band;
+    } catch (err: any) {
+      // graceful — risk 산출 실패가 스캔 결과를 깨지 않도록 (DISPLAY-ONLY).
+      log.warn({ err, symbol }, `Risk score failed for ${symbol}`);
+    }
+
     // ── v6.5 multiplier 통합 (P1-#1 fix, 2026-05-10) ──
     // base BBDX strength × Additional Strategies modifier × wave × vwap.
     // (scanner inline modifier: macdDivergence + orderBlock + rsMeanRevert.
@@ -616,6 +708,9 @@ export async function scanCoin(
       emaPosition: emaPos,
       pullbackDetected,
       vwapSignal,
+      // Risk Score (DISPLAY-ONLY, 헌장 규칙 3) — 정보성. 매매 결정 영향 X.
+      riskScore,
+      riskBand,
     };
 
     scanCache.set(key, { data: result, timestamp: Date.now() });

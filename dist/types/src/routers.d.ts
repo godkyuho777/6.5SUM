@@ -551,7 +551,7 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 cooldownCandles?: number | undefined;
                 saveToDb?: boolean | undefined;
                 runName?: string | undefined;
-                strategy?: "vwap" | "bbdx" | "bbdx-short" | "bbdx-combined" | "fibonacci" | "trend" | "trend-follow" | undefined;
+                strategy?: "trend" | "vwap" | "bbdx" | "bbdx-short" | "bbdx-combined" | "fibonacci" | "trend-follow" | undefined;
             };
             output: {
                 runId: number | undefined;
@@ -968,6 +968,38 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                     reason: string;
                 };
             };
+            meta: object;
+        }>;
+    }>>;
+    risk: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /** 단일 심볼의 5-차원 종합 위험 점수 + band + breakdown (display-only). */
+        score: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol?: string | undefined;
+            };
+            output: import("./risk").RiskScoreResult;
+            meta: object;
+        }>;
+        /** 시장 전체(systemic) 위험 — Fear & Greed + macro 유동성 regime. */
+        market: import("@trpc/server").TRPCQueryProcedure<{
+            input: void;
+            output: import("./risk").MarketRiskResult;
             meta: object;
         }>;
     }>>;
@@ -1880,6 +1912,54 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
                 history: Array<unknown>;
                 message: string;
             };
+            meta: object;
+        }>;
+    }>>;
+    research: import("@trpc/server").TRPCBuiltRouter<{
+        ctx: import("./_core/context").TrpcContext;
+        meta: object;
+        errorShape: {
+            data: {
+                tradelabContext?: any;
+                tradelabCode?: any;
+                code: import("@trpc/server").TRPC_ERROR_CODE_KEY;
+                httpStatus: number;
+                path?: string;
+                stack?: string;
+            };
+            message: string;
+            code: import("@trpc/server").TRPC_ERROR_CODE_NUMBER;
+        };
+        transformer: true;
+    }, import("@trpc/server").TRPCDecorateCreateRouterOptions<{
+        /**
+         * 카드/목록 — type/sector/q 필터 후 최신순. payload 절감을 위해 bodyHtml
+         * 제외(ResearchArticleSummary). featured 판별·요약 표시 필드는 모두 포함.
+         */
+        list: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                type?: "weekly" | "deepdive" | "flash" | undefined;
+                sector?: string | undefined;
+                q?: string | undefined;
+            } | undefined;
+            output: import("./research").ResearchArticleSummary[];
+            meta: object;
+        }>;
+        /** 단일 기사 상세 — bodyHtml 포함. 미존재 slug 는 null 반환(throw 금지). */
+        detail: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                slug: string;
+            };
+            output: import("./research").ResearchArticle | null;
+            meta: object;
+        }>;
+        /** 연관 기사 — 같은 섹터 우선 + 최신순, bodyHtml 제외 요약. */
+        related: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                slug: string;
+                limit?: number | undefined;
+            };
+            output: import("./research").ResearchArticleSummary[];
             meta: object;
         }>;
     }>>;

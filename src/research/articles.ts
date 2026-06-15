@@ -317,7 +317,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     sector: "btc",
     tags: ["주간 시황", "매크로", "ETF", "섹터 로테이션"],
     assets: ["BTC", "ETH"],
-    author: "김규호",
+    author: "Tradelab 리서치",
     readMinutes: 7,
     publishedAt: "2026-06-14T09:00:00+09:00",
     featured: true,
@@ -345,7 +345,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     sector: "rwa",
     tags: ["RWA", "토큰화 국채", "Ondo", "CLARITY Act"],
     assets: ["ONDO", "BUIDL"],
-    author: "김규호",
+    author: "Tradelab 리서치",
     readMinutes: 10,
     publishedAt: "2026-06-13T09:00:00+09:00",
     takeaways: [
@@ -373,7 +373,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     sector: "defi",
     tags: ["DeFi", "수수료 스위치", "Uniswap", "Curve", "스테이블코인"],
     assets: ["UNI", "CRV", "AAVE"],
-    author: "김규호",
+    author: "Tradelab 리서치",
     readMinutes: 9,
     publishedAt: "2026-06-12T09:00:00+09:00",
     takeaways: [
@@ -400,7 +400,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     sector: "ai",
     tags: ["AI", "Bittensor", "Worldcoin", "income desert"],
     assets: ["TAO", "FET", "RENDER"],
-    author: "김규호",
+    author: "Tradelab 리서치",
     readMinutes: 9,
     publishedAt: "2026-06-11T09:00:00+09:00",
     takeaways: [
@@ -427,7 +427,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     sector: "btc",
     tags: ["BTC", "ETF", "자금 흐름", "금리"],
     assets: ["BTC"],
-    author: "김규호",
+    author: "Tradelab 리서치",
     readMinutes: 4,
     publishedAt: "2026-06-13T18:00:00+09:00",
     takeaways: [

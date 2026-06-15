@@ -307,8 +307,82 @@ const BTC_ETF_FLASH_BODY = `
 </ul>
 `;
 
+const MACRO_REGIME_BODY = `
+<h2 id="m1">1. 왜 매크로가 크립토를 지배하는가</h2>
+<p>2026년의 비트코인은 점점 더 <strong>거시 유동성의 함수</strong>로 움직인다. 반감기 캘린더나 온체인 내러티브보다, 글로벌 유동성·달러·실질금리 같은 톱다운(top-down) 변수가 위험자산 전반의 방향을 결정한다. 기관 리서치가 크립토를 다룰 때 개별 토큰이 아니라 <strong>매크로 → 섹터 → 자산</strong> 순서로 내려오는 이유다(<a href="https://www.fidelity.com/webcontent/ap101883-markets_sectors-content/21.01.0/business_cycle/Business_Cycle_Sector_Approach_2020.pdf">Fidelity, Business Cycle Sector Approach</a>).</p>
+<p>본 리포트는 그 톱다운 틀을 두 축으로 정리한다. (1) 무엇을 볼 것인가 — <strong>매크로 트리오</strong>, (2) 그것을 어떻게 포지셔닝으로 옮길 것인가 — <strong>유동성 레짐</strong>. 프레임의 출처는 Onramp Institutional 의 매크로-유동성 사이클 리서치(2026-01)이며, 그 한계(특히 인과성 논쟁)도 §4에서 정직하게 다룬다.</p>
+
+<h2 id="m2">2. 매크로 트리오 — M2 · DXY · 실질금리</h2>
+<p>Onramp 은 비트코인 사이클을 "게이팅"하는 변수를 <strong>딱 세 개</strong>로 압축한다(<a href="https://onrampbitcoin.com/research/bitcoins-macro-liquidity-cycle">Onramp — The Macro Trio</a>). 핵심은 <em>단일 수치</em>가 아니라 <strong>변화율·전환점(rate-of-change·turning points)</strong>을 본다는 것.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th>역할</th><th>무엇을 보나</th></tr></thead>
+<tbody>
+<tr><td>글로벌 M2</td><td>광의 유동성</td><td>YoY 증가율의 방향·전환점 (확장 vs 수축)</td></tr>
+<tr><td>DXY (달러지수)</td><td>세계의 펀딩 통화</td><td>달러 강세 = 위험자산 역풍 / 약세 = 순풍</td></tr>
+<tr><td>10년 실질금리</td><td>무이자 자산의 할인율</td><td>실질금리↑ = 금·BTC 등 무이자 자산에 역풍</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>매크로 트리오는 "예측"이 아니라 "체제 인식"의 도구다. 세 변수가 같은 방향을 가리킬 때 신뢰도가 가장 높다.</blockquote>
+
+<h2 id="m3">3. 유동성 레짐 분류</h2>
+<p>트리오를 포지셔닝으로 옮기는 다리가 <strong>레짐 분류</strong>다. Onramp 의 전이 가능한 규칙은 단순하다 — <strong>글로벌 M2 YoY 증가율이 표본 중앙값(median) 이상이면 "유동성 확장", 미만이면 "유동성 수축"</strong>으로 분류(표본 2014-05~2026-01).</p>
+<p>그리고 포지션 크기는 캘린더(반감기)가 아니라 <strong>레짐 + 기관의 손실 감내(risk budget)</strong>로 결정한다. Onramp 은 "반감기 타이밍 트레이드를 신탁 프로세스에 넣지 말라"며, 레짐-리밸런싱 접근이 더 견고하고 문서화하기 쉽다고 본다.</p>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>적용 주의.</strong> 레짐은 <em>방향과 사이징</em>의 프레임이지 진입·청산 신호가 아니다. Tradelab 에서 개별 매매 판단은 BBDX(RSI·BB·ADX)를 따르며, 레짐은 그 위의 "위험 예산" 레이어로만 쓴다(헌장: 리서치는 단독 시그널 미발행).</p>
+</div>
+
+<h2 id="m4">4. 반론과 한계 — M2가 정말 가격을 "예측"하나</h2>
+<p>가장 정직해야 할 지점이다. M2와 비트코인의 높은 상관(보도상 ~84%)이 <strong>인과인지 우연인지는 논쟁 중</strong>이다. CFBenchmarks 등은 이 상관이 <strong>허위상관(spurious)</strong>일 수 있다고 본다(<a href="https://www.cfbenchmarks.com">CFBenchmarks</a>) — 둘 다 "위험선호"라는 공통 요인에 동시 반응할 뿐, M2가 가격을 끌어올린다는 보장은 없다는 것.</p>
+<p>또한 Onramp 데이터셋은 2026-01 에서 끝나고, 단일 기관의 자체(브랜디드) 리서치다. 결론: <strong>레짐 프레임은 "맥락"으로 유용하되, M2→가격을 기계적 매매 규칙으로 쓰지 말 것.</strong> 상관은 언제든 깨질 수 있다.</p>
+
+<h2 id="m5">5. 크립토 적용 — 레짐 기반 포지셔닝</h2>
+<p>실무 적용은 세 단계다. (1) <strong>현재 레짐 판정</strong> — M2 YoY 가 중앙값 위/아래인가, DXY·실질금리가 우호적인가. (2) <strong>위험 예산 설정</strong> — 확장 레짐 + 우호적 트리오면 위험자산 비중 상단, 수축 레짐이면 하단·현금성(스테이블·토큰화 국채). (3) <strong>리밸런싱 케이던스</strong> — 레짐 전환점에서만 조정, 데일리 노이즈 무시.</p>
+<p>섹터 레벨에서는 이 매크로 레이어 위에 <strong>섹터 분류(coverage taxonomy)</strong>를 얹는다 — Messari 식 다층 분류(섹터→서브섹터→태그, 13섹터·124서브섹터)로 커버리지를 잡고, 각 섹터의 상대강도를 레짐 맥락에서 해석한다(<a href="https://docs.messari.io/glossary/classification-system">Messari Classification</a>). 매크로가 "썰물·밀물"이라면 섹터 분석은 "어느 배가 먼저 뜨나"를 본다.</p>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 매크로 리포트는 톱다운 프레임워크·교육 콘텐츠로 BBDX 시그널과 무관하며, 단독 매매 신호를 발행하지 않는다. 인용된 상관·레짐은 과거 데이터 기반이며 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://onrampbitcoin.com/research/bitcoins-macro-liquidity-cycle">Onramp — Bitcoin's Macro Liquidity Cycle (Macro Trio·레짐)</a></li>
+  <li><a href="https://www.cfbenchmarks.com">CFBenchmarks — M2-BTC 상관 인과성 논쟁</a></li>
+  <li><a href="https://docs.messari.io/glossary/classification-system">Messari — Classification System (섹터 분류 backbone)</a></li>
+  <li><a href="https://www.fidelity.com/webcontent/ap101883-markets_sectors-content/21.01.0/business_cycle/Business_Cycle_Sector_Approach_2020.pdf">Fidelity — Business Cycle Sector Approach</a></li>
+</ul>
+`;
+
 // ── seed 기사 (2026-06-14 발행분) ───────────────────────────────────
 export const RESEARCH_ARTICLES: ResearchArticle[] = [
+  {
+    slug: "macro-liquidity-regime-2026-06",
+    type: "deepdive",
+    title: "매크로 리포트: 유동성 레짐으로 보는 크립토 — M2·DXY·실질금리",
+    dek: "기관은 크립토를 톱다운(매크로→섹터→자산)으로 본다. 비트코인 사이클을 게이팅하는 '매크로 트리오'(M2·DXY·실질금리)와 유동성 레짐 분류를, 그 한계(M2→가격 인과 논쟁)까지 정직하게 정리한다.",
+    sector: "btc",
+    tags: ["매크로", "유동성", "M2", "레짐", "톱다운"],
+    assets: ["BTC", "ETH"],
+    author: "Tradelab 리서치",
+    readMinutes: 11,
+    publishedAt: "2026-06-14T10:00:00+09:00",
+    takeaways: [
+      "기관은 크립토를 매크로→섹터→자산 톱다운으로 분석 — 반감기 캘린더보다 거시 유동성이 방향을 지배.",
+      "매크로 트리오: 글로벌 M2(유동성)·DXY(펀딩통화)·10년 실질금리(할인율) — 수치가 아니라 변화율·전환점을 본다.",
+      "포지셔닝은 'M2 YoY 중앙값 위/아래' 레짐 + 위험 예산으로 — 반감기·캘린더 타이밍이 아니라.",
+      "정직한 한계: M2→가격은 인과가 아닐 수 있음(허위상관 논쟁). 레짐은 '맥락'이지 기계적 매매 규칙이 아니다.",
+    ],
+    toc: [
+      { no: "01", title: "왜 매크로가 크립토를 지배하는가" },
+      { no: "02", title: "매크로 트리오 — M2·DXY·실질금리" },
+      { no: "03", title: "유동성 레짐 분류" },
+      { no: "04", title: "반론과 한계 — M2가 정말 가격을 예측하나" },
+      { no: "05", title: "크립토 적용 — 레짐 기반 포지셔닝" },
+    ],
+    bodyHtml: MACRO_REGIME_BODY,
+    canonical: null,
+  },
   {
     slug: "weekly-13-risk-off-rotation",
     type: "weekly",

@@ -28,7 +28,7 @@ import type {
 const WEEKLY_13_BODY = `
 <h2 id="s1">1. 한 주 요약</h2>
 <p>이번 주(6월 8~14일) 암호화폐 시장은 <strong>전형적인 위험회피(risk-off) 국면</strong>이었다. 비트코인은 6월 5일 장중 <strong>약 $59,100</strong>까지 밀리며 2026년 들어 가장 약한 한 주를 보냈고, 24시간 동안 35만 계좌·30억 달러 규모의 청산이 쏟아졌다(<a href="https://news.bitcoin.com/why-is-bitcoin-crashing-worst-week-of-2026-59100-low-and-more-than-half-of-all-btc-now-in-the-red/">Bitcoin.com</a>). 이후 6월 11~12일 "이란 전쟁 종료" 헤드라인에 위험자산이 일제히 반등하며 BTC는 <strong>$63,000대를 회복</strong>, 주간으로는 거의 보합으로 마감했다(<a href="https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-friday-june-12-2026-prices-rebound-this-morning-after-trump-claims-war-has-ended-115949042.html">Yahoo Finance</a>).</p>
-<p>핵심은 두 가지다. 첫째, 이번 하락은 크립토 내부 악재가 아니라 <strong>매크로(지정학+인플레이션)가 주도</strong>했다. 둘째, 같은 하락장 안에서도 섹터 간 <strong>상대강도(relative strength) 차이가 뚜렷</strong>했다 — "무엇이 올랐나"보다 "무엇이 덜 빠졌나"를 읽어야 하는 한 주였다.</p>
+<p><strong>우리 관점.</strong> 이번 하락을 "크립토 약세장의 시작"으로 읽는 컨센서스에 동의하지 않는다. 이건 <strong>매크로(지정학+인플레이션)가 주도한 외생 충격</strong>이지 온체인 펀더멘털 훼손이 아니다 — 결정적 증거는 ETF에서 자금이 빠지는 동안에도 스테이블코인 공급이 사상 최대를 유지했다는 점이다(§4). 따라서 읽어야 할 질문은 "무엇이 올랐나"가 아니라 <strong>"무엇이 덜 빠졌나"</strong> — 하락장에서의 상대강도다.</p>
 
 <div class="prose-table-wrap">
 <table>
@@ -88,6 +88,10 @@ const WEEKLY_13_BODY = `
   <li><strong>Deribit BTC·ETH 옵션 만기 (6/19)</strong> — FOMC 직후 대형 만기로 변동성 확대 가능.</li>
 </ul>
 
+<div class="prose-callout">
+  <p><strong>우리가 틀리는 조건.</strong> 이 "외생 충격" 읽기는 두 경우 깨진다 — (1) 이란 종전이 불발돼 유가·인플레가 재점화되며 금리 인하가 더 멀어지거나, (2) 스테이블코인 총공급이 의미 있게 줄며 온체인 자본 자체가 이탈할 때. 그 전까지 우리는 ETF 유출을 구조적 이탈이 아니라 금리발 일시 재배분으로 본다.</p>
+</div>
+
 <div class="prose-callout" data-variant="warn">
   <p><strong>면책.</strong> 본 주간 시황은 시장 구조에 대한 관찰·교육 콘텐츠이며, BBDX 시그널과 무관하다. 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따르며, 본 글은 단독 매매 신호를 발행하지 않는다. 과거 성과는 미래를 보장하지 않는다.</p>
 </div>
@@ -108,7 +112,7 @@ const WEEKLY_13_BODY = `
 const AI_DEEPDIVE_BODY = `
 <h2 id="s1">1. 핵심 — 하락장 속 상대강도, 그러나 "수익 사막"</h2>
 <p>2026년 6월 현재 AI 섹터는 크립토에서 가장 두드러진 <strong>상대강도</strong>를 보이는 영역이다. 다만 결정적으로, 그 강세는 <em>강세장이 아니라 광범위한 하락장 안에서의 아웃퍼폼</em>이다. BTC가 ~$60K대로 밀리고 시장이 극단적 공포에 잠긴 동안에도 TAO·FET·RENDER·NEAR·WLD 같은 AI 토큰은 양(+)의 월간 수익률을 지켰다.</p>
-<p>지배적 동력은 <strong>AI 주식 복합체(NVIDIA·OpenAI·Anthropic)와의 내러티브·상관 트레이드</strong>이며, 토큰별 공급 축소가 이를 증폭한다. 반대로 그 아래에는 <strong>"가격이 검증 가능한 매출을 크게 앞선다"</strong>는 구조적 간극(income desert)이 있다. 즉, 모멘텀 리더십과 펀더멘털 공백이 공존한다.</p>
+<p><strong>변동 관점.</strong> 컨센서스는 AI 토큰을 "다음 메가 내러티브"로 매수한다. 우리 견해는 더 좁다 — <strong>모멘텀은 진짜지만, 그 모멘텀은 펀더멘털이 아니라 AI 주식 복합체(NVIDIA·OpenAI·Anthropic)와의 상관 트레이드 + 토큰별 공급 축소가 만든 것</strong>이다. 가격은 검증 가능한 매출을 <strong>수십 배</strong> 앞서고(§3 — 발행:외부매출 22~40배), 그 위에서 모멘텀 리더십과 "수익 사막(income desert)"이 공존한다. 결론적으로 이 섹터는 <em>방향이 아니라 종목 선별</em>의 게임이다.</p>
 
 <h2 id="s2">2. 무엇이 끌어올렸나 — 6개 촉매</h2>
 <p><strong>① 젠슨 황의 Bittensor 지지(3월 GTC).</strong> NVIDIA CEO가 분산 학습 방식의 Bittensor를 "현대판 Folding@home"이라 언급한 이후 TAO는 3월에만 ~+90% 급등했고, 그 효과가 6월의 추세 강도에 여전히 깔려 있다(<a href="https://www.coindesk.com/tech/2026/03/25/bittensor-ecosystem-tokens-value-hit-usd1-5-billion-as-jensen-huang-endorsement-supports-tao-rally">CoinDesk</a>).</p>
@@ -155,6 +159,10 @@ const AI_DEEPDIVE_BODY = `
   <li><strong>~8월</strong> — SEC의 TAO 현물 ETF(GTAO/Bitwise) 결정 — 섹터 최대 구조적 촉매.</li>
 </ul>
 
+<div class="prose-callout">
+  <p><strong>관점이 바뀌는 조건.</strong> "내러티브 ≫ 매출" 진단은 다음 중 하나면 재고한다 — (1) Bittensor·Venice 등에서 <em>외부(비-발행) 매출</em>이 분기 단위로 의미 있게 증가, (2) AI 추론 사용량의 온체인 검증 가능성 확보, (3) TAO 현물 ETF 승인(~8월)으로 기관 수요가 구조적으로 유입. 그 전까지 우리는 프리미엄을 매출이 아니라 베타로 본다.</p>
+</div>
+
 <div class="prose-callout" data-variant="warn">
   <p><strong>면책.</strong> 본 글은 섹터 구조·펀더멘털에 대한 교육 콘텐츠로 BBDX 시그널과 무관하며, 단독 매매 신호를 발행하지 않는다. 디지털 자산은 변동성이 매우 크고 원금 전액 손실이 가능하다.</p>
 </div>
@@ -172,7 +180,7 @@ const AI_DEEPDIVE_BODY = `
 
 const RWA_DEEPDIVE_BODY = `
 <h2 id="s1">1. 핵심 — 토큰화가 하락장에서도 버틴 이유</h2>
-<p>이번 주 시장 전반이 risk-off로 빠지는 동안, <strong>RWA(실물자산 토큰화)</strong>는 가장 잘 버틴 섹터 중 하나였다. 이유는 단순하다. RWA의 수요는 <em>리테일 투기</em>가 아니라 <strong>기관의 온체인 수익(yield) 수요</strong>에서 나오며, 이 수요는 BTC 가격 사이클과 상관이 낮기 때문이다. 가격이 빠질 때 "온체인 현금성 자산"으로 피신하려는 자본이 오히려 RWA로 흘러든다.</p>
+<p><strong>변동 관점.</strong> 컨센서스는 RWA를 "다음 내러티브 로테이션"으로 묶지만, 우리는 다르게 본다 — <strong>RWA는 내러티브가 아니라 금리 상품</strong>이다. 수요가 리테일 투기가 아니라 <strong>기관의 온체인 수익(yield) 수요</strong>에서 나오기 때문에 BTC 가격 사이클과 상관이 낮고, 그래서 이번 risk-off 주간에 가장 잘 버텼다. 가격이 빠질 때 "온체인 현금성 자산"으로 피신하는 자본이 오히려 RWA로 흘러든다. 단, 같은 논리로 <strong>금리 하락이 이 테제의 가장 큰 적</strong>이다(§5).</p>
 
 <h2 id="s2">2. 시장 규모 — 숫자 바로 읽기</h2>
 <p>RWA는 숫자 인용이 가장 자주 틀리는 섹터다. 세 가지를 구분해야 한다.</p>
@@ -219,6 +227,10 @@ const RWA_DEEPDIVE_BODY = `
 <h2 id="s6">6. 투자자 체크리스트</h2>
 <p>RWA 토큰을 평가할 때는 거버넌스 토큰의 가격 모멘텀이 아니라 구조를 먼저 본다. (1) 기초 자산은 무엇이며 누가 보관하는가. (2) 수익은 어떤 경로로 분배되는가. (3) 발행사가 사라지면 회수할 <strong>법적 청구권</strong>이 있는가. 이 셋이 명확하지 않다면, 표시된 APY는 결국 신용 위험의 대가다.</p>
 
+<div class="prose-callout">
+  <p><strong>관점이 바뀌는 조건.</strong> "RWA = 금리 상품" 테제는 두 경우 약해진다 — (1) 연준 완화 사이클로 토큰화 국채 수익률(4~5%)이 압축돼 기관 유인이 줄거나, (2) 발행사·커스터디언에서 신용 사고가 터져 "온체인이 곧 안전"이라는 전제가 깨질 때. 우리는 후자를 섹터의 진짜 꼬리 위험으로 본다.</p>
+</div>
+
 <div class="prose-callout" data-variant="warn">
   <p><strong>면책.</strong> 본 글은 섹터 구조·리스크에 대한 교육 콘텐츠로 BBDX 시그널과 무관하며, 단독 매매 신호를 발행하지 않는다. 표시된 수익률·AUM은 발행 시점 기준이며 변동한다.</p>
 </div>
@@ -237,7 +249,7 @@ const RWA_DEEPDIVE_BODY = `
 
 const DEFI_DEEPDIVE_BODY = `
 <h2 id="s1">1. 핵심 — BTC 횡보 속 블루칩 회전, 진짜 동력은 수수료 스위치</h2>
-<p>이번 주 DeFi는 "BTC 횡보 → 블루칩으로 자본 회전"의 교과서적 흐름이었다. UNI·CRV·AAVE가 반복적으로 선두에 섰고, Stargate(STG)가 고베타 돌발 무브를 만들었다(<a href="https://beincrypto.com/defi-tokens-uni-crv-and-aave-lead-crypto-gains-can-near-follow-suit/">BeInCrypto</a>). 다만 가격 무브의 상당수는 <strong>이벤트(거버넌스·M&amp;A) 주도</strong>였고, 지속 가능한 신호는 따로 있다 — <strong>수수료 스위치(fee switch)로 매출이 토큰에 쌓이기 시작했다</strong>는 것.</p>
+<p><strong>변동 관점.</strong> 이번 주 DeFi 랠리를 "알트 회전의 시작"으로 추격하는 흐름에 우리는 거리를 둔다. 가격 무브의 상당수는 <strong>이벤트(거버넌스·M&amp;A) 주도</strong>이지 유기적 수요가 아니다(<a href="https://beincrypto.com/defi-tokens-uni-crv-and-aave-lead-crypto-gains-can-near-follow-suit/">BeInCrypto</a> — UNI·CRV·AAVE 선두, STG는 고베타 돌발). 우리가 추적하는 단 하나의 지속 가능한 신호는 따로 있다 — <strong>수수료 스위치(fee switch)로 프로토콜 매출이 토큰에 실제로 귀속되기 시작했다</strong>는 것. STG의 +100% 캔들은 잊어도, UNI·CRV·ENA의 매출 적립 구조는 잊으면 안 된다.</p>
 
 <h2 id="s2">2. 무엇이 끌어올렸나 — 3대 촉매</h2>
 <p><strong>① Uniswap "UNIfication" 수수료 스위치 → L2 확장.</strong> 메인넷 v2/v3 프로토콜 수수료를 켜고 <strong>UNI 바이백·소각</strong>(100M UNI 소급 소각 포함)을 가동한 데 이어, 6월에 <strong>8개 체인으로 확장 + 티어 기반 "기본 ON"</strong> 투표가 진전되며 UNI가 급등했다(6/5 134k UNI 소각). 섹터 최대의 "실매출 → 토큰" 스토리다(<a href="https://blog.uniswap.org/unification">Uniswap Blog</a>, <a href="https://www.fxstreet.com/cryptocurrencies/news/uniswaps-uni-jumps-15-as-governance-vote-to-expand-fee-switch-gains-momentum-202602261227">FXStreet</a>).</p>
@@ -265,6 +277,10 @@ const DEFI_DEEPDIVE_BODY = `
   <li><strong>수익 지속성.</strong> Pendle·Ethena식 "온체인 고정수익"은 기초 펀딩·베이시스가 뒤집히면 빠르게 압축된다.</li>
 </ul>
 
+<div class="prose-callout">
+  <p><strong>관점이 바뀌는 조건.</strong> "수수료 귀속이 진짜 신호" 테제는 (1) 켜진 수수료 스위치가 거버넌스에서 되돌려지거나, (2) 인센티브가 빠졌을 때 TVL·수수료가 급감하면 — 즉 매출이 끈적하지 않다는 증거가 나오면 — 약해진다. 반대로 약세장에서도 fee 매출이 유지되면 우리 컨빅션은 강화된다.</p>
+</div>
+
 <div class="prose-callout" data-variant="warn">
   <p><strong>면책.</strong> 본 글은 섹터 구조에 대한 교육 콘텐츠로 BBDX 시그널과 무관하며, 단독 매매 신호를 발행하지 않는다. 디지털 자산은 변동성이 매우 크다.</p>
 </div>
@@ -291,7 +307,7 @@ const BTC_ETF_FLASH_BODY = `
 <p>원인은 가격이 아니라 <strong>금리</strong>다. 강한 고용 + 끈적한 인플레(5월 CPI +4.2%)로 "더 높게, 더 오래" 환경이 굳어지면서 채권이 BTC보다 매력적이 됐다 — 이자 없는 자산에서 자본이 빠진다(<a href="https://www.gomarkets.com/en/articles/us-market-drivers-june-2026">GO Markets</a>). 여기에 이란발 risk-off가 겹쳤다. 반면 <strong>이더리움 현물 ETF는 4주 순유출을 끝내고</strong> 소폭 순유입으로 돌아서는 조짐을 보였다(<a href="https://sosovalue.com/assets/etf/us-eth-spot">SoSoValue</a>).</p>
 
 <h2 id="s3">3. 어떻게 읽을까 — 순환적 vs 구조적</h2>
-<p>핵심 논쟁은 이 유출이 <strong>순환적(cyclical)</strong>이냐 <strong>구조적(structural)</strong>이냐다. Investing.com은 금리 사이클에 연동된 <em>순환적</em> 성격으로 본다 — 금리 기대가 돌면 되돌아올 자금이라는 해석이다. 반대 신호도 있다. 가격이 빠지는 동안에도 <strong>스테이블코인 공급은 사상 최대(~$320B)</strong>를 유지했다 — "떠난" 게 아니라 "관망"으로 옮겨간 자본이 크다는 뜻이다.</p>
+<p>핵심 논쟁은 이 유출이 <strong>순환적(cyclical)</strong>이냐 <strong>구조적(structural)</strong>이냐다. <strong>우리 견해는 순환적</strong>이다 — 근거는 둘. (1) 유출의 트리거가 가격·온체인이 아니라 <em>금리</em>이고(<a href="https://www.investing.com/analysis/bitcoins-34-billion-etf-bleed-looks-more-cyclical-than-structural-200681474">Investing.com</a>도 같은 해석 — 금리 기대가 돌면 되돌아올 자금), (2) 가격이 빠지는 동안에도 <strong>스테이블코인 공급이 사상 최대(~$320B)</strong>를 유지했다. 자본은 시장을 "떠난" 게 아니라 "관망"으로 옮겨갔다. 구조적 이탈이라면 온체인 달러부터 줄었어야 한다.</p>
 <blockquote>ETF 유출 ≠ 시장 이탈. 금리가 만든 일시적 재배분일 가능성을, 사상 최대 스테이블코인 잔고가 뒷받침한다.</blockquote>
 
 <div class="prose-callout" data-variant="warn">

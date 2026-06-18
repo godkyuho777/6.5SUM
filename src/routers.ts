@@ -31,6 +31,7 @@ import {
 } from "./db";
 import { getCoinMeta } from "./coin-meta";
 import { getCoinInfo } from "./coin-info";
+import { getCoinValuation } from "./coin-valuation";
 import { fetchCoinTickers } from "./coin-tickers";
 import { computeRollingWinRate } from "./winrate-rolling";
 import { fetchMultiplePrices, fetchKlines } from "./bybit";
@@ -1045,6 +1046,19 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
             message: (err as Error)?.message ?? "fetch failed",
           };
         }
+      }),
+
+    /**
+     * 코인별 밸류에이션 — FDV/MC·유통비율·NVT 근사(코어, CoinGecko) +
+     * TVL·MC/TVL·P/F(DefiLlama best-effort). 밈/가치저장은 "부적합"으로 분류.
+     * CoinDetail "밸류에이션" 탭 + WaveTrend 상세 링크에서 사용. getCoinValuation
+     * 이 외부 호출 실패를 내부 catch → null 지표로 graceful 처리(throw X).
+     * 헌장: 정보 표시만, 단독 매매 신호 발행 X.
+     */
+    valuation: publicProcedure
+      .input(z.object({ symbol: z.string() }))
+      .query(async ({ input }) => {
+        return getCoinValuation(input.symbol);
       }),
   }),
 

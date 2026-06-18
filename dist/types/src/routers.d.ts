@@ -1155,6 +1155,20 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             output: import("./coin-tickers").CoinTickersResult;
             meta: object;
         }>;
+        /**
+         * 코인별 밸류에이션 — FDV/MC·유통비율·NVT 근사(코어, CoinGecko) +
+         * TVL·MC/TVL·P/F(DefiLlama best-effort). 밈/가치저장은 "부적합"으로 분류.
+         * CoinDetail "밸류에이션" 탭 + WaveTrend 상세 링크에서 사용. getCoinValuation
+         * 이 외부 호출 실패를 내부 catch → null 지표로 graceful 처리(throw X).
+         * 헌장: 정보 표시만, 단독 매매 신호 발행 X.
+         */
+        valuation: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                symbol: string;
+            };
+            output: import("./coin-valuation").CoinValuation;
+            meta: object;
+        }>;
     }>>;
     /** 캘린더 / 매크로 + 코인별 이벤트. */
     events: import("@trpc/server").TRPCBuiltRouter<{

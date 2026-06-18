@@ -22,6 +22,7 @@ export type {
 } from "./shared/types";
 export type { VwapDetail } from "./vwap-detail";
 export type { CoinInfo } from "./coin-info";
+export type { CoinValuation, ValuationKind } from "./coin-valuation";
 export type {
   VolumeProfile,
   VolumeProfileBin,

@@ -109,6 +109,93 @@ const WEEKLY_13_BODY = `
 </ul>
 `;
 
+const WEEKLY_14_BODY = `
+<h2 id="s1">1. 한 주 요약 — 매파 데뷔가 마지막 비둘기 버팀목을 치웠다</h2>
+<p>지난 한 주(6/15~21, 그리고 그 직후)의 모든 것은 <strong>6월 17일 FOMC</strong> 하나로 수렴했다. 케빈 워시(Kevin Warsh) 신임 의장의 첫 회의에서 연준은 기준금리를 <strong>3.50~3.75%로 동결</strong>했지만 — 시장이 받아든 것은 동결이 아니라 <strong>매파 톤</strong>이었다. 점도표상 19명 중 9명이 연내 최소 1회 <em>인상</em>을 전망했고, 2026년 말 중앙값 금리 전망은 3.4%에서 <strong>3.8%로 상향</strong>됐다(<a href="https://www.theblock.co/post/405152/crypto-markets-wobble-hawkish-fed-outlook-kevin-warsh-first-fomc-meeting">The Block</a>). 워시는 관례를 깨고 본인 경제 전망치 제출을 거부했고, 포워드 가이던스를 폐기한 채 "물가 안정·데이터 의존"만 반복했다(<a href="https://cryptobriefing.com/warsh-fed-remarks-pressure-bitcoin-gold-silver/">Crypto Briefing</a>). 비둘기 신호를 기다리던 위험자산은 일제히 빠졌다 — 발표 당일 BTC -2.2%, ETH -3.6%(<a href="https://beincrypto.com/kevin-warsh-sends-bitcoin-and-gold-lower-in-first-fomc-press-conference/">BeInCrypto</a>).</p>
+<p><strong>우리 관점 — #13에서 한 칸 이동.</strong> 직전 호(#13)에서 우리는 6월 초 하락을 "매크로가 주도한 외생 충격이지 펀더멘털 훼손이 아니다"로 읽었다. 그 골격은 유지하되 <strong>변수 하나가 교체됐다 — 외생 충격이 '지정학(이란)'에서 '통화정책(워시)'으로 바뀌었고, 후자는 헤드라인처럼 하루 만에 되돌지 않는다.</strong> 워시 체제는 적어도 한 분기 동안 "인하는 없다"를 기본값으로 만든다. 그래서 <strong>입증 책임이 뒤집혔다</strong>: 6월 초엔 약세론자가 "구조적 이탈"을 증명해야 했다면, 지금은 강세론자가 "고금리에도 자금이 돌아온다"를 증명해야 한다. 그럼에도 이건 <strong>항복(capitulation)이 아니라 정책발 디리스킹</strong>이다 — 읽어야 할 질문은 여전히 "무엇이 올랐나"가 아니라 <strong>"무엇이 덜 빠졌나"</strong>이고, 이번 주 그 답은 <strong>AI·RWA·Hyperliquid</strong>였다(§4).</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 6/24)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>BTC</td><td class="num">~$62,600</td><td>주간 -4.5%, 5/25 고점 $77.6K서 -18%</td></tr>
+<tr><td>ETH</td><td class="num">~$1,665</td><td>BTC 대비 지속 열위</td></tr>
+<tr><td>BTC 현물 ETF</td><td class="num">-$5.94B</td><td>6주 연속 순유출 누적</td></tr>
+<tr><td>공포·탐욕 지수</td><td class="num">23</td><td>극단적 공포 — 7일 평균 20, 저점 13</td></tr>
+<tr><td>알트시즌 지수</td><td class="num">39~48</td><td>중립 — 선택적·내러티브 로테이션</td></tr>
+</tbody>
+</table>
+</div>
+<figure>
+  <div class="prose-figure-placeholder" role="img" aria-label="FOMC 전후 비트코인 흐름 차트 자리"></div>
+  <figcaption>그림 1. 6/17 FOMC(워시 데뷔)를 분기점으로 위험회피가 심화, BTC는 고점 대비 -18%·F&G 23(개념도, as-of 6/24). 라이브 수치는 <a href="/sectors">섹터 동향</a>·<a href="/">시그널 스캐너</a> 참조.</figcaption>
+</figure>
+
+<h2 id="s2">2. 매크로 — 워시의 매파 데뷔</h2>
+<p>회의 결과 자체는 무난했다. 동결(3.50~3.75%)은 컨센서스였다. 충격은 <strong>'어떻게'</strong>에서 왔다. 워시는 의장 데뷔 기자회견에서 <strong>본인의 점도표·전망치 제출을 생략</strong>했다 — 파월·옐런이 항상 개인 전망을 점도표에 포함시켜 온 10년 넘은 관례를 깬 것이다(<a href="https://www.cryptotimes.io/2026/06/17/live-fomc-june-2026-kevin-warsh-debut-rate-hold-bitcoin-volatility/">Crypto Times</a>). 시장은 이를 "포워드 가이던스의 의도적 제거 = 연준 풋의 약화"로 해석했다. 점도표는 <strong>연내 인상 쪽으로 9표</strong>가 몰리며 중앙값을 3.8%로 끌어올렸고, 최근의 안도 랠리 뒤 새 호재가 없던 트레이더들은 위험자산 전반에서 차익을 실현했다 — 한 집계는 주식·금·은·BTC 합산 <strong>약 $2조 시가가 증발</strong>했다고 추산한다(<a href="https://cryptobriefing.com/warsh-fed-remarks-pressure-bitcoin-gold-silver/">Crypto Briefing</a>, 합산 추정치).</p>
+<p><strong>왜 크립토에 직격인가.</strong> 이자가 없는 BTC에게 "고금리 장기화"는 가장 직접적인 역풍이다 — 무위험 채권 수익률이 높게 유지되는 한, 기관 배분에서 BTC의 상대 매력은 떨어지고 이는 §3의 ETF 유출로 곧장 번역된다. #13의 5월 CPI +4.2%가 "인하 기대"를 흔들었다면, 이번 FOMC는 그 흔들림을 <strong>정책으로 확정</strong>했다.</p>
+
+<h2 id="s3">3. 시장 구조 — 6주째 ETF 출혈과 Extreme Fear</h2>
+<p>가격보다 <strong>흐름</strong>이 더 많은 것을 말한다. 비트코인 현물 ETF는 <strong>6주 연속 순유출</strong>로 누적 약 <strong>-$59.4억(-$5.94B)</strong>을 기록했다(<a href="https://coinstats.app/ai/a/latest-news-for-bitcoin">CoinStats</a>). BTC는 5월 25일 고점 $77,623에서 약 <strong>-18%</strong> 밀린 ~$62,600 부근, 전체 시총은 ~$2.17조로 위축됐다. 공포·탐욕 지수는 <strong>23(극단적 공포)</strong>, 7일 평균 20, 한때 저점 13까지 내려갔다(<a href="https://www.bitdegree.org/cryptocurrency-prices/fear-and-greed-index">BitDegree F&amp;G</a>).</p>
+<p>하락의 메커니즘은 <strong>BTC발 매도 + 파생 청산</strong>의 익숙한 조합이었고, 여기에 두 개의 유동성 변수가 겹쳤다 — (1) 6주째 이어진 ETF 유출, (2) <strong>사상 최대급 SpaceX IPO 수요가 투기 자본을 주식 쪽으로 빨아들인다</strong>는 논쟁(<a href="https://www.tradingkey.com/analysis/cryptocurrencies/btc/261945885-crypto-bitcoin-btc-price-crashing-usd-strategy-fed-tradingkey">TradingKey</a>). #13에서 "관전 포인트"로 올렸던 SpaceX IPO·Deribit 만기가 이번 주 실제 변수로 작동한 셈이다.</p>
+<blockquote>6주 연속 ETF 유출은 "한 번의 충격"이 아니라 "추세"다. 단, 같은 기간 온체인 달러(스테이블코인)가 사상 최대 부근을 유지하는 한, 우리는 이를 이탈이 아니라 고금리발 재배분으로 본다 — 이 전제가 깨지는 순간이 §5의 '관점이 바뀌는 조건'이다.</blockquote>
+
+<h2 id="s4">4. 섹터별 상대강도 — 셋이 버텼다</h2>
+<p>-18% 드로다운 안에서 "리더십"은 절대 상승이 아니라 <strong>덜 빠진 것 + 고유 촉매가 살아있는 것</strong>을 뜻한다. 이번 주 셋이 두드러졌다.</p>
+<p><strong>① AI — 고유 촉매로 분리 거래.</strong> AI 섹터는 매크로와 어느 정도 디커플됐다. <strong>Bittensor(TAO)</strong>는 6월 중순 주간 <strong>+28%</strong> 급등하며 $220~260 구간을 테스트했고, 이번 강세의 가장 구체적인 토대는 가격이 아니라 <strong>구조</strong>다 — Grayscale·Bitwise가 <strong>현물 TAO ETF를 신청</strong>했고 SEC 판단이 ~8월로 잡혀 있다(<a href="https://coinmarketcap.com/cmc-ai/bittensor/latest-updates/">CoinMarketCap AI</a>). <strong>FET</strong>는 5월 띄운 Agent Launchpad로 "내러티브→유틸리티" 전환을 시도 중이고, <strong>RENDER</strong>는 GPU 컴퓨팅이라는 만질 수 있는 수요로 차별화된다(<a href="https://bitcoinfoundation.org/news/ai-news/top-ai-crypto-tokens/">Bitcoin Foundation</a>). 다만 #5(AI 딥다이브)에서 짚은 "수익 사막"은 그대로다 — 모멘텀은 진짜, 매출 검증은 여전히 빈약.</p>
+<p><strong>② DeFi — Hyperliquid의 펀더멘털이 가격을 압도.</strong> <strong>HYPE</strong>는 6월 16일 사상최고 <strong>$76.67</strong>를 찍고 주간 -15%대(~$60)로 되돌렸지만, 정작 주목할 건 가격이 아니라 <strong>현금흐름</strong>이다 — 최근 30일 수수료 약 <strong>$53M</strong>으로 이더리움(~$5.1M)·솔라나(&lt;$2M)를 크게 앞섰고, FDV가 솔라나($56B)에 근접한 $50B까지 올라왔다(<a href="https://www.banklesstimes.com/articles/2026/06/01/hyperliquid-is-slowly-taking-over-ethereum-and-solana-key-metrics-reveal/">BanklessTimes</a>). 수수료 대부분을 HYPE 소각에 쓰는 디플레 구조는 #4(DeFi 수수료 스위치) 테제의 가장 선명한 실사례다(<a href="https://www.coingecko.com/en/coins/hyperliquid">CoinGecko</a>).</p>
+<p><strong>③ RWA — 방어적 로테이션의 승자.</strong> <strong>ONDO</strong>는 시장이 빠지는 동안 30일 <strong>+59%</strong>로 메이저 알트 중 최상위 성과를 냈다(<a href="https://crypto.com/en/market-updates/best-altcoins-june-2026">Crypto.com</a>). #3(RWA 딥다이브)의 핵심 — 수요가 리테일 투기가 아니라 기관 온체인 수익에서 나오기에 BTC 사이클과 상관이 낮다 — 가 하락장에서 다시 한번 확인됐다.</p>
+<p><strong>그 외.</strong> ETH는 ~$1,665로 BTC 대비 열위가 지속됐고, DEX 거래·수수료 점유를 Hyperliquid에 잠식당하는 구도가 부각됐다. 알트시즌 지수는 39~48 중립 — Glassnode의 알트 사이클 지표가 86까지 튄 건 알트 랠리가 아니라 <strong>BTC가 더 빨리 빠진 착시</strong>다(<a href="https://www.thecoinrepublic.com/2026/06/24/altcoin-season-index-hits-86-but-bitcoin-weakness-drives-signal/">The Coin Republic</a>).</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th class="num">순위</th><th>섹터</th><th>성격</th><th>이번 주 동인</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td>AI</td><td>매크로와 디커플</td><td>TAO +28% 주간, 현물 TAO ETF 신청(~8월); FET 유틸 전환</td></tr>
+<tr><td class="num">2</td><td>DeFi(Perps)</td><td>펀더멘털 강세</td><td>HYPE 수수료 $53M/30d·소각, FDV가 SOL 추월권</td></tr>
+<tr><td class="num">3</td><td>RWA</td><td>방어적 버팀</td><td>ONDO 30d +59%, 기관 수익 수요</td></tr>
+<tr><td class="num">4</td><td>BTC</td><td>alt 대비 우위</td><td>안전자산 선호·도미넌스</td></tr>
+<tr><td class="num">5</td><td>ETH·L1·L2</td><td>열위</td><td>ETF 약세, DEX 점유 잠식, 고베타 디리스킹</td></tr>
+</tbody>
+</table>
+</div>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>내러티브 검증 주의.</strong> TAO·FET의 이번 주 급등 촉매로 "미국이 Anthropic 등 AI 모델 접근을 제한하는 수출 명령을 내려 탈중앙 AI로 자본이 이동했다"는 서사가 널리 인용된다. 가격 무브(TAO +28%)와 ETF 신청은 복수 출처로 확인되지만, <strong>그 '수출 명령' 촉매 자체는 단일·검증 미흡한 SEO성 서사</strong>로 보여 우리는 독립 확인 전까지 동인으로 채택하지 않는다. 섹터별 라이브 등락은 <a href="/sectors">섹터 동향</a>을 참고하라.</p>
+</div>
+
+<h2 id="s5">5. 관점이 바뀌는 조건 · 다음 주 관전 포인트</h2>
+<ul>
+  <li><strong>ETF 흐름의 반전</strong> — 6주 유출이 2주 연속 순유입으로 돌아서면 "고금리발 재배분" 읽기가 "바닥 통과"로 업그레이드된다. 반대로 스테이블코인 총공급이 의미 있게 줄면 온체인 자본 이탈 — 약세 시나리오.</li>
+  <li><strong>월말·분기말 리밸런싱(6/30)</strong> — 분기 마감 기관 리밸런싱으로 변동성 확대 가능.</li>
+  <li><strong>현물 TAO ETF SEC 판단(~8월)</strong> — AI 섹터의 다음 구조적 촉매. 승인 기대가 선반영될 구간.</li>
+  <li><strong>다음 인플레·고용 지표</strong> — 워시 체제에선 데이터 한 줄이 곧 정책. CPI·고용이 식으면 매파 톤 완화 여지, 뜨거우면 인상 시나리오 강화.</li>
+</ul>
+
+<div class="prose-callout">
+  <p><strong>우리가 틀리는 조건.</strong> "정책발 디리스킹(이탈 아님)" 읽기는 두 경우 깨진다 — (1) 인플레가 재가속해 워시 점도표가 실제 <strong>인상</strong>으로 현실화되며 고금리가 '장기화'를 넘어 '강화'로 갈 때, (2) ETF 유출과 동시에 스테이블코인 공급까지 줄며 온체인 달러 자체가 빠질 때. 그 전까지 우리는 6주 ETF 유출을 추세적 경고로 인정하되, 자본의 '이탈'이 아니라 '관망 이동'으로 본다.</p>
+</div>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 주간 시황은 시장 구조에 대한 관찰·교육 콘텐츠이며 BBDX 시그널과 무관하다. 본문의 가격·등락률은 명시된 as-of 시점 값으로 변동하며, 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따른다. 본 글은 단독 매매 신호를 발행하지 않으며, 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://www.theblock.co/post/405152/crypto-markets-wobble-hawkish-fed-outlook-kevin-warsh-first-fomc-meeting">The Block — 워시 첫 FOMC 매파 전망에 크립토 흔들</a></li>
+  <li><a href="https://www.cryptotimes.io/2026/06/17/live-fomc-june-2026-kevin-warsh-debut-rate-hold-bitcoin-volatility/">Crypto Times — FOMC 6월 라이브(워시 데뷔·동결)</a></li>
+  <li><a href="https://cryptobriefing.com/warsh-fed-remarks-pressure-bitcoin-gold-silver/">Crypto Briefing — 워시 발언에 BTC·금·은 하락</a></li>
+  <li><a href="https://beincrypto.com/kevin-warsh-sends-bitcoin-and-gold-lower-in-first-fomc-press-conference/">BeInCrypto — 워시 기자회견 후 BTC·금 하락</a></li>
+  <li><a href="https://coinstats.app/ai/a/latest-news-for-bitcoin">CoinStats — BTC 6주 연속 ETF 유출($5.94B)</a></li>
+  <li><a href="https://www.bitdegree.org/cryptocurrency-prices/fear-and-greed-index">BitDegree — 공포·탐욕 지수(23, 극단적 공포)</a></li>
+  <li><a href="https://www.tradingkey.com/analysis/cryptocurrencies/btc/261945885-crypto-bitcoin-btc-price-crashing-usd-strategy-fed-tradingkey">TradingKey — BTC 급락·SpaceX 유동성 논쟁</a></li>
+  <li><a href="https://coinmarketcap.com/cmc-ai/bittensor/latest-updates/">CoinMarketCap AI — Bittensor(TAO) 동향·현물 ETF 신청</a></li>
+  <li><a href="https://bitcoinfoundation.org/news/ai-news/top-ai-crypto-tokens/">Bitcoin Foundation — 6월 AI 토큰(FET·TAO·RENDER)</a></li>
+  <li><a href="https://www.banklesstimes.com/articles/2026/06/01/hyperliquid-is-slowly-taking-over-ethereum-and-solana-key-metrics-reveal/">BanklessTimes — Hyperliquid 수수료·점유 지표</a></li>
+  <li><a href="https://www.coingecko.com/en/coins/hyperliquid">CoinGecko — HYPE ATH $76.67(6/16)·소각 구조</a></li>
+  <li><a href="https://crypto.com/en/market-updates/best-altcoins-june-2026">Crypto.com — 6월 알트 성과(ONDO +59%)</a></li>
+  <li><a href="https://www.thecoinrepublic.com/2026/06/24/altcoin-season-index-hits-86-but-bitcoin-weakness-drives-signal/">The Coin Republic — 알트시즌 지수 86의 착시</a></li>
+</ul>
+`;
+
 const AI_DEEPDIVE_BODY = `
 <h2 id="s1">1. 핵심 — 하락장 속 상대강도, 그러나 "수익 사막"</h2>
 <p>2026년 6월 현재 AI 섹터는 크립토에서 가장 두드러진 <strong>상대강도</strong>를 보이는 영역이다. 다만 결정적으로, 그 강세는 <em>강세장이 아니라 광범위한 하락장 안에서의 아웃퍼폼</em>이다. BTC가 ~$60K대로 밀리고 시장이 극단적 공포에 잠긴 동안에도 TAO·FET·RENDER·NEAR·WLD 같은 AI 토큰은 양(+)의 월간 수익률을 지켰다.</p>
@@ -373,6 +460,34 @@ const MACRO_REGIME_BODY = `
 // ── seed 기사 (2026-06-14 발행분) ───────────────────────────────────
 export const RESEARCH_ARTICLES: ResearchArticle[] = [
   {
+    slug: "weekly-14-warsh-hawkish-risk-off-2026-06",
+    type: "weekly",
+    title: "주간 시황 #14 — 워시의 매파 데뷔, 위험회피 심화 속 셋이 버텼다",
+    dek: "6/17 FOMC에서 케빈 워시 신임 의장이 동결하면서도 매파 톤(점도표 중앙값 3.4→3.8%)으로 데뷔, 위험회피가 '지정학'에서 '통화정책'으로 갈아탔다. BTC 고점 대비 -18%·현물 ETF 6주 연속 유출·공포탐욕 23. 그 하락장에서 덜 빠진 건 AI·RWA·Hyperliquid다.",
+    sector: "btc",
+    tags: ["주간 시황", "FOMC", "워시", "ETF", "섹터 로테이션"],
+    assets: ["BTC", "ETH"],
+    author: "Tradelab 리서치",
+    readMinutes: 8,
+    publishedAt: "2026-06-24T09:00:00+09:00",
+    featured: true,
+    takeaways: [
+      "이번 주 하락의 주범은 6/17 FOMC — 워시 신임 의장이 동결(3.50~3.75%)하면서도 점도표를 매파로(중앙값 3.4→3.8%) 올리고 포워드 가이던스를 폐기.",
+      "외생 충격이 '지정학(이란)'에서 '통화정책(워시)'으로 교체 — 되돌기 어려운 변수라 입증 책임이 강세론자로 이동.",
+      "구조 악화: BTC 고점 대비 -18%, 현물 ETF 6주 연속 순유출(-$5.94B), 공포·탐욕 지수 23(극단적 공포).",
+      "하락장 상대강도 = AI(TAO +28%·현물 ETF 신청)·DeFi(HYPE 수수료 $53M/30d·소각)·RWA(ONDO 30d +59%). 단독 매매신호는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "한 주 요약 — 매파 데뷔" },
+      { no: "02", title: "매크로 — 워시의 매파 데뷔" },
+      { no: "03", title: "시장 구조 — 6주째 ETF 출혈과 Extreme Fear" },
+      { no: "04", title: "섹터별 상대강도 — 셋이 버텼다" },
+      { no: "05", title: "관점이 바뀌는 조건 · 다음 주 관전 포인트" },
+    ],
+    bodyHtml: WEEKLY_14_BODY,
+    canonical: null,
+  },
+  {
     slug: "macro-liquidity-regime-2026-06",
     type: "deepdive",
     title: "매크로 리포트: 유동성 레짐으로 보는 크립토 — M2·DXY·실질금리",
@@ -410,7 +525,6 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     author: "Tradelab 리서치",
     readMinutes: 7,
     publishedAt: "2026-06-14T09:00:00+09:00",
-    featured: true,
     takeaways: [
       "이번 주 하락은 크립토 내부 악재가 아니라 매크로(이란 쇼크 + 5월 CPI +4.2%)가 주도.",
       "금리 인하 기대가 꺾이며 BTC 현물 ETF는 사상 최대급 주간 순유출(~$3.4B).",

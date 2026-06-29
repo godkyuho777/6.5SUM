@@ -94,6 +94,7 @@ import {
   getRelatedResearch,
   type ResearchSectorId,
 } from "./research";
+import { translateResearch } from "./research/translate";
 
 const intervalSchema = z.enum(["1h", "4h", "6h", "1d", "1w", "1M"]).default("4h");
 
@@ -1923,6 +1924,21 @@ ${tf} 기준으로 매수 진입 조건(RSI 30~35, BB 하단선, ADX 30 이하)�
       )
       .query(({ input }) => {
         return getRelatedResearch(input.slug, input.limit);
+      }),
+
+    /**
+     * 영어 번역 (KO→EN 토글) — 온디맨드 LLM 번역 + 서버 캐시.
+     * 키 미설정/실패 시 status:"unavailable"|"error" 로 graceful(throw 금지).
+     */
+    translate: publicProcedure
+      .input(
+        z.object({
+          slug: z.string(),
+          lang: z.literal("en").default("en"),
+        }),
+      )
+      .query(({ input }) => {
+        return translateResearch(input.slug, input.lang);
       }),
   }),
 });

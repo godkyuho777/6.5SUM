@@ -1976,6 +1976,18 @@ export declare const appRouter: import("@trpc/server").TRPCBuiltRouter<{
             output: import("./research").ResearchArticleSummary[];
             meta: object;
         }>;
+        /**
+         * 영어 번역 (KO→EN 토글) — 온디맨드 LLM 번역 + 서버 캐시.
+         * 키 미설정/실패 시 status:"unavailable"|"error" 로 graceful(throw 금지).
+         */
+        translate: import("@trpc/server").TRPCQueryProcedure<{
+            input: {
+                slug: string;
+                lang?: "en" | undefined;
+            };
+            output: import("./research/translate").ResearchTranslation;
+            meta: object;
+        }>;
     }>>;
 }>>;
 export type AppRouter = typeof appRouter;

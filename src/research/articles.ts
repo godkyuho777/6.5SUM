@@ -196,6 +196,93 @@ const WEEKLY_14_BODY = `
 </ul>
 `;
 
+const WEEKLY_15_BODY = `
+<h2 id="s1">1. 한 주 요약 — 6만 달러 바닥이 깨졌다, 그러나…</h2>
+<p>지난 한 주(6/22~28) 시장은 #14에서 우리가 던진 질문 — "강세론자가 고금리에도 자금이 돌아온다를 증명할 수 있나" — 에 일단 <strong>아니오</strong>로 답했다. 6월 25일 목요일, 비트코인은 심리적 지지선 <strong>$60,000을 하향 이탈</strong>해 장중 <strong>~$59,770</strong>, 2024년 9월 이후 최저까지 밀렸고 또 한 번 약 <strong>$10억 규모의 선물 포지션</strong>이 청산됐다(<a href="https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-thursday-june-25-2026-bitcoin-hits-its-lowest-levels-in-years-125308371.html">Yahoo Finance</a>). 직후 <strong>Aave와 솔라나 생태계 토큰이 반등을 주도</strong>하며 BTC를 $60K 부근으로 끌어올렸다 — 토큰화 주식(tokenized stock) 거래가 솔라나 생태계에 새 모멘텀을 불어넣은 게 결정적이었다(<a href="https://www.coindesk.com/markets">CoinDesk Markets</a>).</p>
+<p><strong>우리 관점 — #14에서 한 발 더.</strong> 컨센서스는 이제 두 갈래다: ① "$60K 붕괴 + 이더리움 재단 구조조정 = 약세장 확정", ② "극단적 공포 = 역발상 매수". 우리는 둘 다 성급하다고 본다. <strong>핵심은 자금이 '떠났는가'가 아니라 '어디로 갈아탔는가'다.</strong> BTC가 바닥을 깨는 동안 자본은 시장을 이탈한 게 아니라 <strong>현금흐름·유틸리티 내러티브(Aave·솔라나 토큰화 주식·AI ETF·RWA 정산 레일)로 회전</strong>했고, 온체인 달러(스테이블코인 ~$299B)는 줄지 않았다(§3). 다만 #13·#14와 달리 이번엔 <strong>진짜 펀더멘털 균열이 하나 생겼다</strong> — 이더리움 재단의 인력 ~20%·예산 ~40% 감축(§3)은 단순 가격 약세가 아니라 ETH-베타 복합체의 구조적 후퇴 신호다. 그래서 우리 결론은 <strong>"광범위 항복(capitulation)이 아니라, 레버리지 청산 + 섹터 회전 + ETH 복합체의 구조 약화가 겹친 국면"</strong>이다. 읽어야 할 질문은 여전히 <strong>"무엇이 덜 빠졌고, 무엇이 반등을 이끌었나"</strong>이고, 이번 주 그 답은 <strong>DeFi(Aave)·솔라나 토큰화 주식·AI·RWA</strong>였다(§4).</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 6/26~28)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>BTC</td><td class="num">~$60,000 부근</td><td>6/25 저점 ~$59.8K(2024년 9월 이후 최저) 후 반등</td></tr>
+<tr><td>ETH</td><td class="num">지속 열위</td><td>재단 구조조정 + DEX 점유 잠식</td></tr>
+<tr><td>BTC 현물 ETF</td><td class="num">-$5.94B 누적</td><td>6주 연속 순유출(6월 합산 ~-$3.6B)</td></tr>
+<tr><td>공포·탐욕 지수</td><td class="num">극단적 공포 구간</td><td>$60K 이탈로 심리 재악화</td></tr>
+<tr><td>선물 청산</td><td class="num">~$1B(6/25 1일)</td><td>BTC 매도 + 파생 청산 콤보 지속</td></tr>
+</tbody>
+</table>
+</div>
+<figure>
+  <div class="prose-figure-placeholder" role="img" aria-label="BTC 6만 달러 이탈과 섹터 반등 차트 자리"></div>
+  <figcaption>그림 1. BTC가 6/25 $60K를 이탈(~$59.8K)한 뒤 Aave·솔라나 토큰화 주식 주도로 반등(개념도, as-of 6/28). 라이브 수치는 <a href="/sectors">섹터 동향</a>·<a href="/">시그널 스캐너</a> 참조.</figcaption>
+</figure>
+
+<h2 id="s2">2. 매크로 — 워시의 톤이 '인플레이션 벽'으로 굳었다</h2>
+<p>#14에서 6/17 FOMC를 "외생 충격이 지정학에서 통화정책으로 교체된 분기점"으로 읽었다. 이번 주, 그 점도표 뒤에 깔린 <strong>전망치 자체</strong>가 시장에 더 무겁게 다가왔다. 연준은 2026년 PCE 인플레이션 전망을 3월 2.7%에서 <strong>3.6%로 상향</strong> — 2021년 인플레 급등 이후 <strong>단일 회의 최대 상향폭</strong>이었고, 근원 PCE도 2.7%→3.3%로 올렸다. 위원회는 이제 인플레가 2% 목표로 복귀하는 시점을 <strong>2028년</strong>으로 미뤘다(<a href="https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260617.htm">Federal Reserve — SEP</a>).</p>
+<p><strong>왜 이번에 더 무거운가 — 에너지가 구조 변수로.</strong> 이 상향의 뿌리는 일시적 헤드라인이 아니라 <strong>공급 충격</strong>이다. 중동 분쟁과 호르무즈 해협의 사실상 봉쇄로 IEA가 "시장 역사상 최대 규모의 원유 공급 차질"이라 부른 상황이 발생, 미국 휘발유가 갤런당 <strong>$4 이상</strong>으로 뛰며 운송·식품·비료 비용으로 번졌다(<a href="https://cryptobriefing.com/fed-dot-plot-june-2026-rate-hike/">Crypto Briefing</a>). 달러지수(DXY)는 높은 금리에 +1% 강세를 보였다. #13의 "이란 쇼크"가 일회성 헤드라인이었다면, 이제 그것은 <strong>인플레 전망에 박힌 구조적 가정</strong>으로 승격됐다 — 워시의 매파 톤은 취향이 아니라 데이터의 산물이 됐고, 이자가 없는 BTC에는 가장 직접적이고 끈질긴 역풍이다.</p>
+
+<h2 id="s3">3. 시장 구조 — 출혈은 이어지고, 균열이 하나 생겼다</h2>
+<p><strong>① ETF 유출 — 추세 지속.</strong> 비트코인 현물 ETF는 <strong>6주 연속 순유출</strong>로 누적 약 <strong>-$5.94B</strong>, 6월 합산 약 <strong>-$3.6B</strong>를 기록했다(<a href="https://tokenmetrics.com/btc/news/bitcoin-etf-696m-outflows-june-2026/">Token Metrics</a>). 1분기 $52K~58K 구간에서 잡은 기관 포지션이 금리 환경 변화에 차익을 실현하는 흐름이 이어졌다(<a href="https://www.investing.com/analysis/bitcoins-34-billion-etf-bleed-looks-more-cyclical-than-structural-200681474">Investing.com</a>).</p>
+<p><strong>② 그러나 마른 화약은 여전히 쌓여 있다.</strong> 같은 기간 스테이블코인 층은 <strong>~$299B</strong> 규모를 유지했다(<a href="https://app.rwa.xyz/">RWA.xyz</a>). #13·#14에서 반복한 핵심 — 가격이 빠지는 동안에도 온체인 달러가 줄지 않으면 그건 '이탈'이 아니라 '관망 이동' — 이 이번 주에도 유지됐다. §4의 섹터 반등이 바로 이 사이드라인 자본의 선택적 재투입이다.</p>
+<p><strong>③ 진짜 균열 — 이더리움 재단의 후퇴.</strong> 이번 주 가장 중요한 구조 신호는 가격이 아니라 조직에서 나왔다. <strong>이더리움 재단이 인력 약 20%를 감축</strong>하고 예산을 약 40% 줄여, 연간 지출을 트레저리 자산의 ~15%에서 2030년까지 ~5%로 낮추겠다고 밝혔다(<a href="https://www.theblock.co/">The Block</a>). 우리는 이를 ETH-베타 복합체(ETH·L2·관련 DeFi)에 대한 <strong>실질 펀더멘털 차감</strong>으로 본다 — 단기 호재(긴축 재무)로 포장될 수 있으나, DEX·수수료 점유를 Hyperliquid에 잠식당하는 구도와 겹치면 ETH의 상대 열위는 사이클 변수가 아니라 구조 변수에 가깝다.</p>
+<blockquote>BTC는 바닥을 깼지만 스테이블코인은 그대로다. 자본은 시장을 떠난 게 아니라 'BTC 베타'에서 '현금흐름·유틸리티'로 갈아탔다 — 단, ETH 재단 구조조정은 그 회전 안에서도 진짜로 약해진 한 축이다.</blockquote>
+
+<h2 id="s4">4. 섹터별 상대강도 — 반등을 누가 이끌었나</h2>
+<p>$60K 이탈 뒤의 반등에서 "리더십"은 절대 상승이 아니라 <strong>바닥에서 먼저, 더 강하게 튄 것 + 고유 촉매가 살아있는 것</strong>을 뜻한다. 이번 주 넷이 두드러졌다.</p>
+<p><strong>① DeFi · 솔라나 생태계 — 반등의 선두.</strong> BTC가 $60K에서 안정되자 <strong>Aave와 솔라나 생태계 토큰이 반등을 주도</strong>했고, 동력은 <strong>토큰화 주식 거래</strong>였다(<a href="https://www.coindesk.com/markets">CoinDesk Markets</a>). 한편 DeFi 현금흐름의 대장 <strong>Hyperliquid</strong>는 연환산 수수료 약 <strong>$958M</strong>, 그 <strong>99%를 Assistance Fund의 HYPE 매입(소각)</strong>에 투입하는 구조를 유지했다(<a href="https://defillama.com/protocol/hyperliquid">DefiLlama</a>). #4(수수료 스위치) 테제 — 가격과 별개로 매출이 토큰에 쌓인다 — 가 하락장에서도 작동 중이다.</p>
+<p><strong>② RWA — 가장 큰 '다음 촉매'를 손에 쥐다.</strong> <strong>Ondo</strong>는 토큰화 주식 70%+ 점유와 TVL 약 <strong>$3.78B</strong>로 섹터를 지배한다(<a href="https://app.rwa.xyz/platforms/ondo">RWA.xyz — Ondo</a>). 무엇보다 이번 주 최대 구조 촉매는 <strong>DTCC(미 예탁결제기관)가 7월부터 토큰화 증권 운영 테스트를 시작</strong>한다는 발표다 — Russell 1000 주식·주요 ETF·미 국채를 처음으로 블록체인 인프라에 올린다(<a href="https://www.coingecko.com/research/publications/rwa-report-2026">CoinGecko RWA Report 2026</a>). RWA 수요가 리테일 투기가 아니라 기관 정산 레일에서 나온다는 #3의 테제를 가장 강하게 뒷받침하는 이벤트다.</p>
+<p><strong>③ AI — 매크로와 디커플 + ETF 촉매 대기.</strong> AI 섹터(시총 ~$26.6B)는 TAO·RENDER·FET를 중심으로 매크로와 어느 정도 분리 거래됐다. 가장 구체적인 토대는 가격이 아니라 <strong>Grayscale·Bitwise의 현물 TAO ETF 신청(SEC 판단 ~8월)</strong>이다(<a href="https://bitcoinfoundation.org/news/ai-news/top-ai-crypto-tokens/">Bitcoin Foundation</a>). #5(AI 딥다이브)의 "수익 사막" 경고는 유효 — 모멘텀은 진짜, 매출 검증은 빈약.</p>
+<p><strong>④ 후행 — ETH 복합체.</strong> §3의 재단 구조조정으로 ETH는 BTC 대비 열위가 구조화됐고, DEX 점유를 Hyperliquid에 내주는 흐름이 부각됐다. 알트시즌 신호가 일부 튄 것은 알트 강세가 아니라 <strong>BTC가 더 빨리 빠진 착시</strong>에 가깝다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th class="num">순위</th><th>섹터</th><th>성격</th><th>이번 주 동인</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td>DeFi · 솔라나 eco</td><td>반등 선두</td><td>Aave·솔라나 토큰화 주식 모멘텀; HYPE 수수료 $958M 연환산·소각</td></tr>
+<tr><td class="num">2</td><td>RWA</td><td>구조 촉매</td><td>DTCC 7월 토큰화 증권 테스트(Russell 1000·국채); Ondo $3.78B TVL</td></tr>
+<tr><td class="num">3</td><td>AI</td><td>매크로와 디커플</td><td>현물 TAO ETF 신청(~8월); 섹터 시총 ~$26.6B</td></tr>
+<tr><td class="num">4</td><td>BTC</td><td>바닥 테스트</td><td>$60K 이탈 후 반등, 도미넌스 우위</td></tr>
+<tr><td class="num">5</td><td>ETH·L2</td><td>구조적 후행</td><td>재단 인력 -20%·예산 -40%, DEX 점유 잠식</td></tr>
+</tbody>
+</table>
+</div>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>내러티브 검증 주의.</strong> 바이낸스 창업자 CZ는 지난 1년 크립토 ~50% 하락의 원인을 "AI·지정학·4년 사이클의 혼합"으로 지목했는데, 이는 <strong>사후적 서사</strong>이지 검증된 단일 인과가 아니다. 또한 CLARITY Act가 일부 종교계 반대 등으로 지연될 수 있다는 보도가 있으나 입법 타임라인은 유동적이다 — 우리는 둘 다 동인이 아니라 배경 리스크로만 둔다. 섹터별 라이브 등락은 <a href="/sectors">섹터 동향</a>을 참고하라.</p>
+</div>
+
+<h2 id="s5">5. 관점이 바뀌는 조건 · 다음 주 관전 포인트</h2>
+<ul>
+  <li><strong>DTCC 토큰화 증권 테스트 개시(7월)</strong> — RWA 섹터의 가장 구체적인 구조 촉매. 실제 가동·참여 기관 규모가 확인되면 "기관 정산 레일" 테제가 한 단계 격상된다.</li>
+  <li><strong>ETF 흐름의 반전 여부</strong> — 6주 유출이 2주 연속 순유입으로 돌면 "고금리발 재배분"이 "바닥 통과"로 업그레이드. 반대로 스테이블코인 총공급이 의미 있게 줄면 진짜 이탈 신호.</li>
+  <li><strong>$60K 재이탈 vs 회복</strong> — $60K를 깨고 안착하면 항복 위험, 회복·횡보하면 §4의 섹터 회전 지속에 무게.</li>
+  <li><strong>현물 TAO ETF SEC 판단(~8월) · 다음 인플레/고용 지표</strong> — 워시 체제에선 데이터 한 줄이 곧 정책. 지표가 식으면 매파 톤 완화 여지.</li>
+</ul>
+
+<div class="prose-callout">
+  <p><strong>우리가 틀리는 조건.</strong> "항복이 아니라 회전 + ETH 구조 약화" 읽기는 두 경우 깨진다 — (1) 이번 주 반등을 이끈 리더(Aave·솔라나 eco·AI·RWA)가 BTC와 함께 동반 붕괴하면 그건 회전이 아니라 <strong>광범위 항복</strong>이다, (2) ETF 유출과 동시에 스테이블코인 공급까지 줄며 온체인 달러 자체가 빠지면 '관망 이동' 전제가 무너진다. 그 전까지 우리는 $60K 이탈을 추세적 경고로 인정하되, 자본의 성격을 '이탈'이 아니라 '현금흐름·유틸리티로의 회전'으로 본다.</p>
+</div>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 주간 시황은 시장 구조에 대한 관찰·교육 콘텐츠이며 BBDX 시그널과 무관하다. 본문의 가격·등락률은 명시된 as-of 시점 값으로 변동하며, 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따른다. 본 글은 단독 매매 신호를 발행하지 않으며, 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-thursday-june-25-2026-bitcoin-hits-its-lowest-levels-in-years-125308371.html">Yahoo Finance — BTC $60K 이탈, 2024년 이후 최저(6/25)</a></li>
+  <li><a href="https://www.coindesk.com/markets">CoinDesk Markets — Aave·솔라나 토큰화 주식 주도 반등</a></li>
+  <li><a href="https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260617.htm">Federal Reserve — 6/17 SEP(PCE 전망 3.6% 상향)</a></li>
+  <li><a href="https://cryptobriefing.com/fed-dot-plot-june-2026-rate-hike/">Crypto Briefing — 점도표·호르무즈 공급 충격</a></li>
+  <li><a href="https://tokenmetrics.com/btc/news/bitcoin-etf-696m-outflows-june-2026/">Token Metrics — BTC ETF 6월 순유출</a></li>
+  <li><a href="https://www.investing.com/analysis/bitcoins-34-billion-etf-bleed-looks-more-cyclical-than-structural-200681474">Investing.com — ETF 유출은 구조적이라기보다 순환적</a></li>
+  <li><a href="https://app.rwa.xyz/">RWA.xyz — 스테이블코인 ~$299B·RWA 시장 규모</a></li>
+  <li><a href="https://www.theblock.co/">The Block — 이더리움 재단 인력·예산 감축</a></li>
+  <li><a href="https://defillama.com/protocol/hyperliquid">DefiLlama — Hyperliquid 수수료 연환산 $958M·소각</a></li>
+  <li><a href="https://app.rwa.xyz/platforms/ondo">RWA.xyz — Ondo TVL·토큰화 주식 점유</a></li>
+  <li><a href="https://www.coingecko.com/research/publications/rwa-report-2026">CoinGecko — RWA Report 2026(DTCC 7월 토큰화 테스트)</a></li>
+  <li><a href="https://bitcoinfoundation.org/news/ai-news/top-ai-crypto-tokens/">Bitcoin Foundation — AI 토큰·현물 TAO ETF 신청</a></li>
+</ul>
+`;
+
 const AI_DEEPDIVE_BODY = `
 <h2 id="s1">1. 핵심 — 하락장 속 상대강도, 그러나 "수익 사막"</h2>
 <p>2026년 6월 현재 AI 섹터는 크립토에서 가장 두드러진 <strong>상대강도</strong>를 보이는 영역이다. 다만 결정적으로, 그 강세는 <em>강세장이 아니라 광범위한 하락장 안에서의 아웃퍼폼</em>이다. BTC가 ~$60K대로 밀리고 시장이 극단적 공포에 잠긴 동안에도 TAO·FET·RENDER·NEAR·WLD 같은 AI 토큰은 양(+)의 월간 수익률을 지켰다.</p>
@@ -460,6 +547,34 @@ const MACRO_REGIME_BODY = `
 // ── seed 기사 (2026-06-14 발행분) ───────────────────────────────────
 export const RESEARCH_ARTICLES: ResearchArticle[] = [
   {
+    slug: "weekly-15-btc-breaks-60k-rotation-2026-06",
+    type: "weekly",
+    title: "주간 시황 #15 — BTC가 6만 달러 바닥을 깨다: 항복인가, 자금이 갈아탄 것인가",
+    dek: "6/25 비트코인이 $60,000을 이탈해 2024년 9월 이후 최저(~$59.8K)로 밀렸다. 그러나 Aave·솔라나 토큰화 주식이 반등을 주도하고 AI·RWA가 고유 촉매로 버텼다. 연준 PCE 전망 3.6% 상향(2021년 이후 최대)과 이더리움 재단 구조조정이라는 진짜 균열까지 — 이건 항복인가, 회전인가.",
+    sector: "btc",
+    tags: ["주간 시황", "매크로", "ETF", "섹터 로테이션", "RWA", "DeFi"],
+    assets: ["BTC", "ETH", "ONDO", "HYPE"],
+    author: "Tradelab 리서치",
+    readMinutes: 9,
+    publishedAt: "2026-06-28T09:00:00+09:00",
+    featured: true,
+    takeaways: [
+      "6/25 BTC가 $60K를 이탈해 2024년 9월 이후 최저(~$59.8K), 1일 ~$10억 선물 청산 — #14의 '강세론자 입증 책임'에 일단 '아니오'.",
+      "그러나 자본은 '떠난' 게 아니라 '갈아탔다' — Aave·솔라나 토큰화 주식이 반등 주도, 스테이블코인 ~$299B 유지(마른 화약 그대로).",
+      "매크로 경화: 연준 2026 PCE 전망 2.7%→3.6%(2021년 이후 단일 회의 최대 상향), 호르무즈 공급 충격이 인플레를 구조 변수로 승격.",
+      "진짜 균열은 ETH — 재단 인력 -20%·예산 -40% 감축은 ETH-베타 복합체의 구조적 후퇴. 단독 매매신호는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "한 주 요약 — 6만 달러 바닥이 깨졌다" },
+      { no: "02", title: "매크로 — 워시의 톤이 '인플레이션 벽'으로 굳었다" },
+      { no: "03", title: "시장 구조 — 출혈은 이어지고, 균열이 하나 생겼다" },
+      { no: "04", title: "섹터별 상대강도 — 반등을 누가 이끌었나" },
+      { no: "05", title: "관점이 바뀌는 조건 · 다음 주 관전 포인트" },
+    ],
+    bodyHtml: WEEKLY_15_BODY,
+    canonical: null,
+  },
+  {
     slug: "weekly-14-warsh-hawkish-risk-off-2026-06",
     type: "weekly",
     title: "주간 시황 #14 — 워시의 매파 데뷔, 위험회피 심화 속 셋이 버텼다",
@@ -470,7 +585,6 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     author: "Tradelab 리서치",
     readMinutes: 8,
     publishedAt: "2026-06-24T09:00:00+09:00",
-    featured: true,
     takeaways: [
       "이번 주 하락의 주범은 6/17 FOMC — 워시 신임 의장이 동결(3.50~3.75%)하면서도 점도표를 매파로(중앙값 3.4→3.8%) 올리고 포워드 가이던스를 폐기.",
       "외생 충격이 '지정학(이란)'에서 '통화정책(워시)'으로 교체 — 되돌기 어려운 변수라 입증 책임이 강세론자로 이동.",

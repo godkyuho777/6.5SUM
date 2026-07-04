@@ -283,6 +283,96 @@ const WEEKLY_15_BODY = `
 </ul>
 `;
 
+const WEEKLY_16_BODY = `
+<h2 id="s1">1. 한 주 요약 — 워시가 처음으로 물러섰다</h2>
+<p>지난 한 주(6/29~7/4)는 <strong>매파 3주(#14·#15)의 각본이 뒤집힌 분기점</strong>이었다. 비트코인은 주 초 <strong>~$58,200</strong>까지 밀리며 연중 저점을 다시 시험했지만(<a href="https://www.coindesk.com/markets/2026/07/02/bitcoin-zooms-above-usd61-000-as-inflation-fears-soften">CoinDesk</a>), 주 후반 두 개의 촉매가 겹치며 <strong>$62,000선까지 반등</strong>했다. ① 케빈 워시 연준 의장이 ECB 신트라 포럼에서 <strong>"인플레이션 위험이 낮아졌다"</strong>고 발언 — 6월 매파 데뷔 이후 <strong>처음으로 톤을 누그러뜨렸고</strong>(<a href="https://www.coindesk.com/markets/2026/07/01/bitcoin-retakes-usd60-000-level-after-fed-chair-warsh-said-inflation-risks-has-come-down">CoinDesk</a>), ② 7월 2일 발표된 <strong>6월 미국 고용이 크게 미스</strong>(비농업 신규고용 5.2만 vs 컨센서스 ~11만, 5월치도 17.2만→12.9만 하향)하며 금리 인상 우려가 완화됐다(<a href="https://finance.yahoo.com/markets/crypto/articles/bitcoin-etfs-draw-222m-snapping-114634374.html">Yahoo Finance</a>).</p>
+<p><strong>우리 관점 — #15의 회전 테제가 반등으로 검증됐다, 단 '해빙'이지 '전환'이 아니다.</strong> 이번 반등을 두고 컨센서스는 다시 두 갈래다: ① "워시가 선회했으니 바닥은 지났고 알트시즌이 온다", ② "약한 고용 한 번에 튄 데드캣 바운스". 우리는 둘 다 성급하다고 본다. #15에서 우리는 $60K 이탈을 "광범위 항복이 아니라 현금흐름·유틸리티로의 회전"으로 읽었는데, 이번 주 그 진단이 <strong>가격으로 확인됐다</strong> — 반등을 이끈 건 잡코인 전반의 무차별 랠리가 아니라 <strong>#15에서 버텼던 바로 그 리더들(SOL·HYPE·ONDO·AI 인프라)</strong>이었고(§4), 6주 넘게 이어지던 BTC 현물 ETF 유출이 <strong>10일 만에 순유입으로 돌아섰다</strong>(§3). 그래서 우리는 입장을 한 칸 옮긴다 — <strong>#14~#15의 "강세론자가 입증하라(risk-off)"에서 "조건부 해빙(conditional thaw)"으로</strong>. 다만 <strong>확정은 아니다</strong>: #15에서 우리가 스스로 세운 기준은 "ETF가 <em>2주 연속</em> 순유입"이었는데, 지금은 <strong>단 하루의 유입 + 발언 한 문장</strong>이다. 게다가 이번 해빙의 방아쇠가 <strong>'약해진 노동시장'</strong>이라는 점은 양날의 검이다 — 금리엔 우호적이지만, 실물경기가 정말 식는 거라면 위험자산의 순풍이 아니라 역풍이 될 수도 있다. 컨센서스가 놓치는 지점이 바로 이 결이다.</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 7/2)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>BTC</td><td class="num">~$62,000 부근</td><td>주 초 저점 ~$58.2K 후 ~7% 반등, 약 10일 만에 $62K 상회</td></tr>
+<tr><td>ETH</td><td class="num">~$1,745</td><td>반등엔 동참했으나 BTC 대비 열위 지속</td></tr>
+<tr><td>SOL</td><td class="num">~$82</td><td>고베타 반등, 주중 장중 +10%대</td></tr>
+<tr><td>BTC 현물 ETF</td><td class="num">+$221.7M (7/2)</td><td>10일 연속 유출 종료, 약 2개월래 최대 일일 유입</td></tr>
+<tr><td>6월 비농업 고용</td><td class="num">+5.2만 (보도 기준)</td><td>컨센서스 ~11만 대폭 하회, 5월치 하향</td></tr>
+</tbody>
+</table>
+</div>
+<figure>
+  <div class="prose-figure-placeholder" role="img" aria-label="워시 선회·약한 고용 후 비트코인 반등 차트 자리"></div>
+  <figcaption>그림 1. BTC는 주 초 ~$58.2K 연중 저점 재시험 후 워시 선회(7/1)+약한 고용(7/2)에 $62K대로 반등, ETF 유출도 10일 만에 종료(개념도, as-of 7/2). 라이브 수치는 <a href="/sectors">섹터 동향</a>·<a href="/">시그널 스캐너</a> 참조.</figcaption>
+</figure>
+
+<h2 id="s2">2. 매크로 — 워시의 첫 후퇴, 그리고 '나쁜 소식이 좋은 소식'</h2>
+<p>#14에서 워시의 매파 데뷔를 "외생 충격이 지정학에서 통화정책으로 교체된 분기점"으로, #15에서 그 톤이 "인플레이션 벽으로 굳었다"고 읽었다. 이번 주, 그 벽에 <strong>첫 균열</strong>이 갔다. 워시는 ECB 신트라 포럼에서 <strong>"인플레이션 위험이 낮아졌다"</strong>고 인정했다 — 6월 이후 처음이다. 더 주목할 건 그가 <strong>AI발 투자가 미국 경제의 생산능력(productive capacity)을 확장</strong>해 향후 통화정책에 유의미한 함의를 가질 수 있다고 언급한 대목이다(<a href="https://www.coindesk.com/markets/2026/07/02/bitcoin-zooms-above-usd61-000-as-inflation-fears-soften">CoinDesk</a>). 이는 공급 측 디스인플레이션 논리로, "고금리 장기화"라는 #15의 기본값을 흔드는 서사다.</p>
+<p>여기에 <strong>7월 2일 6월 고용보고서가 결정타</strong>였다. 신규고용이 <strong>5.2만 건에 그쳐 컨센서스 약 11만을 대폭 하회</strong>했고, 5월치도 하향 수정됐다(<a href="https://finance.yahoo.com/markets/crypto/articles/bitcoin-etfs-draw-222m-snapping-114634374.html">Yahoo Finance</a>). 시장은 이를 "인상 시나리오 후퇴"로 해석했고 BTC·금이 동반 반등했다(<a href="https://www.coindesk.com/daybook-us/2026/07/02/warsh-s-comments-set-the-stage-for-u-s-jobs-data-to-ignite-bitcoin-gold-rally">CoinDesk Daybook</a>). 전형적인 <strong>'나쁜 경제지표 = 좋은 시장'</strong> 반응이다.</p>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>해석 주의.</strong> 이번 반등의 근본 동력이 "성장 가속"이 아니라 <strong>"고용 둔화 → 인상 회피 기대"</strong>라는 점을 놓치면 안 된다. 이는 <strong>지속되면 오히려 경기 침체 우려</strong>로 뒤집힐 수 있는 종류의 순풍이다. 단발 지표(5.2만)의 신뢰도, 후속 수정, 향후 CPI가 관건이며, 워시 체제에선 "데이터 한 줄이 곧 정책"이라는 #14의 관찰이 이번엔 <em>비둘기 방향</em>으로 작동한 것뿐이다.</p>
+</div>
+
+<h2 id="s3">3. 시장 구조 — 6주 출혈이 처음 멈췄다 (단 하루)</h2>
+<p><strong>① ETF 유출의 첫 반전 신호.</strong> 이번 주 가장 중요한 구조 변화는 자금 흐름에서 나왔다. 미국 BTC 현물 ETF는 7월 2일 <strong>약 $221.7M 순유입</strong>으로 <strong>10일 연속 유출을 끊었다</strong> — 약 2개월래 최대 일일 유입이다(<a href="https://finance.yahoo.com/markets/crypto/articles/bitcoin-etfs-draw-222m-snapping-114634374.html">Yahoo Finance</a>). 약한 고용과 워시의 완화 신호가 위험자산 압력을 낮춘 결과다. #13~#15 내내 우리가 "고금리발 재배분(이탈 아님)"으로 읽은 흐름이, 금리 기대가 돌자 <strong>실제로 되돌아오기 시작</strong>했다는 첫 증거다.</p>
+<p><strong>② 그러나 '단 하루'와 '2주'는 다르다.</strong> #15에서 우리는 "6주 유출이 <em>2주 연속</em> 순유입으로 돌면 바닥 통과로 업그레이드"라는 기준을 스스로 못박았다. 지금은 그 기준의 <strong>1/10</strong>이 충족됐을 뿐이다. 6월 한 달 누적 유출은 여전히 수십억 달러 규모였고(<a href="https://99bitcoins.com/news/bitcoin-btc/bitcoin-etf-outflows-june-2026/">99Bitcoins</a>), 하루의 유입이 추세 반전을 뜻하진 않는다. 우리는 이를 "반전"이 아니라 <strong>"반전의 첫 후보 캔들"</strong>로 본다.</p>
+<p><strong>③ ETH의 구조적 후행은 그대로.</strong> 반등장에서도 이더리움 현물 ETF는 <strong>두 달째 $500M+ 순유출</strong>을 이어갔다(<a href="https://news.bitcoin.com/bitcoin-etf-inflows-ethereum-outflows-june-2026/">Bitcoin.com</a>). #15에서 짚은 이더리움 재단 구조조정(인력 -20%·예산 -40%)과 겹치며, ETH의 상대 열위는 사이클 변수가 아니라 <strong>구조 변수</strong>라는 진단이 유지된다. 반등에 ETH가 동참은 했으나(~$1,745), 이끌진 못했다.</p>
+<blockquote>ETF 유출이 6주 만에 멈춘 건 진짜 신호다. 단, 하루짜리 유입은 '바닥 확인'이 아니라 '바닥 후보'다 — 우리가 #15에서 세운 문턱은 여전히 2주 연속 유입이고, 그건 아직 오지 않았다.</blockquote>
+
+<h2 id="s4">4. 섹터별 상대강도 — 반등을 '누가' 이끌었나가 핵심</h2>
+<p>이번 주 반등의 성격을 규정하는 건 폭이 아니라 <strong>주도 세력</strong>이다. 결론부터 — <strong>#15에서 버틴 리더가 반등도 이끌었다</strong>. 무차별 잡코인 랠리가 아니라 <strong>선택적(selective) 회전</strong>이었고, 이는 우리의 회전 테제를 강화한다(<a href="https://blog.millionero.com/blog/selective-altseason-2026-not-2021/">Millionero</a>).</p>
+<p><strong>① 고베타 반등의 선두 — SOL·HYPE.</strong> 솔라나는 주중 장중 <strong>+10%대</strong>의 전형적 고베타 바운스를 냈고(as-of ~$82), <strong>Hyperliquid(HYPE)는 ~$66로 시장 평균을 크게 상회</strong>하며 리스크온 회전의 대장 역할을 했다(<a href="https://coinmarketcap.com/cmc-ai/hyperliquid/price-analysis/">CoinMarketCap AI</a>). #15에서 강조한 HYPE의 수수료·소각 구조(연환산 ~$958M, 99% AF 매입)라는 펀더멘털 토대가 반등장에서 프리미엄으로 작동했다.</p>
+<p><strong>② 금리 완화의 직접 수혜 — RWA(ONDO).</strong> 금리 인하 기대가 커지면 토큰화 국채 수요와 위험선호가 동시에 붙는다. Ondo는 H2 2026 기관 수익·토큰화 상품 수요의 최대 수혜 후보로 다시 지목됐고(<a href="https://coinpedia.org/price-analysis/top-altcoins-to-buy-in-july-2026-cryptos-that-could-outperform-bitcoin-in-h2/">Coinpedia</a>), #15에서 짚은 <strong>DTCC 토큰화 증권 테스트가 7월 실제 개시</strong>된다는 점이 구조 촉매로 살아있다(정식 서비스는 10월 목표, <a href="https://cryptoticker.io/en/dtcc-tokenized-securities-wall-street-stocks-on-chain/">CryptoTicker</a>).</p>
+<p><strong>③ 온체인 매출이 검증되는 소수 — AI 인프라.</strong> 선택적 회전의 승자는 "서사"가 아니라 <strong>공개 프로토콜 데이터로 양(+)의 온체인 매출 궤적이 확인되는</strong> 소수다 — Akash·Hyperliquid·Bittensor가 그 문턱을 넘는 대표 사례로 꼽혔다(<a href="https://www.spotedcrypto.com/altcoin-sector-rotation-2026-depin-ai-rwa-gaming/">Spoted Crypto</a>). NEAR·TAO 같은 AI 인프라는 전통 AI 기업 대비 저평가 논리로 여전히 배분 대상이다.</p>
+<p><strong>④ 앵커의 부재 — ETH.</strong> 알트시즌의 전통적 벨웨더인 이더리움이 이번 사이클 내내 뒤처지면서, <strong>"ETH/BTC 강세 없이는 광범위 로테이션의 닻이 없다"</strong>는 구도가 이번 주에도 유지됐다(<a href="https://coinpedia.org/price-analysis/top-altcoins-to-buy-in-july-2026-cryptos-that-could-outperform-bitcoin-in-h2/">Coinpedia</a>). 이것이 이번 반등이 "선택적"에 그치고 "전면적"이 되지 못한 구조적 이유다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th class="num">순위</th><th>섹터</th><th>성격</th><th>이번 주 동인</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td>DeFi(Perps)·SOL eco</td><td>고베타 반등 선두</td><td>HYPE ~$66 시장 상회, SOL 장중 +10%대; 수수료·소각 펀더멘털</td></tr>
+<tr><td class="num">2</td><td>RWA</td><td>금리 완화 수혜</td><td>DTCC 7월 토큰화 테스트 개시; ONDO H2 수혜 후보</td></tr>
+<tr><td class="num">3</td><td>AI 인프라</td><td>매출 검증 소수</td><td>Akash·HYPE·Bittensor 양(+) 온체인 매출; NEAR·TAO 저평가 논리</td></tr>
+<tr><td class="num">4</td><td>BTC</td><td>반등 트리거</td><td>워시 선회+약한 고용, ETF 유입 첫 전환</td></tr>
+<tr><td class="num">5</td><td>ETH·L2</td><td>구조적 후행</td><td>ETF 2개월째 유출, 재단 긴축, 로테이션 앵커 부재</td></tr>
+</tbody>
+</table>
+</div>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>수치·내러티브 주의.</strong> 본문의 알트 가격(SOL ~$82, HYPE ~$66, ETH ~$1,745)은 <strong>7/2 전후 as-of 값</strong>으로 변동성이 크다 — 정확한 라이브 등락은 <a href="/sectors">섹터 동향</a>을 참고하라. 또한 "AI가 다음 알트 랠리를 이끈다"류 전망은 다수 매체의 <em>예측</em>이지 확정 사실이 아니며, 우리는 <strong>온체인 매출이 검증되는 종목</strong>으로 범위를 좁혀 본다.</p>
+</div>
+
+<h2 id="s5">5. 관점이 바뀌는 조건 · 다음 주 관전 포인트</h2>
+<ul>
+  <li><strong>ETF 유입의 지속 여부(문턱: 2주 연속)</strong> — 7/2 유입이 <strong>다수 세션 연속 유입</strong>으로 이어지면 "조건부 해빙"을 "바닥 통과"로 격상한다. 하루로 끝나면 데드캣 쪽에 무게.</li>
+  <li><strong>GENIUS Act 이행규정(7/18 시한)</strong> — 연방 규제당국의 스테이블코인 이행규정 발표 기한. 온체인 달러 인프라의 제도화 분수령(<a href="https://www.lw.com/en/us-crypto-policy-tracker/regulatory-developments">L&amp;W Policy Tracker</a>).</li>
+  <li><strong>DTCC 토큰화 증권 7월 테스트</strong> — 실제 참여 기관·규모가 확인되면 RWA "기관 정산 레일" 테제가 한 단계 격상(10월 정식 서비스 예정).</li>
+  <li><strong>후속 인플레·고용 지표</strong> — 이번 반등이 '고용 둔화발'인 만큼, 다음 지표가 <em>더</em> 약하면 침체 우려로 되돌 수 있고, 반대로 인플레가 재가속하면 워시의 완화 톤이 하루 만에 철회될 수 있다.</li>
+</ul>
+
+<div class="prose-callout">
+  <p><strong>우리가 틀리는 조건.</strong> "조건부 해빙(회전 검증)" 읽기는 두 경우 깨진다 — (1) 7/2 ETF 유입이 하루짜리로 끝나고 유출 추세가 재개되며, 이번 주 반등을 이끈 리더(SOL·HYPE·ONDO)가 BTC와 함께 되밀리면 그건 회전이 아니라 <strong>데드캣 바운스</strong>다, (2) 반등의 방아쇠였던 '약한 고용'이 지표 악화로 이어져 <strong>인상 회피 기대가 침체 공포로 전환</strong>되면 '나쁜 뉴스=좋은 시장' 등식 자체가 무너진다. 그 전까지 우리는 이번 주를 매파 3주의 첫 해빙으로 인정하되, 문턱(2주 연속 유입·주간 $60K 안착)이 아직 충족되지 않았음을 명확히 한다.</p>
+</div>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 주간 시황은 시장 구조에 대한 관찰·교육 콘텐츠이며 BBDX 시그널과 무관하다. 본문의 가격·등락률·고용 수치는 명시된 as-of/보도 기준 값으로 변동·수정될 수 있으며, 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따른다. 본 글은 단독 매매 신호를 발행하지 않으며, 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://www.coindesk.com/markets/2026/07/02/bitcoin-zooms-above-usd61-000-as-inflation-fears-soften">CoinDesk — 인플레 우려 완화에 BTC $61K 상회(워시 신트라 발언·알트 시세)</a></li>
+  <li><a href="https://www.coindesk.com/markets/2026/07/01/bitcoin-retakes-usd60-000-level-after-fed-chair-warsh-said-inflation-risks-has-come-down">CoinDesk — 워시 "인플레 위험 하락"에 BTC $60K 회복</a></li>
+  <li><a href="https://finance.yahoo.com/markets/crypto/articles/bitcoin-etfs-draw-222m-snapping-114634374.html">Yahoo Finance — BTC ETF $221.7M 유입, 10일 유출 종료·약한 고용</a></li>
+  <li><a href="https://www.coindesk.com/daybook-us/2026/07/02/warsh-s-comments-set-the-stage-for-u-s-jobs-data-to-ignite-bitcoin-gold-rally">CoinDesk Daybook — 워시 발언·고용지표가 BTC·금 랠리 점화</a></li>
+  <li><a href="https://news.bitcoin.com/bitcoin-etf-inflows-ethereum-outflows-june-2026/">Bitcoin.com — BTC ETF 유입 vs ETH ETF 유출 지속</a></li>
+  <li><a href="https://99bitcoins.com/news/bitcoin-btc/bitcoin-etf-outflows-june-2026/">99Bitcoins — 6월 BTC ETF 순유출 규모</a></li>
+  <li><a href="https://blog.millionero.com/blog/selective-altseason-2026-not-2021/">Millionero — 선택적 알트시즌 2026(≠2021)</a></li>
+  <li><a href="https://coinmarketcap.com/cmc-ai/hyperliquid/price-analysis/">CoinMarketCap AI — Hyperliquid 가격 분석</a></li>
+  <li><a href="https://coinpedia.org/price-analysis/top-altcoins-to-buy-in-july-2026-cryptos-that-could-outperform-bitcoin-in-h2/">Coinpedia — H2 2026 아웃퍼폼 후보 알트(ONDO·HYPE·AI)</a></li>
+  <li><a href="https://www.spotedcrypto.com/altcoin-sector-rotation-2026-depin-ai-rwa-gaming/">Spoted Crypto — 섹터 로테이션·온체인 매출 검증(Akash·HYPE·Bittensor)</a></li>
+  <li><a href="https://cryptoticker.io/en/dtcc-tokenized-securities-wall-street-stocks-on-chain/">CryptoTicker — DTCC 토큰화 증권 7월 테스트·10월 서비스</a></li>
+  <li><a href="https://www.lw.com/en/us-crypto-policy-tracker/regulatory-developments">Latham &amp; Watkins — 미 크립토 정책 트래커(GENIUS Act 7/18 시한)</a></li>
+</ul>
+`;
+
 const AI_DEEPDIVE_BODY = `
 <h2 id="s1">1. 핵심 — 하락장 속 상대강도, 그러나 "수익 사막"</h2>
 <p>2026년 6월 현재 AI 섹터는 크립토에서 가장 두드러진 <strong>상대강도</strong>를 보이는 영역이다. 다만 결정적으로, 그 강세는 <em>강세장이 아니라 광범위한 하락장 안에서의 아웃퍼폼</em>이다. BTC가 ~$60K대로 밀리고 시장이 극단적 공포에 잠긴 동안에도 TAO·FET·RENDER·NEAR·WLD 같은 AI 토큰은 양(+)의 월간 수익률을 지켰다.</p>
@@ -547,6 +637,34 @@ const MACRO_REGIME_BODY = `
 // ── seed 기사 (2026-06-14 발행분) ───────────────────────────────────
 export const RESEARCH_ARTICLES: ResearchArticle[] = [
   {
+    slug: "weekly-16-warsh-pivot-thaw-2026-07",
+    type: "weekly",
+    title: "주간 시황 #16 — 워시의 비둘기 선회와 약한 고용: 해빙인가, 데드캣 바운스인가",
+    dek: "매파 3주의 각본이 뒤집혔다. BTC가 연중 저점 ~$58.2K를 재시험한 뒤, 워시 의장의 첫 완화 발언(신트라)과 6월 고용 대폭 미스(5.2만)에 $62K대로 반등. 6주 넘게 이어지던 현물 ETF 유출도 10일 만에 순유입(+$221.7M)으로 돌아섰다. #15의 회전 테제가 반등으로 검증됐지만 — 이건 해빙인가, 데드캣인가.",
+    sector: "btc",
+    tags: ["주간 시황", "매크로", "FOMC", "워시", "ETF", "섹터 로테이션"],
+    assets: ["BTC", "ETH", "SOL", "HYPE", "ONDO"],
+    author: "Tradelab 리서치",
+    readMinutes: 9,
+    publishedAt: "2026-07-04T09:00:00+09:00",
+    featured: true,
+    takeaways: [
+      "각본 반전: 워시 의장이 신트라에서 '인플레 위험 하락'을 처음 인정, 6월 고용 5.2만(컨센 ~11만 대폭 미스)에 BTC가 ~$58.2K서 $62K대로 ~7% 반등.",
+      "#15 회전 테제 검증 — 반등을 이끈 건 무차별 잡코인이 아니라 버텼던 리더(SOL·HYPE·ONDO·AI 인프라). 선택적 회전이지 전면적 알트시즌이 아니다(ETH 앵커 부재).",
+      "6주+ 이어지던 BTC 현물 ETF 유출이 10일 만에 +$221.7M 순유입으로 첫 반전 — 단 '하루'일 뿐, #15의 문턱(2주 연속 유입)은 미충족.",
+      "해빙의 방아쇠가 '약한 고용'이라는 점은 양날의 검 — 지속되면 인상 회피가 침체 공포로 뒤집힐 수 있다. 단독 매매신호는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "한 주 요약 — 워시가 처음으로 물러섰다" },
+      { no: "02", title: "매크로 — 워시의 첫 후퇴, '나쁜 소식이 좋은 소식'" },
+      { no: "03", title: "시장 구조 — 6주 출혈이 처음 멈췄다 (단 하루)" },
+      { no: "04", title: "섹터별 상대강도 — 반등을 '누가' 이끌었나" },
+      { no: "05", title: "관점이 바뀌는 조건 · 다음 주 관전 포인트" },
+    ],
+    bodyHtml: WEEKLY_16_BODY,
+    canonical: null,
+  },
+  {
     slug: "weekly-15-btc-breaks-60k-rotation-2026-06",
     type: "weekly",
     title: "주간 시황 #15 — BTC가 6만 달러 바닥을 깨다: 항복인가, 자금이 갈아탄 것인가",
@@ -557,7 +675,6 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     author: "Tradelab 리서치",
     readMinutes: 9,
     publishedAt: "2026-06-28T09:00:00+09:00",
-    featured: true,
     takeaways: [
       "6/25 BTC가 $60K를 이탈해 2024년 9월 이후 최저(~$59.8K), 1일 ~$10억 선물 청산 — #14의 '강세론자 입증 책임'에 일단 '아니오'.",
       "그러나 자본은 '떠난' 게 아니라 '갈아탔다' — Aave·솔라나 토큰화 주식이 반등 주도, 스테이블코인 ~$299B 유지(마른 화약 그대로).",

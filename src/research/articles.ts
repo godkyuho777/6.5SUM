@@ -25,6 +25,105 @@ import type {
 
 // ── 본문 (HTML, .prose-research 타이포그래피) ─────────────────────────
 
+const XRP_DEEPDIVE_BODY = `
+<h2 id="s1">1. 핵심 요약 — 소송은 끝났고 ETF는 들어오는데, 가격은 아직 동의하지 않는다</h2>
+<p>XRP는 2026년 상반기 크립토에서 가장 <strong>펀더멘털과 가격이 어긋난 자산</strong> 중 하나다. 5년을 끈 SEC 소송이 2025년 8월 규제 명확성으로 종결됐고, 미국에서 <strong>7개 현물 XRP ETF</strong>가 상장돼 누적 순유입이 10억 달러를 넘겼으며, 리플의 스테이블코인 RLUSD는 이더리움을 제치고 XRP 원장(XRPL)을 최대 호스트 체인으로 만들었다. 그럼에도 XRP는 7월 초 <strong>1달러 초반</strong>(as-of 2026-07 초)에 머물며 2025년 7월 사이클 고점(~$3.65)에서 크게 되돌린 상태다(<a href="https://www.cryptotimes.io/2026/07/03/xrp-price-prediction-july-2026-when-will-xrp-go-up-and-can-it-reach-3/">Crypto Times</a>).</p>
+<p><strong>우리 관점.</strong> 컨센서스는 이 괴리를 두 가지로 읽는다 — 강세론은 "호재가 쌓였으니 곧 가격이 따라온다", 약세론은 "호재에도 못 오르니 끝났다". 우리는 <strong>둘 다 질문을 잘못 잡았다</strong>고 본다. XRP의 핵심 논쟁은 방향이 아니라 <strong>가치 귀속(value accrual)</strong>이다 — RLUSD·ETF·정산 볼륨이라는 '유틸리티'가 늘어난다고 해서 그것이 자동으로 <strong>XRP 토큰의 내재가치</strong>로 흘러들어오는가? 이 글은 그 배관을 뜯어본다. 결론부터 말하면, XRP는 DeFi 토큰처럼 <strong>수수료 매출로 평가할 수 있는 자산이 아니라</strong>(§5), 브릿지 유틸리티 + 모네터리 프리미엄 + 에스크로 공급이라는 세 힘의 줄다리기로 평가해야 하는 자산이다.</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 2026-07 초)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>가격</td><td class="num">~$1.0~1.1</td><td>2025.7 고점 ~$3.65 대비 -70%대, YTD ~-26%</td></tr>
+<tr><td>시가총액</td><td class="num">~$700억</td><td>시총 순위 대략 5~6위권</td></tr>
+<tr><td>순환/최대 공급</td><td class="num">~62B / 100B</td><td>약 62% 유통(2026-06 기준)</td></tr>
+<tr><td>Ripple 에스크로</td><td class="num">~37.95B XRP</td><td>월 1B 해제, 60~80% 재락(2026-06-22)</td></tr>
+<tr><td>현물 XRP ETF</td><td class="num">7종·AUM ~$1B</td><td>~9.7억 XRP 락업, 누적 순유입 ~$1.3B(7/4)</td></tr>
+<tr><td>SEC 소송</td><td class="num">종결(2025-08)</td><td>규제 명확성 확보</td></tr>
+</tbody>
+</table>
+</div>
+<figure>
+  <div class="prose-figure-placeholder" role="img" aria-label="XRP 펀더멘털-가격 괴리 개념도 자리"></div>
+  <figcaption>그림 1. 소송 종결·ETF 유입·RLUSD 성장이라는 펀더멘털 개선과 1달러 초반에 머문 가격의 괴리(개념도, as-of 2026-07 초). 라이브 수치는 <a href="/sectors">섹터 동향</a>·<a href="/">시그널 스캐너</a> 참조.</figcaption>
+</figure>
+
+<h2 id="s2">2. 프로젝트 개요 — XRP는 무엇을 하는 자산인가</h2>
+<p>혼동을 먼저 정리하자. <strong>리플(Ripple Labs)</strong>은 회사, <strong>XRP 원장(XRPL)</strong>은 2012년부터 가동된 퍼블릭 블록체인, <strong>XRP</strong>는 그 원장의 네이티브 자산이다. XRPL은 스마트컨트랙트 범용 체인(이더리움)이라기보다 <strong>결제·정산에 특화된 L1</strong>으로 설계됐다 — 3~5초 결제 완결성, 건당 수수료가 1센트의 수천분의 1 수준으로 저렴하고, 네이티브 DEX·발행(issuance) 기능을 원장 레벨에서 지원한다.</p>
+<p>XRP의 원래 유틸리티는 리플의 <strong>ODL(On-Demand Liquidity)</strong>에서 국경 간 송금의 <strong>브릿지 자산</strong> 역할이다 — 법정화폐 A를 XRP로 바꿔 즉시 전송하고 반대편에서 법정화폐 B로 환전하는 구조. 2025~2026년 들어 XRPL의 서사는 세 갈래로 확장됐다: (1) 리플의 규제 스테이블코인 <strong>RLUSD</strong>, (2) 국채·주식 등 <strong>RWA 토큰화·정산 레일</strong>(우리 <a href="/research/rwa-resilience-tokenized-2026-06">RWA 딥다이브</a>에서 짚은 OUSG의 XRPL 국경 간 정산이 그 예), (3) 2025년 6월 30일 메인넷을 연 <strong>XRPL EVM 사이드체인</strong>으로 이더리움 스마트컨트랙트 생태계를 XRPL 유동성에 연결하는 것(<a href="https://www.coindesk.com/tech/2025/06/30/xrpl-evm-sidechain-goes-live-unlocking-ethereum-dapps-in-xrp-ecosystem">CoinDesk</a>).</p>
+
+<h2 id="s3">3. 토크노믹스 — 100B 고정 공급과 에스크로의 그림자</h2>
+<p>XRP의 공급 구조는 비트코인과 정반대다. 채굴이 없고, 2012년 제네시스에서 <strong>1,000억 개(100B)가 전량 선발행</strong>됐다. 2026년 6월 기준 순환 공급은 약 <strong>62.05B</strong>로 최대 공급의 ~62%다(<a href="https://www.cryptopolitan.com/xrp-tokenomics-supply-escrow-market-impact/">Cryptopolitan</a>). 나머지 상당수는 리플이 통제하는 <strong>에스크로</strong>에 잠겨 있으며, 2026년 6월 22일 기준 에스크로 잔량은 약 <strong>37.95B XRP</strong>다.</p>
+<p>에스크로 메커니즘이 XRP 투자 논제의 핵심이다. 스마트컨트랙트가 <strong>매월 정확히 10억 XRP</strong>를 해제하지만, 리플은 통상 그중 <strong>60~80%를 새 에스크로로 재락(relock)</strong>한다. 결과적으로 순환 공급에 실제로 더해지는 순증분은 <strong>월 ~2~4억 XRP</strong> 수준이고, 이 물량이 ODL 유동성·파트너십·OTC 매각 등으로 흘러나간다. 현재 순 해제 속도라면 남은 에스크로가 완전히 풀리는 데 <strong>약 9년</strong>이 더 걸린다는 추정이다(<a href="https://coinedition.com/ripples-38b-xrp-escrow-could-take-9-more-years-to-fully-unlock/">Coin Edition</a>).</p>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>해석 주의 — '오버행'인가 '유동성'인가.</strong> 에스크로 순증(월 ~2~4억)은 연 환산 대략 <strong>4~8%의 공급 인플레이션</strong>에 해당한다. 약세론은 이를 "상시 매도 압력(overhang)"으로, 강세론은 "ODL·생태계 유동성 공급"으로 읽는다. 진실은 <strong>수요가 이 순증을 흡수하느냐</strong>에 달렸다 — ETF·RLUSD 수요가 월 순증을 넘으면 오버행은 무력화되고, 미치지 못하면 구조적 역풍이 된다. 우리는 이것을 XRP의 가장 중요한 수급 변수로 본다.</p>
+</div>
+
+<h2 id="s4">4. 온체인·펀더멘털 — 유틸리티는 진짜다, 문제는 귀속</h2>
+<p>펀더멘털 개선 자체는 부정하기 어렵다. 세 축이 모두 실측된다.</p>
+<p><strong>① ETF 자금 — 가격과 어긋난 유입.</strong> 2025년 11월~2026년 초 상장된 <strong>7개 미국 현물 XRP ETF</strong>는 7월 4일 기준 합산 AUM 약 <strong>10억 달러</strong>, 약 <strong>9.7억 XRP</strong>를 락업했고 누적 순유입은 약 <strong>$1.3B</strong> 안팎이다(<a href="https://xrp-insights.com/">XRP Insights ETF Tracker</a>). 주목할 점은 <strong>가격이 빠지는 동안에도 ETF로는 자금이 들어왔다는 것</strong> — 우리가 BTC 주간 시황에서 반복한 '흐름과 가격의 괴리'가 XRP에서도 나타난다.</p>
+<p><strong>② RLUSD — XRPL이 이더리움을 추월.</strong> 리플의 스테이블코인 RLUSD는 처음으로 발행량 다수가 <strong>XRPL 위에</strong> 존재하게 됐다 — XRPL ~$810M(51.7%) vs 이더리움 ~$756M(48.3%). RLUSD 기반 직접 정산 볼륨은 2026년 5월 약 <strong>$5.08B</strong>로, 2024년 12월의 ~$68M 대비 약 75배로 폭증했다(<a href="https://finance.biggo.com/news/0b3567e1-d685-4513-a252-d886ef95966d">BigGo Finance</a>). 7월 1일 하루에만 RLUSD가 XRPL에서 약 $2.5B의 정산을 처리했다(<a href="https://coinmarketcap.com/cmc-ai/xrp/latest-updates/">CoinMarketCap AI</a>).</p>
+<p><strong>③ AI 결제 — x402의 부상.</strong> XRPL의 x402 결제 퍼실리테이터를 통한 자율 AI 에이전트 트랜잭션이 <strong>100만 건에 근접</strong>했다(같은 CMC AI 집계). 소액·고빈도 결제라는 XRPL의 원래 설계 강점이 AI 에이전트 경제라는 새 수요와 맞물리는 초기 신호다.</p>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>귀속의 함정.</strong> 여기서 반드시 구분해야 한다 — <strong>RLUSD 정산 볼륨의 증가가 곧 XRP 수요의 증가는 아니다.</strong> RLUSD로 직접 정산하면 오히려 XRP를 브릿지로 거칠 필요가 줄 수 있다(카니벌라이제이션 논쟁). XRP에 실제로 흘러드는 것은 (a) XRPL 트랜잭션 수수료(극소·소각, §5)와 (b) 원장 활동이 만드는 XRP 담보·유동성 수요뿐이다. "XRPL이 바쁘다 = XRP가 오른다"는 등식은 검증이 필요한 가설이지 자동 성립하는 관계가 아니다.</p>
+</div>
+
+<h2 id="s5">5. 밸류에이션 — 왜 XRP엔 P/F가 통하지 않나</h2>
+<p>DeFi 딥다이브(<a href="/research/defi-bluechip-fee-switch-2026-06">수수료 스위치</a>)에서 우리는 "수수료 매출이 토큰에 쌓이는가"를 핵심 기준으로 삼았다. 그 렌즈를 XRP에 그대로 대면 <strong>거의 아무것도 보이지 않는다</strong> — 그리고 그게 정상이다. XRPL의 트랜잭션 수수료는 건당 <strong>0.00001 XRP(=10 drops) 수준</strong>으로 설계상 극도로 낮고, 그마저도 보유자에게 분배되지 않고 <strong>소각(burn)</strong>된다. 즉 XRPL은 "프로토콜 매출"을 만들어 토큰에 귀속시키는 구조가 <strong>애초에 아니다</strong>. 따라서 DeFi식 <strong>P/F(주가/수수료)·P/S(주가/매출)는 XRP에 적용 불가</strong>다.</p>
+<p>그러면 무엇으로 보는가. XRP는 <strong>현금흐름 자산이 아니라 통화형(monetary)·유틸리티 자산</strong>이다 — 가치의 원천은 (1) 브릿지·정산 유틸리티가 만드는 실수요, (2) 준비자산·투기가 부여하는 모네터리 프리미엄, (3) 에스크로 공급 정책이다. 이런 자산엔 <strong>NVT류(시가총액 ÷ 경제적 처리량)와 채택 지표</strong>가 더 맞는 렌즈다. 아래 표는 왜 같은 잣대로 세 자산을 재면 안 되는지를 보여준다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>자산</th><th>가치 귀속 메커니즘</th><th>프로토콜 수수료 성격</th><th>적합한 밸류에이션 렌즈</th></tr></thead>
+<tbody>
+<tr><td>XRP</td><td>브릿지 유틸리티 + 모네터리 프리미엄</td><td>극소(drops)·<strong>소각</strong>, 보유자 분배 없음</td><td>NVT·정산볼륨·채택(P/F 부적합)</td></tr>
+<tr><td>ETH</td><td>가스 수수료 + EIP-1559 소각 + 스테이킹</td><td>실질 매출 존재, burn/stake로 귀속</td><td>P/F·P/S·스테이킹 수익률</td></tr>
+<tr><td>SOL</td><td>가스 + 우선수수료 + 스테이킹</td><td>매출 존재, 일부 소각/검증자 귀속</td><td>P/F·REV·스테이킹 수익률</td></tr>
+</tbody>
+</table>
+</div>
+<p>실용적 함의: XRP를 "싸다/비싸다"로 말하려면 <strong>완전희석가치(FDV) 대비 경제적 처리량</strong>과 <strong>월 에스크로 순증을 상쇄할 실수요</strong>를 봐야 한다. 시총 ~$700억, FDV(100B 전량 기준)는 그 위 — 이 숫자가 정당화되려면 정산·담보 수요가 지속 성장해야 한다는 뜻이다. 라이브 밸류에이션·정산 지표는 <a href="/sectors">섹터 동향</a>에 위임한다.</p>
+
+<h2 id="s6">6. 로드맵·촉매 — 무엇이 배관을 바꾸나</h2>
+<ul>
+  <li><strong>규제 명확성(완료).</strong> SEC 소송은 2025년 8월 종결됐다 — Torres 판사는 프로그램적·공개시장 판매의 XRP는 증권이 아니라고 판시했고(기관 대상 판매는 증권으로 인정), 리플은 $50M(원 청구 $125M서 감액)을 부과받았으며 양측이 항소를 철회했다(<a href="https://www.coindesk.com/policy/2025/08/07/sec-s-long-running-case-against-ripple-officially-over">CoinDesk</a>). ETF 상장의 법적 토대가 여기서 나왔다.</li>
+  <li><strong>CLARITY Act(진행).</strong> 미국 시장구조 법안이 2026년 5월 14일 상원 은행위를 통과해 본회의 표결을 대기 중이다 — 통과 시 XRP를 포함한 디지털자산의 상품/증권 경계를 명문화한다(<a href="https://www.cryptotimes.io/2026/07/03/xrp-price-prediction-july-2026-when-will-xrp-go-up-and-can-it-reach-3/">Crypto Times</a>).</li>
+  <li><strong>은행·정산 인프라.</strong> 리플은 국법 신탁은행(national trust bank) 인가에 조건부 승인을 받아 RLUSD·커스터디를 제도권 레일에 얹으려 하고 있다(<a href="https://ripple.com/insights/xrp-etfs-the-institutional-era-has-begun/">Ripple</a>).</li>
+  <li><strong>XRPL EVM 사이드체인(가동).</strong> 2025년 6월 30일 메인넷 라이브 이후 Axelar·Wormhole 브릿지로 크로스체인 연결을 확장 중이다 — XRPL에 스마트컨트랙트 dApp·RWA 토큰화를 붙이는 경로(<a href="https://ripple.com/insights/xrpl-evm-sidechain-mainnet-is-live/">Ripple</a>).</li>
+  <li><strong>매크로(변수).</strong> 7월 28~29일 FOMC. 우리 <a href="/research/weekly-16-warsh-pivot-thaw-2026-07">주간 시황 #16</a>에서 짚은 워시 체제의 금리 경로가 XRP를 포함한 위험자산 전반의 배경 변수다.</li>
+</ul>
+
+<h2 id="s7">7. 리스크 — 유틸리티가 곧 가치는 아니다</h2>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>① 에스크로 오버행.</strong> 월 ~2~4억 XRP 순증(연 4~8% 인플레)은 수요가 약할 때 상시 매도 압력으로 작동한다. 완전 해제까지 ~9년이 남아 이 변수는 장기간 유효하다.</p>
+  <p><strong>② 가치 귀속의 불확실성.</strong> RLUSD·정산 볼륨 증가가 XRP 토큰 수요로 직결되지 않을 수 있다 — 오히려 RLUSD 직접 정산이 XRP 브릿지 수요를 잠식할 여지가 있다(카니벌라이제이션).</p>
+  <p><strong>③ 집중도·거버넌스.</strong> 리플이 대규모 에스크로와 상당한 유통 물량을 통제한다 — 공급 정책·OTC 매각이 사실상 한 주체에 의존한다.</p>
+  <p><strong>④ 밸류에이션 렌즈 부재.</strong> 현금흐름이 없어 전통적 P/F·P/S로 저평가/고평가를 판정하기 어렵다 — 가격이 상당 부분 내러티브·기대에 의존한다("호재에도 못 오른다"는 약세 서사의 뿌리).</p>
+  <p><strong>⑤ 경쟁.</strong> 국경 간 정산·스테이블코인 레일에서 USDC·USDT, 은행 컨소시엄, 기타 L1과 경쟁한다. XRP만의 해자(브릿지 유동성·규제 지위)가 지속 가능한지는 검증 중이다.</p>
+</div>
+
+<h2 id="s8">8. 우리의 관점 — 방향이 아니라 배관을 보라</h2>
+<p>XRP는 "소송에서 이겼고 ETF도 붙었으니 오를 일만 남았다"고 말하기엔 <strong>수급(에스크로)과 귀속(수수료 소각)이라는 두 개의 구조적 무게추</strong>를 달고 있고, "호재에도 못 오르니 죽었다"고 말하기엔 <strong>규제 명확성·기관 레일·RLUSD라는 실측 가능한 개선</strong>이 진행 중이다. 그래서 우리는 XRP를 <strong>이벤트 드리븐(소송·ETF·법안)에서 어댑션 드리븐(정산·담보 실수요)으로 넘어가는 전환기의 자산</strong>으로 규정한다.</p>
+<p>확인해야 할 단 하나의 질문: <strong>월 에스크로 순증을 실수요가 흡수하기 시작하는가.</strong> ETF 순유입 + RLUSD·정산 기반 XRP 실수요가 순증을 넘어서면 오버행 서사는 무너지고 재평가 여지가 열린다. 반대로 유틸리티 지표는 오르는데 XRP 토큰 수요로 번역되지 않으면(카니벌라이제이션), 가격-펀더멘털 괴리는 '기회'가 아니라 '구조'로 굳는다. 우리는 이 배관을 <a href="/sectors">섹터 동향</a>과 ETF 흐름으로 추적한다.</p>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 분석은 XRP의 구조·펀더멘털에 대한 관찰·교육 콘텐츠이며 BBDX 시그널과 무관하다. 본문의 가격·공급·자금 수치는 명시된 as-of 시점 값으로 변동하며(특히 에스크로·ETF·RLUSD 수치는 자주 갱신됨), 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따른다. 본 글은 단독 매매 신호나 가격 목표를 발행하지 않으며, 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://www.cryptotimes.io/2026/07/03/xrp-price-prediction-july-2026-when-will-xrp-go-up-and-can-it-reach-3/">Crypto Times — XRP 7월 전망(가격·CLARITY·FOMC·ETF)</a></li>
+  <li><a href="https://coinmarketcap.com/cmc-ai/xrp/latest-updates/">CoinMarketCap AI — XRP 최신 동향(RLUSD·x402·ETF)</a></li>
+  <li><a href="https://xrp-insights.com/">XRP Insights — 현물 XRP ETF AUM·유입 트래커</a></li>
+  <li><a href="https://finance.biggo.com/news/0b3567e1-d685-4513-a252-d886ef95966d">BigGo Finance — ETF 유입·RLUSD·AI 트랜잭션</a></li>
+  <li><a href="https://www.cryptopolitan.com/xrp-tokenomics-supply-escrow-market-impact/">Cryptopolitan — XRP 토크노믹스·에스크로</a></li>
+  <li><a href="https://coinedition.com/ripples-38b-xrp-escrow-could-take-9-more-years-to-fully-unlock/">Coin Edition — 리플 에스크로 ~38B, 완전 해제 ~9년</a></li>
+  <li><a href="https://www.coindesk.com/policy/2025/08/07/sec-s-long-running-case-against-ripple-officially-over">CoinDesk — SEC-리플 소송 공식 종결(2025-08)</a></li>
+  <li><a href="https://www.coindesk.com/tech/2025/06/30/xrpl-evm-sidechain-goes-live-unlocking-ethereum-dapps-in-xrp-ecosystem">CoinDesk — XRPL EVM 사이드체인 메인넷 라이브</a></li>
+  <li><a href="https://ripple.com/insights/xrpl-evm-sidechain-mainnet-is-live/">Ripple — XRPL EVM 사이드체인 메인넷</a></li>
+  <li><a href="https://ripple.com/insights/xrp-etfs-the-institutional-era-has-begun/">Ripple — XRP ETF와 기관 시대</a></li>
+</ul>
+`;
+
 const WEEKLY_13_BODY = `
 <h2 id="s1">1. 한 주 요약</h2>
 <p>이번 주(6월 8~14일) 암호화폐 시장은 <strong>전형적인 위험회피(risk-off) 국면</strong>이었다. 비트코인은 6월 5일 장중 <strong>약 $59,100</strong>까지 밀리며 2026년 들어 가장 약한 한 주를 보냈고, 24시간 동안 35만 계좌·30억 달러 규모의 청산이 쏟아졌다(<a href="https://news.bitcoin.com/why-is-bitcoin-crashing-worst-week-of-2026-59100-low-and-more-than-half-of-all-btc-now-in-the-red/">Bitcoin.com</a>). 이후 6월 11~12일 "이란 전쟁 종료" 헤드라인에 위험자산이 일제히 반등하며 BTC는 <strong>$63,000대를 회복</strong>, 주간으로는 거의 보합으로 마감했다(<a href="https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-friday-june-12-2026-prices-rebound-this-morning-after-trump-claims-war-has-ended-115949042.html">Yahoo Finance</a>).</p>
@@ -637,6 +736,37 @@ const MACRO_REGIME_BODY = `
 // ── seed 기사 (2026-06-14 발행분) ───────────────────────────────────
 export const RESEARCH_ARTICLES: ResearchArticle[] = [
   {
+    slug: "asset-xrp-etf-clarity-vs-escrow-2026-07",
+    type: "deepdive",
+    title: "리플 XRP(XRP) 분석: 소송은 끝났고 ETF는 들어오는데, 왜 가격은 확인해주지 않나",
+    dek: "5년 소송 종결·현물 ETF 7종(AUM ~$1B)·RLUSD의 XRPL 추월까지 펀더멘털은 개선됐는데 XRP는 1달러 초반. 핵심 논쟁은 방향이 아니라 '가치 귀속'이다 — 늘어난 유틸리티가 정말 XRP 토큰으로 흘러드는가. 100B 고정 공급·에스크로 오버행·수수료 소각 구조까지, XRP를 왜 P/F로 재면 안 되는지부터 정리한다.",
+    sector: "layer-1",
+    tags: ["XRP", "Ripple", "RLUSD", "ETF", "토크노믹스", "에스크로", "밸류에이션"],
+    assets: ["XRP"],
+    author: "Tradelab 리서치",
+    readMinutes: 11,
+    publishedAt: "2026-07-05T10:00:00+09:00",
+    featured: true,
+    takeaways: [
+      "펀더멘털-가격 괴리: SEC 소송 종결(2025-08)·현물 XRP ETF 7종(AUM ~$1B, 누적 유입 ~$1.3B)·RLUSD의 XRPL 추월에도 XRP는 1달러 초반(2025.7 고점 ~$3.65 대비 -70%대).",
+      "핵심 논쟁은 방향이 아니라 '가치 귀속' — RLUSD·정산 볼륨 증가가 XRP 토큰 수요로 직결되지 않을 수 있다(RLUSD 직접 정산의 XRP 브릿지 카니벌라이제이션).",
+      "토크노믹스: 100B 고정 선발행, 순환 ~62B, 리플 에스크로 ~37.95B. 월 1B 해제 중 60~80% 재락 → 순증 월 ~2~4억(연 4~8% 인플레)이 최대 수급 변수.",
+      "XRP는 현금흐름 자산이 아니다 — XRPL 수수료는 극소·소각되어 보유자에 분배되지 않음. DeFi식 P/F·P/S 부적합, NVT·정산볼륨·채택으로 봐야. 단독 매매신호·가격목표는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "핵심 요약 — 펀더멘털과 가격의 괴리" },
+      { no: "02", title: "프로젝트 개요 — XRP는 무엇을 하는 자산인가" },
+      { no: "03", title: "토크노믹스 — 고정 공급과 에스크로" },
+      { no: "04", title: "온체인·펀더멘털 — 유틸리티와 귀속" },
+      { no: "05", title: "밸류에이션 — 왜 P/F가 안 통하나" },
+      { no: "06", title: "로드맵·촉매" },
+      { no: "07", title: "리스크" },
+      { no: "08", title: "우리의 관점" },
+    ],
+    bodyHtml: XRP_DEEPDIVE_BODY,
+    canonical: null,
+  },
+  {
     slug: "weekly-16-warsh-pivot-thaw-2026-07",
     type: "weekly",
     title: "주간 시황 #16 — 워시의 비둘기 선회와 약한 고용: 해빙인가, 데드캣 바운스인가",
@@ -647,7 +777,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     author: "Tradelab 리서치",
     readMinutes: 9,
     publishedAt: "2026-07-04T09:00:00+09:00",
-    featured: true,
+    featured: false,
     takeaways: [
       "각본 반전: 워시 의장이 신트라에서 '인플레 위험 하락'을 처음 인정, 6월 고용 5.2만(컨센 ~11만 대폭 미스)에 BTC가 ~$58.2K서 $62K대로 ~7% 반등.",
       "#15 회전 테제 검증 — 반등을 이끈 건 무차별 잡코인이 아니라 버텼던 리더(SOL·HYPE·ONDO·AI 인프라). 선택적 회전이지 전면적 알트시즌이 아니다(ETH 앵커 부재).",

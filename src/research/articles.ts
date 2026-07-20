@@ -25,6 +25,179 @@ import type {
 
 // ── 본문 (HTML, .prose-research 타이포그래피) ─────────────────────────
 
+const WEEKLY_17_BODY = `
+<h2 id="s1">1. 두 주 요약 — 인플레이션 벽에 첫 균열이 갔다, 그런데 하늘에서 미사일이 떨어진다</h2>
+<p>#16(7/4) 이후 두 주(7/6~7/20)는 우리가 5월부터 추적해 온 두 개의 거시 변수 — <strong>인플레이션(금리)과 지정학(이란)</strong> — 가 처음으로 <strong>반대 방향으로 갈라선</strong> 구간이었다. 한쪽에서는 6월 CPI가 예상을 크게 하회하며(근원 전월比 보합, 전년比 2.6% vs 예상 2.8%, 보도 기준) 워시 체제 아래 처음으로 "인상 리스크 소멸 → 인하 재논의"의 문이 열렸고, BTC는 발표 직후 $64K를 회복해 한때 <strong>$65,600</strong>까지 올랐다(<a href="https://www.coindesk.com/business/2026/07/14/live-updates-bitcoin-price-btc-higher-after-cpi-declined-in-june">CoinDesk</a>, <a href="https://bitcoinmagazine.com/markets/bitcoin-price-jumps-above-64000">Bitcoin Magazine</a>). 다른 쪽에서는 미국의 대이란 공습이 6일째 이어지고 <strong>호르무즈 해협이 사실상 봉쇄</strong>되며 유가가 되올랐고, BTC는 주말로 가며 $62,500 지지 방어전으로 되밀렸다(<a href="https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-friday-july-17-2026-prices-ease-as-conflict-in-iran-escalates-125602208.html">Yahoo Finance</a>, <a href="https://cryptoslate.com/bitcoin-must-defend-62500-as-altcoins-lose-8-8-billion-in-a-week/">CryptoSlate</a>).</p>
+<p><strong>우리 관점 — #16의 질문에 절반의 답.</strong> #16에서 우리는 "해빙인가 데드캣인가"를 물으며 판정 기준으로 <strong>ETF 유입의 지속</strong>을 걸었다. 그 기준은 충족됐다 — 10거래일 -$2.73B의 유출 행진이 끝나고 3거래일 <strong>+$510M</strong> 순유입으로 전환했으며(보도 기준, <a href="https://www.techtimes.com/articles/319974/20260709/bitcoin-etf-inflows-hit-510m-over-3-days-when-blackrock-leads-bitcoin-follows.htm">TechTimes</a>), 이 유입 전환은 7월 중순까지 유지됐다(<a href="https://www.livevolatile.com/blog/2026-07-15-bitcoin-etf-flows-510m-rebound-8-week-outflow-ends">LiveVolatile</a>). 즉 <strong>'금리발 재배분'이라는 5~6월의 핵심 역풍은 공식적으로 꺾였다</strong>. 그럼에도 우리는 해빙 선언을 유보한다 — 이유는 하나, <strong>지정학이 유가→인플레 경로로 그 균열을 도로 메울 수 있기 때문</strong>이다. 호르무즈발 에너지 충격은 #15에서 연준이 PCE 전망에 '구조 변수'로 박아 넣은 바로 그것이다. 요컨대 지금은 <strong>강세 전환의 필요조건(ETF 유입·인플레 완화)은 갖췄지만 충분조건(지정학 안정)이 빠진 국면</strong>이다.</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 7/17~20)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>BTC</td><td class="num">~$62,500~64,300</td><td>7/15 고점 ~$65.6K 후 지정학에 반납, $62.5K 방어전</td></tr>
+<tr><td>ETH</td><td class="num">~$1,830대</td><td>7월 고점 $1,946 터치 후 되돌림</td></tr>
+<tr><td>BTC 현물 ETF</td><td class="num">유출 행진 종료</td><td>10일 -$2.73B → 3일 +$510M 전환(보도 기준)</td></tr>
+<tr><td>알트 시총</td><td class="num">~$976~984B</td><td>7/10 이후 알트에서 -$8.8B 이탈</td></tr>
+<tr><td>전체 시총</td><td class="num">~$2.18조</td><td>6월 저점 대비 회복, 상단은 지정학이 봉쇄</td></tr>
+</tbody>
+</table>
+</div>
+<figure>
+  <div class="prose-figure-placeholder" role="img" aria-label="CPI 반등과 이란 재점화 사이 BTC 흐름 차트 자리"></div>
+  <figcaption>그림 1. 6월 CPI 하회(7/14, 보도 기준)로 $65.6K까지 올랐던 BTC가 이란 공습 6일째·호르무즈 봉쇄에 $62.5K 방어전으로 회귀(개념도, as-of 7/20). 라이브 수치는 <a href="/sectors">섹터 동향</a>·<a href="/">시그널 스캐너</a> 참조.</figcaption>
+</figure>
+
+<h2 id="s2">2. 매크로 — 나쁜 물가의 종료 vs 나쁜 지정학의 연장</h2>
+<p><strong>① 인플레이션 벽의 첫 균열.</strong> 7월 14일 발표된 6월 CPI는 이 사이클에서 처음으로 <strong>명확한 하회 서프라이즈</strong>였다 — 근원 CPI가 전월比 보합(예상 +0.2%), 전년比 2.6%(예상 2.8%)로 식었다(보도 기준, <a href="https://www.coindesk.com/business/2026/07/14/live-updates-bitcoin-price-btc-higher-after-cpi-declined-in-june">CoinDesk</a>). 5월 CPI +4.2%(#13)가 세운 "인상 리스크" 시나리오, 6/17 FOMC의 매파 점도표(#14)로 굳어진 "인하 부재" 기본값 — 그 벽에 처음 금이 갔다. #16의 약한 고용(5.2만)과 합치면, 워시 연준이 기다려 온 "데이터"가 두 달 연속 완화 쪽으로 나온 셈이다.</p>
+<p><strong>② 그러나 호르무즈가 덮개다.</strong> 같은 주, 미국의 대이란 공습이 6일째로 연장되고 호르무즈 해협이 사실상 봉쇄 상태를 유지하며 유가가 재차 상승했다(<a href="https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-friday-july-17-2026-prices-ease-as-conflict-in-iran-escalates-125602208.html">Yahoo Finance</a>). #15에서 짚었듯 연준은 이미 에너지 공급 충격을 PCE 전망(3.6%)에 구조 변수로 반영했다 — 유가가 다시 물가 지표로 번지면 6월 CPI의 균열은 '일시적 착시'로 격하되고, 7월 28~29일 FOMC에서 워시가 매파 톤을 유지할 명분이 된다. <strong>인플레와 지정학이 처음으로 반대 방향을 가리키는 지금, 승부처는 7월 말 FOMC와 그 직전의 유가다.</strong></p>
+
+<h2 id="s3">3. 시장 구조 — 유출 추세의 공식 종료, 그리고 시티의 각주</h2>
+<p>5월 말부터 이어진 이 사이클 최대의 구조적 악재 — BTC 현물 ETF 연속 순유출 — 가 <strong>공식적으로 끝났다</strong>. 10거래일 누적 -$2.73B의 유출 행진 뒤 3거래일 연속 합산 <strong>+$510M</strong>이 들어왔고, 둘째 날은 블랙록 IBIT가 +$209M을 주도했다(보도 기준, <a href="https://www.techtimes.com/articles/319974/20260709/bitcoin-etf-inflows-hit-510m-over-3-days-when-blackrock-leads-bitcoin-follows.htm">TechTimes</a>). #16에서 "단 하루"라며 유보했던 반전이 <strong>추세 전환으로 승격</strong>된 것이다 — #15의 문턱(2주 연속 유입)도 사실상 충족됐다.</p>
+<p>흥미로운 각주는 시티그룹에서 나왔다. 시티는 7월 1일 BTC 12개월 목표가를 $82,000으로 하향하면서도, 리서치에서 <strong>"ETF 순유입 $100M당 당일 BTC +53bp"</strong>의 흐름-가격 감응도를 제시했다(<a href="https://www.livevolatile.com/blog/2026-07-15-bitcoin-etf-flows-510m-rebound-8-week-outflow-ends">LiveVolatile</a>). 방향과 무관하게, 기관이 <strong>ETF 플로우를 BTC 가격의 1차 동인으로 공식 모델링</strong>하기 시작했다는 것 — 우리가 #13부터 "가격보다 흐름"을 앞세운 프레임이 셀사이드 컨센서스가 됐다는 뜻이기도 하다.</p>
+<blockquote>유출 추세의 종료는 이번 사이클 저점 논쟁의 필요조건이다. 그러나 유입의 '지속'은 이제 금리가 아니라 호르무즈에 달렸다 — 흐름을 만든 것은 CPI였고, 흐름을 끊을 수 있는 것은 유가다.</blockquote>
+
+<h2 id="s4">4. 섹터 로테이션 — 반등의 대가, 알트에서 돈이 빠졌다</h2>
+<p>이번 구간의 로테이션은 6월(#15~16)과 결이 다르다. 6월엔 "덜 빠진 섹터"(AI·RWA·DeFi 현금흐름)가 리더였다면, 7월 중순엔 <strong>BTC 반등이 알트의 자금을 빨아들였다</strong> — 7월 10일 이후 한 주 동안 알트코인 시총에서 약 <strong>-$8.8B</strong>가 이탈했고, 스트레스는 ETH·HYPE·레버리지 트레이더에 집중됐다(<a href="https://cryptoslate.com/bitcoin-must-defend-62500-as-altcoins-lose-8-8-billion-in-a-week/">CryptoSlate</a>). ETH는 7월 고점 $1,946을 터치한 뒤 $1,830대로 되돌렸다(<a href="https://zebpay.com/blog/weekly-crypto-report-17th-july-2026">ZebPay</a>).</p>
+<p>뒤를 돌아보면 2분기 결산이 이 구도를 요약한다 — CryptoRank 집계로 <strong>8개 내러티브 전부가 Q2 2026을 마이너스 중앙값으로 마감</strong>했고, 6월엔 상위 100개 알트의 82.1%가 하락(중앙값 -16.8%)했다(<a href="https://dailycoin.com/altcoins-sink-in-q2-but-one-tokens-1700-rally-skews-the-picture/">DailyCoin</a>). 최약체는 <strong>DePIN(중앙값 -24.8%)과 L2(-24.9%)</strong> — DePIN은 매출이 늘어나는데 토큰은 버려지는 기묘한 다이버전스의 한복판에 있으며, 이 역설은 오늘 함께 발행한 <a href="/research/sector-depin-revenue-up-tokens-down-2026-07">DePIN 섹터 딥다이브</a>에서 해부한다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th class="num">순위</th><th>섹터/자산</th><th>성격</th><th>이번 구간 동인</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td>BTC</td><td>로테이션 승자</td><td>CPI 서프라이즈 + ETF 유입 전환의 1차 수혜, 도미넌스 우위</td></tr>
+<tr><td class="num">2</td><td>RWA·AI</td><td>구조 촉매 유지</td><td>DTCC 토큰화 테스트(7월)·현물 TAO ETF 판단(~8월) 대기</td></tr>
+<tr><td class="num">3</td><td>ETH</td><td>고점 후 되돌림</td><td>$1,946 터치 후 차익실현, 재단 구조조정 여진(#15)</td></tr>
+<tr><td class="num">4</td><td>알트 전반</td><td>자금 이탈</td><td>7/10 이후 -$8.8B, 레버리지 청산 스트레스</td></tr>
+<tr><td class="num">5</td><td>DePIN·L2</td><td>Q2 최약</td><td>중앙값 -24.8%/-24.9% — 매출·가격 다이버전스(딥다이브 참조)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s5">5. 관점이 바뀌는 조건 · 다음 관전 포인트</h2>
+<ul>
+  <li><strong>FOMC (7/28~29)</strong> — 이번 구간 최대 이벤트. 6월 CPI 균열에도 워시가 매파 톤을 유지하면 "해빙" 서사는 다시 밀리고, 완화 시사가 나오면 ETF 유입이 추세로 굳는다.</li>
+  <li><strong>유가·호르무즈</strong> — 봉쇄 해제/격화 여부가 7월 CPI의 방향을 미리 말해준다. 유가 재급등 시 6월 CPI는 '일시 착시'로 격하.</li>
+  <li><strong>ETF 유입의 지속성</strong> — 시티 감응도($100M당 +53bp) 기준, 주간 순유입이 유지되는 한 하방은 구조적으로 제한. 재유출 전환 시 #14~15의 약세 구도로 회귀.</li>
+  <li><strong>BTC $62,500 지지</strong> — 기술적으로 시장이 합의한 방어선(보도 기준). 상실 시 6월 저점(~$58K) 재시험 논쟁 재점화.</li>
+</ul>
+
+<div class="prose-callout">
+  <p><strong>우리가 틀리는 조건.</strong> "필요조건 충족·충분조건 대기" 읽기는 두 경우 깨진다 — (1) 호르무즈발 유가 충격이 7월 CPI를 재가속시켜 인플레 균열이 착시로 판명될 때(약세 방향), (2) 지정학이 조기 안정되고 FOMC가 완화를 시사하며 ETF 유입이 가속될 때(우리 예상보다 빠른 강세 방향). 어느 쪽이든 판정 지표는 같다 — 유가, 그리고 주간 ETF 순유입.</p>
+</div>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 주간 시황은 시장 구조에 대한 관찰·교육 콘텐츠이며 BBDX 시그널과 무관하다. 본문의 가격·플로우 수치는 명시된 as-of/보도 기준 값으로 변동하며, 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따른다. 본 글은 단독 매매 신호를 발행하지 않으며, 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://www.coindesk.com/business/2026/07/14/live-updates-bitcoin-price-btc-higher-after-cpi-declined-in-june">CoinDesk — 6월 CPI 하회와 BTC 반등(7/14)</a></li>
+  <li><a href="https://bitcoinmagazine.com/markets/bitcoin-price-jumps-above-64000">Bitcoin Magazine — CPI 하락에 BTC $64K 돌파</a></li>
+  <li><a href="https://www.techtimes.com/articles/319974/20260709/bitcoin-etf-inflows-hit-510m-over-3-days-when-blackrock-leads-bitcoin-follows.htm">TechTimes — BTC ETF 3일 +$510M, IBIT 주도</a></li>
+  <li><a href="https://www.livevolatile.com/blog/2026-07-15-bitcoin-etf-flows-510m-rebound-8-week-outflow-ends">LiveVolatile — ETF 유출 행진 종료·시티 감응도</a></li>
+  <li><a href="https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-friday-july-17-2026-prices-ease-as-conflict-in-iran-escalates-125602208.html">Yahoo Finance — 이란 격화에 가격 되밀림(7/17)</a></li>
+  <li><a href="https://cryptoslate.com/bitcoin-must-defend-62500-as-altcoins-lose-8-8-billion-in-a-week/">CryptoSlate — $62.5K 방어전·알트 -$8.8B</a></li>
+  <li><a href="https://zebpay.com/blog/weekly-crypto-report-17th-july-2026">ZebPay — 주간 리포트(ETH $1,946 고점)</a></li>
+  <li><a href="https://dailycoin.com/altcoins-sink-in-q2-but-one-tokens-1700-rally-skews-the-picture/">DailyCoin/CryptoRank — Q2 내러티브 전부 마이너스·6월 결산</a></li>
+</ul>
+`;
+
+const DEPIN_DEEPDIVE_BODY = `
+<h2 id="s1">1. 핵심 요약 — 매출은 5배가 됐는데 토큰은 90% 빠진 섹터</h2>
+<p>DePIN(탈중앙 물리 인프라 네트워크)은 지금 크립토에서 가장 기묘한 다이버전스를 보여주는 섹터다. 한쪽 장부에는 <strong>온체인 수수료가 2025년 한 해 약 5배(~400% YoY)로 성장</strong>했다는 기록이 있고(<a href="https://1kx.capital/research/2025-onchain-revenue-report">1kx 2025 온체인 매출 리포트</a>), 다른 쪽 장부에는 2018~2022년에 출시된 DePIN 토큰들이 <strong>사상최고가 대비 -94~99%</strong>에 거래되고, Q2 2026 내러티브별 성과에서 <strong>중앙값 -24.8%로 최약체권</strong>이었다는 기록이 있다(<a href="https://decrypt.co/356349/depin-tokens-lag-revenues-rise-fundamentals">Decrypt</a>, <a href="https://cryptorank.io/insights/reports/crypto-market-recap-q2-2026">CryptoRank Q2 리캡</a>).</p>
+<p><strong>우리 관점.</strong> 컨센서스는 이 괴리를 "DePIN은 실패한 내러티브"로 읽는다. 우리는 반대로 읽는다 — 이것은 <strong>섹터의 죽음이 아니라 밸류에이션 체계의 교체</strong>다. 2021년 사이클에서 DePIN은 매출 1,000배 이상의 멀티플로 '스토리'에 값이 매겨졌고, 지금 매출 상위 네트워크들은 <strong>매출 10~25배</strong>로 거래된다(보도 기준, <a href="https://decrypt.co/356349/depin-tokens-lag-revenues-rise-fundamentals">Decrypt/Messari</a>). 가격이 빠진 게 아니라 <strong>측정 단위가 '노드 수'에서 '매출'로 바뀐 것</strong>이다 — 공급측(장비 깔기) 성장으로 토큰을 띄우던 시대가 끝나고, 수요측(돈 내는 고객)이 처음으로 유일한 평가 기준이 됐다. 이 성인식을 통과하는 소수와 못 하는 다수를 가르는 것이 이 글의 목적이다.</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 표기)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>섹터 시총(CoinGecko DePIN)</td><td class="num">~$7.9B (7월 초)</td><td>집계 범위에 따라 ~$10B(Messari, 1월)·피크 ~$19B</td></tr>
+<tr><td>2025 온체인 매출</td><td class="num">~$72M~$100M+</td><td>집계 충돌 — 아래 callout 참조</td></tr>
+<tr><td>수수료 성장률</td><td class="num">~5x YoY (2025)</td><td>1kx 집계, Q3부터 성장 둔화</td></tr>
+<tr><td>2026 수수료 전망</td><td class="num">&gt;$450M (1kx)</td><td>세 자릿수 성장 지속 가정</td></tr>
+<tr><td>Q2 2026 성과</td><td class="num">중앙값 -24.8%</td><td>8개 내러티브 중 최약체권(L2와 나란히)</td></tr>
+<tr><td>구세대 토큰 드로다운</td><td class="num">ATH 대비 -94~99%</td><td>2018~22 빈티지(1월 기준)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>수치 충돌 주의.</strong> 이 섹터의 '매출' 수치는 집계마다 크게 다르다 — Messari 계열 보도는 <strong>2025년 온체인 매출 ~$72M</strong>(섹터 시총 ~$10B 대비 암묵 P/S ~140x)을 제시하고(<a href="https://finance.yahoo.com/news/depin-tokens-lag-revenues-rise-195756757.html">Yahoo/Messari</a>), 1kx는 <strong>H1 2025에만 전체 온체인 수수료 $9.7B의 ~1%(~$100M)</strong>를 DePIN으로 집계한다(<a href="https://1kx.capital/research/2025-onchain-revenue-report">1kx</a>). 차이의 뿌리는 방법론이다 — '수수료(fees)' vs '프로토콜 매출(revenue)', 바이백 포함 여부, 커버리지(어떤 프로젝트를 DePIN으로 분류하나). 본문 수치는 모두 출처·기준 시점과 함께 읽어야 하며, 어느 하나를 확정치로 취급하지 않는다.</p>
+</div>
+
+<h2 id="s2">2. 섹터 개요·시장 규모 — '650개 프로젝트'의 실체</h2>
+<p>DePIN의 명제는 단순하다 — 통신 기지국, GPU 서버, 스토리지, 센서 같은 <strong>물리 인프라를 토큰 보상으로 크라우드소싱</strong>해서, 자본지출(CapEx)을 네트워크 참여자에게 분산시키고 중앙화 사업자보다 싸게 공급하겠다는 것. 2026년 3월 기준 집계로 <strong>650개+ 프로젝트</strong>가 이 라벨을 달고 있고, 섹터 시총은 피크 <strong>~$19B</strong>를 찍은 뒤 축소됐다(<a href="https://blockeden.xyz/blog/2026/03/21/depin-march-2026-reality-check-650-projects-19b-market-cap-revenue/">BlockEden — DePIN Reality Check</a>). 7월 초 CoinGecko DePIN 카테고리 기준 시총은 <strong>~$7.9B</strong> 수준까지 내려왔다(as-of 7/7, <a href="https://www.coingecko.com/en/categories/depin">CoinGecko</a>).</p>
+<p>단, 이 카테고리 시총엔 착시가 하나 있다 — 최대 구성 토큰이 <strong>Bittensor(TAO, ~$2.0B)</strong>로 카테고리의 약 1/4을 차지하는데, TAO는 AI 섹터로도 분류되는 자산이다(우리 <a href="/research/ai-sector-relative-strength-2026-06">AI 딥다이브</a>의 주인공이기도 하다). 'DePIN 순수 성분'은 그보다 작다. 활성 디바이스 수는 수백만 대 규모로 집계되지만(집계별 200만~880만, 방법론 상이), 디바이스 수는 공급측 지표일 뿐이다 — 이 섹터에서 유일하게 중요한 질문은 <strong>"누가 돈을 내는가"</strong>다.</p>
+
+<h2 id="s3">3. 하위분류·밸류체인 — 돈을 내는 고객이 있는 곳과 없는 곳</h2>
+<p>DePIN은 대략 다섯 서브섹터로 나뉜다. 수요측 매출의 실재 여부로 갈라 보면 구조가 선명해진다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>서브섹터</th><th>대표 프로토콜</th><th>수요측 매출 실재</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>컴퓨트(GPU/AI)</td><td>Aethir, io.net, Render, Akash</td><td><strong>있음 — 섹터 성장의 엔진</strong></td><td>AI 수요 스필오버. 단, 매출 '질' 논쟁(§4)</td></tr>
+<tr><td>무선(통신)</td><td>Helium(HNT)</td><td><strong>있음 — 소액이나 실증</strong></td><td>Helium Mobile 월매출 ~$2.5M 기록(3월), AT&amp;T 제휴</td></tr>
+<tr><td>스토리지</td><td>Filecoin, Arweave</td><td>있으나 정체</td><td>퍼스트무버, 성장률은 컴퓨트에 밀림</td></tr>
+<tr><td>센서·모빌리티</td><td>Hivemapper, DIMO, GEODNET</td><td>초기</td><td>지도·차량 데이터 구매자 확보 단계</td></tr>
+<tr><td>에너지</td><td>(다수 초기 프로젝트)</td><td>대부분 미실현</td><td>내러티브 단계</td></tr>
+</tbody>
+</table>
+</div>
+<p>1kx 집계의 구도가 이를 요약한다 — <strong>최대 수수료 기여자는 GPU 컴퓨트의 Aethir</strong>, 2위 성장 동력은 io.net이고, Helium·Akash·Arweave는 '퍼스트무버'로 분류된다(<a href="https://1kx.capital/research/2025-onchain-revenue-report">1kx</a>). 즉 섹터 매출 성장의 대부분은 <strong>AI 컴퓨팅 수요의 스필오버</strong>가 만들었고, 나머지 서브섹터는 아직 그 규모에 못 미친다.</p>
+
+<h2 id="s4">4. 프로토콜 비교 — 매출의 '양'이 아니라 '질'을 보라</h2>
+<p>아래 표는 주요 프로토콜의 as-of 시점 스냅샷이다(시총은 7월 초 CoinGecko 기준, 변동 큼 — 라이브는 <a href="/sectors">섹터 동향</a> 위임).</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>프로토콜</th><th>서브섹터</th><th class="num">시총 (as-of 7월 초)</th><th>토큰 가치 귀속 메커니즘</th><th>매출 질 평가</th></tr></thead>
+<tbody>
+<tr><td>Bittensor(TAO)</td><td>AI 컴퓨트</td><td class="num">~$2.0B</td><td>서브넷 emission 경쟁</td><td>외부 매출 검증 곤란(AI 딥다이브 참조)</td></tr>
+<tr><td>Render(RENDER)</td><td>GPU 렌더링</td><td class="num">~$0.82B</td><td>BME(Burn-Mint Equilibrium) — 사용량이 소각으로</td><td>실사용 기반, 규모는 제한적</td></tr>
+<tr><td>Filecoin(FIL)</td><td>스토리지</td><td class="num">~$0.62B</td><td>스토리지 딜 수수료·소각</td><td>실사용 있으나 성장 정체</td></tr>
+<tr><td>Helium(HNT)</td><td>무선</td><td class="num">30d -54%(7월 초)</td><td>Burn-and-Mint — 데이터 크레딧 구매가 HNT 소각</td><td><strong>가장 검증된 수요측</strong>: 유료 가입자·통신사 제휴</td></tr>
+<tr><td>Aethir</td><td>GPU 컴퓨트</td><td class="num">—</td><td>수수료 최대 기여자</td><td><strong>주의: 바이백 기반 집계</strong> — 고객 직접 지불이 아님</td></tr>
+<tr><td>io.net</td><td>GPU 컴퓨트</td><td class="num">—</td><td>컴퓨트 수수료</td><td>2위 성장 동력(1kx)</td></tr>
+</tbody>
+</table>
+</div>
+<p>핵심 경고는 <strong>매출의 질</strong>이다. 1kx 스스로 짚었듯, 최대 기여자 Aethir의 수수료는 상당 부분 <strong>바이백(buyback) 기반</strong>으로 집계된다 — 외부 고객이 서비스에 지불한 돈이 아니라 프로토콜이 자기 토큰을 사들인 흐름이 '수수료'로 잡힐 수 있다는 뜻이다(<a href="https://1kx.capital/research/2025-onchain-revenue-report">1kx</a>). DeFi 딥다이브에서 세운 기준 — "가격 스파이크가 아니라 수수료가 실제로 토큰에 귀속되는가" — 에 하나를 더해야 한다: <strong>"그 수수료는 실제 고객에게서 왔는가."</strong> 이 기준으로 보면 현재 가장 깨끗한 실증은 오히려 규모가 작은 Helium이다 — 유료 통신 가입자(Helium Mobile 월매출 ~$2.5M 기록, 3월 보도 기준)와 <strong>AT&amp;T 상업 계약</strong>(가입자가 인근 Helium 핫스팟에 자동 접속, 운영자는 사용량 기반 HNT 보상)이라는, 크립토 밖에서 온 수요다(<a href="https://solanafloor.com/news/helium-mobile-s-monthly-revenue-hits-2-5-m">SolanaFloor</a>, <a href="https://www.theblock.co/post/351856/att-subscribers-will-now-automatically-connect-to-nearby-helium-hotspots-through-new-commercial-agreement">The Block</a>).</p>
+
+<h2 id="s5">5. 촉매 — 2026 하반기에 지켜볼 것</h2>
+<ul>
+  <li><strong>AI 컴퓨트 수요의 지속.</strong> 1kx는 2026년 DePIN 수수료가 <strong>$450M을 넘어설 것</strong>으로 전망한다(세 자릿수 성장 지속 가정). 이 전망의 대부분은 GPU 컴퓨트가 짊어진다 — AI 딥다이브에서 본 TAO ETF 신청(~8월 SEC 판단)도 같은 흐름의 촉매다.</li>
+  <li><strong>통신사 제휴의 확산.</strong> AT&amp;T-Helium 모델(기존 통신사가 DePIN 커버리지를 오프로드로 활용)이 타 통신사·타 지역으로 복제되는지가 무선 서브섹터의 핵심 관전.</li>
+  <li><strong>수요측 지표의 공시 표준화.</strong> Messari·Syndica 등의 State of DePIN 계열 리포트가 '디바이스 수'에서 '유료 고객·매출'로 공시 축을 옮기고 있다 — 옥석 가리기가 빨라진다.</li>
+  <li><strong>섹터 재분류.</strong> TAO 같은 하이브리드가 AI로 재분류되면 DePIN 카테고리 시총이 기계적으로 줄어 보일 수 있다 — 지표 해석 시 주의.</li>
+</ul>
+
+<h2 id="s6">6. 리스크</h2>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>① 공급측 과잉의 유산.</strong> 650개+ 프로젝트 대부분은 여전히 토큰 인센티브로 장비만 깔린 상태다 — 수요 없는 공급은 토큰 방출(dilution)로 보상되므로, 매출 없는 프로젝트의 토큰은 구조적 매도 압력을 안고 있다.</p>
+  <p><strong>② 매출 집계의 신뢰성.</strong> §1 callout의 수치 충돌 + Aethir식 바이백 집계 문제. '매출 성장 5x' 헤드라인을 액면 그대로 받으면 안 된다.</p>
+  <p><strong>③ 중앙화 클라우드와의 경쟁.</strong> AWS·하이퍼스케일러 대비 가격 우위는 실재하나, 신뢰성·SLA·엔터프라이즈 영업에서 열위 — AI 수요가 식으면 스팟 GPU 시장부터 붕괴한다.</p>
+  <p><strong>④ 성장 둔화 신호.</strong> 1kx 집계에서도 수수료 성장은 2025 Q3부터 둔화했다(유일하게 3표 검증을 통과한 사실이 이것이다). '5x YoY'는 과거형일 수 있다.</p>
+  <p><strong>⑤ 시장 성과의 관성.</strong> Q2 2026 중앙값 -24.8%, 구세대 토큰 -94~99% — 펀더멘털 개선이 가격으로 번역되기까지의 시차가 길고, 그 사이 상장폐지·팀 해체 리스크가 누적된다.</p>
+</div>
+
+<h2 id="s7">7. 전망 — 성인식을 통과하는 소수에 집중</h2>
+<p>업계 스스로 전환을 인정한다 — XYO 공동창업자 마커스 레빈은 "정체된 토큰 가격이 펀더멘털을 강제한다"고, Messari 애널리스트 딜런 베인은 "수요측 제품-시장 적합(PMF)이 최우선"이라고 말한다(<a href="https://decrypt.co/356349/depin-tokens-lag-revenues-rise-fundamentals">Decrypt</a>). 우리 결론은 세 줄이다. <strong>첫째</strong>, DePIN '섹터 베타'를 사는 것은 650개 프로젝트의 평균을 사는 것 — 그 평균은 매출이 없다. <strong>둘째</strong>, 유의미한 것은 검증 가능한 외부 고객 매출 + 토큰 귀속(소각·바이백의 질 구분)을 갖춘 소수다 — 현재 그 필터를 통과하는 후보는 통신(Helium)과 실사용 컴퓨트(Render·io.net 계열) 정도이며, 각각도 규모는 아직 작다. <strong>셋째</strong>, 매출 10~25x로 압축된 멀티플은 "싸다"의 근거가 아니라 <strong>"이제부터는 매출로만 평가받는다"는 선고</strong>다 — 그 선고를 통과하는 프로토콜에게만 재평가가 열린다.</p>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 분석은 DePIN 섹터 구조에 대한 관찰·교육 콘텐츠이며 BBDX 시그널과 무관하다. 본문 수치는 명시된 as-of/보도 기준 값으로 집계 방법론에 따라 달라질 수 있으며(§1 수치 충돌 참조), 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따른다. 본 글은 단독 매매 신호나 가격 목표를 발행하지 않으며, 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://1kx.capital/research/2025-onchain-revenue-report">1kx — 2025 온체인 매출 리포트(DePIN 수수료 5x·2026 &gt;$450M 전망·Aethir 바이백 주의)</a></li>
+  <li><a href="https://finance.yahoo.com/news/depin-tokens-lag-revenues-rise-195756757.html">Yahoo Finance/Messari — DePIN 시총 ~$10B vs 2025 매출 ~$72M</a></li>
+  <li><a href="https://decrypt.co/356349/depin-tokens-lag-revenues-rise-fundamentals">Decrypt — 매출 10~25x 압축·ATH -94~99%·수요측 PMF 전환</a></li>
+  <li><a href="https://cryptorank.io/insights/reports/crypto-market-recap-q2-2026">CryptoRank — Q2 2026 내러티브별 성과(DePIN -24.8%)</a></li>
+  <li><a href="https://www.coingecko.com/en/categories/depin">CoinGecko — DePIN 카테고리 시총·구성</a></li>
+  <li><a href="https://blockeden.xyz/blog/2026/03/21/depin-march-2026-reality-check-650-projects-19b-market-cap-revenue/">BlockEden — DePIN Reality Check(650 프로젝트·$19B 피크)</a></li>
+  <li><a href="https://solanafloor.com/news/helium-mobile-s-monthly-revenue-hits-2-5-m">SolanaFloor/Syndica — Helium Mobile 월매출 $2.5M 기록</a></li>
+  <li><a href="https://www.theblock.co/post/351856/att-subscribers-will-now-automatically-connect-to-nearby-helium-hotspots-through-new-commercial-agreement">The Block — AT&amp;T·Helium 상업 계약</a></li>
+  <li><a href="https://coinmarketcap.com/cmc-ai/helium/price-analysis/">CoinMarketCap AI — HNT 가격 분석(30d -54%, 7월 초)</a></li>
+</ul>
+`;
+
 const XRP_DEEPDIVE_BODY = `
 <h2 id="s1">1. 핵심 요약 — 소송은 끝났고 ETF는 들어오는데, 가격은 아직 동의하지 않는다</h2>
 <p>XRP는 2026년 상반기 크립토에서 가장 <strong>펀더멘털과 가격이 어긋난 자산</strong> 중 하나다. 5년을 끈 SEC 소송이 2025년 8월 규제 명확성으로 종결됐고, 미국에서 <strong>7개 현물 XRP ETF</strong>가 상장돼 누적 순유입이 10억 달러를 넘겼으며, 리플의 스테이블코인 RLUSD는 이더리움을 제치고 XRP 원장(XRPL)을 최대 호스트 체인으로 만들었다. 그럼에도 XRP는 7월 초 <strong>1달러 초반</strong>(as-of 2026-07 초)에 머물며 2025년 7월 사이클 고점(~$3.65)에서 크게 되돌린 상태다(<a href="https://www.cryptotimes.io/2026/07/03/xrp-price-prediction-july-2026-when-will-xrp-go-up-and-can-it-reach-3/">Crypto Times</a>).</p>
@@ -736,6 +909,63 @@ const MACRO_REGIME_BODY = `
 // ── seed 기사 (2026-06-14 발행분) ───────────────────────────────────
 export const RESEARCH_ARTICLES: ResearchArticle[] = [
   {
+    slug: "weekly-17-cpi-crack-vs-hormuz-2026-07",
+    type: "weekly",
+    title: "주간 시황 #17 — 인플레이션 벽의 첫 균열, 호르무즈의 덮개: ETF 유출 추세가 끝났다",
+    dek: "6월 CPI가 예상을 하회하며(근원 YoY 2.6%, 보도 기준) 인플레이션 벽에 첫 금이 갔고, 10일 -$2.73B의 ETF 유출 행진은 3일 +$510M 순유입으로 공식 종료됐다. 그러나 이란 공습 6일째·호르무즈 봉쇄가 유가→인플레 경로로 그 균열을 도로 메울 수 있다. 강세 전환의 필요조건은 갖췄고, 충분조건(지정학)이 빠진 국면 — 승부처는 7/28~29 FOMC다.",
+    sector: "btc",
+    tags: ["주간 시황", "매크로", "CPI", "ETF", "이란", "섹터 로테이션", "FOMC"],
+    assets: ["BTC", "ETH"],
+    author: "Tradelab 리서치",
+    readMinutes: 9,
+    publishedAt: "2026-07-20T17:00:00+09:00",
+    featured: true,
+    takeaways: [
+      "인플레이션 벽의 첫 균열 — 6월 CPI 하회(근원 전월比 보합·전년比 2.6% vs 예상 2.8%, 보도 기준)에 BTC가 한때 $65.6K까지 반등. #16의 약한 고용과 합쳐 완화 데이터 2연속.",
+      "구조 전환: 10거래일 -$2.73B ETF 유출 행진이 3거래일 +$510M(IBIT 주도)으로 종료 — #15~16의 판정 문턱(유입 지속) 충족. 시티는 '유입 $100M당 +53bp' 감응도를 공식화.",
+      "그러나 호르무즈가 덮개 — 이란 공습 6일째·해협 봉쇄로 유가 재상승. 유가→7월 CPI 재가속 시 균열은 '착시'로 격하. BTC는 $62.5K 방어전으로 회귀.",
+      "로테이션 반전: BTC 반등이 알트 자금을 흡수(7/10 이후 -$8.8B), Q2는 8개 내러티브 전부 마이너스·DePIN 최약(-24.8%, 동반 발행 딥다이브 참조). 단독 매매신호는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "두 주 요약 — 균열과 미사일" },
+      { no: "02", title: "매크로 — 나쁜 물가의 종료 vs 나쁜 지정학의 연장" },
+      { no: "03", title: "시장 구조 — 유출 추세의 공식 종료" },
+      { no: "04", title: "섹터 로테이션 — 반등의 대가" },
+      { no: "05", title: "관점이 바뀌는 조건 · 다음 관전 포인트" },
+    ],
+    bodyHtml: WEEKLY_17_BODY,
+    canonical: null,
+  },
+  {
+    slug: "sector-depin-revenue-up-tokens-down-2026-07",
+    type: "deepdive",
+    title: "DePIN 섹터 분석: 매출은 5배, 토큰은 -94% — 밸류에이션 체계가 교체되고 있다",
+    dek: "온체인 수수료는 2025년 ~5배로 성장했는데 구세대 DePIN 토큰은 ATH 대비 -94~99%, Q2 2026 최약체(-24.8%). 컨센서스는 '실패한 내러티브'로 읽지만 우리는 밸류에이션 체계의 교체로 읽는다 — 1,000x 스토리 멀티플이 매출 10~25x로, '노드 수'가 '유료 고객'으로. Aethir 바이백 집계 문제부터 AT&T-Helium 계약까지, 매출의 질로 옥석을 가린다.",
+    sector: "depin",
+    tags: ["DePIN", "Helium", "Render", "io.net", "AI 컴퓨트", "온체인 매출", "밸류에이션"],
+    assets: ["HNT", "RENDER", "FIL", "TAO"],
+    author: "Tradelab 리서치",
+    readMinutes: 12,
+    publishedAt: "2026-07-20T11:00:00+09:00",
+    takeaways: [
+      "다이버전스의 실체: 2025 온체인 수수료 ~5x YoY(1kx, 검증) vs 구세대 토큰 ATH 대비 -94~99%·Q2 중앙값 -24.8% — 죽음이 아니라 측정 단위의 교체('노드 수'→'매출').",
+      "매출 집계는 충돌한다 — Messari ~$72M(2025) vs 1kx H1에만 ~$100M. 방법론(fees vs revenue·바이백 포함 여부) 차이라 어느 것도 확정치가 아니다.",
+      "매출의 '질'이 관건: 최대 기여자 Aethir는 바이백 기반 집계(고객 직접 지불 아님). 가장 깨끗한 실증은 규모가 작은 Helium — 유료 가입자(월매출 ~$2.5M 기록)·AT&T 상업 계약이라는 크립토 밖 수요.",
+      "매출 10~25x 압축은 '싸다'가 아니라 '이제 매출로만 평가받는다'는 선고 — 섹터 베타가 아니라 그 선고를 통과하는 소수(통신·실사용 컴퓨트)에 집중. 단독 매매신호는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "핵심 요약 — 매출 5배, 토큰 -90%" },
+      { no: "02", title: "섹터 개요·시장 규모 — '650개 프로젝트'의 실체" },
+      { no: "03", title: "하위분류·밸류체인 — 돈을 내는 고객" },
+      { no: "04", title: "프로토콜 비교 — 매출의 양이 아니라 질" },
+      { no: "05", title: "촉매 — 2026 하반기" },
+      { no: "06", title: "리스크" },
+      { no: "07", title: "전망 — 성인식을 통과하는 소수" },
+    ],
+    bodyHtml: DEPIN_DEEPDIVE_BODY,
+    canonical: null,
+  },
+  {
     slug: "asset-xrp-etf-clarity-vs-escrow-2026-07",
     type: "deepdive",
     title: "리플 XRP(XRP) 분석: 소송은 끝났고 ETF는 들어오는데, 왜 가격은 확인해주지 않나",
@@ -746,7 +976,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     author: "Tradelab 리서치",
     readMinutes: 11,
     publishedAt: "2026-07-05T10:00:00+09:00",
-    featured: true,
+    featured: false,
     takeaways: [
       "펀더멘털-가격 괴리: SEC 소송 종결(2025-08)·현물 XRP ETF 7종(AUM ~$1B, 누적 유입 ~$1.3B)·RLUSD의 XRPL 추월에도 XRP는 1달러 초반(2025.7 고점 ~$3.65 대비 -70%대).",
       "핵심 논쟁은 방향이 아니라 '가치 귀속' — RLUSD·정산 볼륨 증가가 XRP 토큰 수요로 직결되지 않을 수 있다(RLUSD 직접 정산의 XRP 브릿지 카니벌라이제이션).",

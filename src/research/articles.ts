@@ -25,6 +25,84 @@ import type {
 
 // ── 본문 (HTML, .prose-research 타이포그래피) ─────────────────────────
 
+const WEEKLY_18_BODY = `
+<h2 id="s1">1. 한 주 요약 — 랠리를 만든 흐름이, 이틀 만에 반대로 돌았다</h2>
+<p>#17(7/20) 이후 한 주(7/20~7/26)는 우리가 지난 글 말미에 "판정 지표"로 걸어 둔 두 변수 — <strong>주간 ETF 순유입과 유가</strong> — 가 <strong>둘 다 우리에게 불리한 방향으로 답을 준</strong> 구간이었다. 주 초·중반까지는 #17의 강세 서사가 이어졌다. 6월 CPI 균열이 만든 온기와 7거래일 연속 ETF 순유입(누적 ~$1B, SoSoValue 집계 보도 기준)에 힘입어 BTC는 7월 23일 한때 <strong>$66,500~66,700</strong>까지 올라 #17의 고점($65.6K)마저 넘어섰다(<a href="https://www.coinreporter.io/2026/07/crypto-market-analysis/">CoinReporter</a>). 그런데 주 후반, 랠리를 떠받치던 그 흐름이 <strong>정확히 반대로 꺾였다</strong> — 7월 24일 7일 유입 행진이 끊기며 BTC 현물 ETF에서 <strong>-$225.2M</strong>(IBIT -$212M 주도)이 빠졌고, 25일에도 유출이 이어져 <strong>이틀 합산 $465M 이상</strong>이 이탈했다(보도 기준, <a href="https://en.cryptonomist.ch/2026/07/24/bitcoin-etf-outflows-streak-end/">Cryptonomist</a>, <a href="https://news.bitcoin.com/bitcoin-price-64000-reclaim-july-25-2026/">Bitcoin.com</a>). BTC는 <strong>$64K대</strong>로 되밀렸고, 공포·탐욕 지수는 27(공포)로 내려앉았다.</p>
+<p><strong>우리 관점 — #17의 프레임이 시험대에 올랐다.</strong> #17에서 우리는 "강세 전환의 필요조건(ETF 유입·인플레 완화)은 갖췄고, 충분조건(지정학 안정)이 빠졌다"고 정리하며 판정 지표로 <strong>유가와 주간 ETF 순유입</strong>을 걸었다. 이번 주 그 둘의 채점표가 나왔다 — <strong>충분조건(지정학)은 여전히 결석</strong>이고(워싱턴-테헤란 긴장 재점화·유가 고착), 더 중요하게는 <strong>우리가 '충족됐다'고 본 필요조건(ETF 유입) 자체가 이틀 만에 무너졌다</strong>. 즉 이번 주의 핵심 뉴스는 FOMC를 앞둔 관망이 아니라, <strong>필요조건이 다시 '미충족'으로 회귀했다는 것</strong>이다. 시장은 완화적 결과를 미리 당겨 산 뒤, 정작 그 근거였던 흐름이 빠지자 FOMC라는 이벤트 앞에서 <strong>위험을 덜어내는(de-risking)</strong> 국면으로 들어섰다.</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 7/23~25, 보도 기준)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>BTC</td><td class="num">~$63,700~66,700</td><td>7/23 고점 ~$66.7K 후 $64K대 회귀, 7월 저점(~$58K) 대비 ~+13%</td></tr>
+<tr><td>ETH</td><td class="num">~$1,900~1,955</td><td>$2,000 심리 저항 문턱, BTC 대비 상대강도 유지</td></tr>
+<tr><td>BTC 현물 ETF</td><td class="num">7일 유입 행진 종료</td><td>7/24 -$225M(IBIT -$212M), 이틀 -$465M+ 이탈</td></tr>
+<tr><td>공포·탐욕 지수</td><td class="num">27 (공포)</td><td>주 후반 위험회피로 하락</td></tr>
+<tr><td>전체 시총</td><td class="num">~$2.2~2.3조</td><td>BTC 도미넌스 견고, 7월 초 &lt;$2조서 회복</td></tr>
+</tbody>
+</table>
+</div>
+<figure>
+  <div class="prose-figure-placeholder" role="img" aria-label="7일 ETF 유입 랠리가 이틀 유출로 꺾이며 BTC가 FOMC 앞에서 되밀리는 개념도 자리"></div>
+  <figcaption>그림 1. 7거래일 ETF 순유입(~$1B)에 $66.7K까지 올랐던 BTC가, 유입 행진 종료(7/24~25 -$465M+)와 테헤란 긴장 재점화로 FOMC(7/28~29)를 앞두고 $64K대로 되밀림(개념도, as-of 7/25). 라이브 수치는 <a href="/sectors">섹터 동향</a>·<a href="/">시그널 스캐너</a> 참조.</figcaption>
+</figure>
+
+<h2 id="s2">2. 매크로 — 홀드는 거의 확실하다, 문제는 '살아있는 인상'과 유가다</h2>
+<p><strong>① FOMC는 홀드, 그러나 인상이 '거래 가능한 꼬리'다.</strong> 7월 28~29일 FOMC는 이번 주 최대 이벤트다. 시장은 금리 <strong>동결</strong>을 사실상 기정사실로 보지만, 논쟁의 축은 "완화냐 긴축이냐"가 아니라 <strong>"인상 폭이 살아있느냐"</strong>에 있다 — 0.25%p 인상이 여전히 <strong>'거래 가능한(live and tradable)' 시나리오</strong>로, 시장은 대략 <strong>3분의 1가량의 인상 확률</strong>을 반영하고 있다(보도 기준, <a href="https://coingape.com/markets/bitcoin-price-prediction-ahead-of-july-28-29-fomc-meeting/">CoinGape</a>, <a href="https://bitcoinworld.co.in/fomc-preview-fed-hold-rates-july-2026/">BitcoinWorld</a>). 워시 의장은 <strong>'구성적 모호성(constructive ambiguity)'</strong>을 사실상의 모토로 내세우며 "높은 인플레를 용인하지 않겠다"는 톤을 유지해 왔다(<a href="https://cryptobriefing.com/fed-warsh-policy-uncertainty-crypto/">Crypto Briefing</a>). 즉 시장이 읽어야 할 진짜 신호는 동결 여부(거의 확정)가 아니라 <strong>워시가 성명·기자회견에서 '살아있는 인상'을 테이블에 남겨두느냐</strong>다.</p>
+<p><strong>② 유가·지정학은 여전히 덮개다.</strong> #17에서 짚은 호르무즈발 에너지 경로는 이번 주에도 해소되지 않았다 — 워싱턴-테헤란 긴장이 재점화하며 미 증시가 밀렸고, 유가 고착과 <strong>미 국채 10년물 금리 상승</strong>이 크립토에 위험회피 압력을 더했다(<a href="https://news.bitcoin.com/bitcoin-price-64000-reclaim-july-25-2026/">Bitcoin.com</a>). 이 조합은 워시에게 매파 톤을 유지할 명분을 준다 — 유가가 물가 지표로 번지면 6월 CPI 균열은 여전히 '일시적 착시'로 격하될 수 있고, 그 리스크가 FOMC 성명의 톤을 좌우한다.</p>
+
+<h2 id="s3">3. 시장 구조 — 흐름이 곧 가격이었다는 증거</h2>
+<p>이번 주의 가격 궤적은 우리가 #13부터 앞세워 온 명제 — <strong>"가격보다 흐름"</strong> — 을 거의 교과서적으로 보여줬다. 7거래일 연속 유입(누적 ~$1B, 보도 기준)이 BTC를 $66.7K까지 밀어 올렸고, 그 흐름이 끊기자마자(7/24~25 -$465M+) 가격이 $64K대로 되밀렸다. 첫 유출은 <strong>7월 13일 이후 첫 마이너스 세션</strong>이었고, 유출의 대부분(-$212M)은 블랙록 IBIT에서 나왔다(<a href="https://cryptobriefing.com/bitcoin-ethereum-etf-outflows-july-24/">Crypto Briefing</a>).</p>
+<p>여기서 #17에서 인용한 시티의 감응도 — <strong>"ETF 순유입 $100M당 당일 BTC +53bp"</strong> — 를 이번 주에 대입해 보면 구도가 선명해진다. 이틀 -$465M은 시티 계수로 대략 <strong>-250bp(약 -2.5%)의 기계적 하방 압력</strong>에 해당하고, 이는 $66.7K→$64.4K의 되밀림(~-3.4%)의 <strong>대부분을 FOMC를 소환하지 않고도 설명</strong>한다. 이것이 우리의 이번 주 <strong>변동 관점</strong>이다 — 컨센서스는 FOMC를 이번 주의 촉매로 지목하지만, 우리는 <strong>이미 진행 중인 ETF 흐름 반전이 더 많은 정보를 담은 신호</strong>라고 본다. FOMC는 '인상 꼬리(1/3)'를 두고 벌이는 이산적(discrete) 동전던지기지만, 흐름은 <strong>이미 방향을 튼 연속적(continuous) 신호</strong>다. 기관은 회의를 기다리지 않고 이미 발로 투표했다.</p>
+<blockquote>필요조건(유입)이 다시 미충족으로 돌아섰다는 것 — 이것이 이번 주의 진짜 헤드라인이다. FOMC가 그 흐름을 되돌릴 수 있는지가 다음 주의 질문이고, 그 답은 성명의 점(dot)이 아니라 회의 이후의 주간 순유입에서 나온다.</blockquote>
+<p>한편 기관 파이프라인 자체가 마른 것은 아니다 — Crypto.com이 시타델 증권(Citadel Securities)으로부터 창사 이래 첫 기관 투자로 <strong>$400M(post-money 밸류 $200억)</strong>를 유치했고(<a href="https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-monday-july-20-2026-crypto-prices-mixed-as-second-half-2026-outlooks-conflict-151956982.html">Yahoo Finance</a>), MicroStrategy는 신규 자본 조달 속에서도 BTC 트레저리를 유지했다. 구조적 수요의 파이프는 살아있고, 이번 주 빠진 것은 <strong>단기 ETF 플로우</strong>다 — 이 구분이 다음 주 판정의 핵심이다.</p>
+
+<h2 id="s4">4. 섹터 로테이션 — ETH의 상대강도, 그리고 되살아난 DeFi 리스크</h2>
+<p>이번 주 로테이션은 두 얼굴이었다. 주 초반엔 <strong>ETH·SOL이 BTC를 앞섰고</strong>, ETH는 $2,000 심리 저항을 시험하며(고점 ~$1,955) BTC 되밀림 국면에서도 상대강도를 유지했다(<a href="https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-monday-july-20-2026-crypto-prices-mixed-as-second-half-2026-outlooks-conflict-151956982.html">Yahoo Finance</a>). 밈 구간에서는 Pump.fun(PUMP)이 주간 <strong>+31%</strong>로 최고 상승 자산에 올랐다(<a href="https://cryptal.com/en/blog/top-5-cryptos-of-the-week-july-20-2026">Cryptal</a>) — 주 초 위험선호가 밈까지 번졌다는 신호지만, 주 후반 ETF 유출과 겹쳐 회전의 지속성은 검증되지 않았다.</p>
+<p>그림자는 <strong>온체인 보안</strong>에서 나왔다. 7월 22~23일 다수 프로토콜에서 조율된 익스플로잇으로 약 <strong>$35M</strong>이 유출됐다 — AFX Trade(아비트럼 $24.15M), Verus-이더리움 브릿지($7.54M), B² Network($3.86M)(<a href="https://www.coinreporter.io/2026/07/crypto-market-analysis/">CoinReporter</a>). 규모 자체는 시장을 흔들 수준이 아니지만, 위험회피가 짙어지는 국면에서 <strong>브릿지·신생 프로토콜의 스마트컨트랙트 리스크</strong>가 알트 자금의 발목을 잡는 전형적 패턴이다. 지난주 함께 발행한 <a href="/research/sector-depin-revenue-up-tokens-down-2026-07">DePIN 딥다이브</a>에서 강조한 "매출·가격 다이버전스"와 마찬가지로, 알트 구간은 여전히 <strong>선별의 시장</strong>이다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th class="num">순위</th><th>섹터/자산</th><th>성격</th><th>이번 구간 동인</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td>ETH</td><td>상대강도 리더</td><td>$2,000 문턱 시험, BTC 되밀림에도 견조 — 앵커 복귀 조짐</td></tr>
+<tr><td class="num">2</td><td>SOL</td><td>동반 강세</td><td>주 초 BTC 상회, 위험선호 국면 수혜</td></tr>
+<tr><td class="num">3</td><td>BTC</td><td>흐름 의존</td><td>7일 유입에 $66.7K→유출 반전에 $64K대, 도미넌스는 견고</td></tr>
+<tr><td class="num">4</td><td>밈(PUMP)</td><td>단기 스파이크</td><td>주간 +31%, 주 초 위험선호의 꼬리 — 지속성 미검증</td></tr>
+<tr><td class="num">5</td><td>DeFi·브릿지</td><td>리스크 재부각</td><td>7/22~23 익스플로잇 ~$35M, 위험회피 국면 취약</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s5">5. 관점이 바뀌는 조건 · 다음 주 관전 포인트</h2>
+<ul>
+  <li><strong>FOMC (7/28~29)</strong> — 동결은 거의 확정. 관전 포인트는 (1) '살아있는 인상(1/3 꼬리)'이 현실화하는지, (2) 워시가 성명·기자회견에서 매파 톤을 유지하는지다. 동결+톤 완화면 흐름 재반전의 방아쇠, 인상 또는 '매파적 동결'이면 유출 가속.</li>
+  <li><strong>주간 ETF 순유입의 재반전</strong> — 우리의 1차 판정 지표. 시티 감응도($100M당 +53bp) 기준, 유입이 다시 플러스로 돌면 하방은 구조적으로 제한되고, 유출이 굳으면 #14~15의 약세 구도로 회귀. 성명보다 회의 이후 3~5거래일 플로우를 보라.</li>
+  <li><strong>유가·호르무즈</strong> — 테헤란 긴장·유가 고착이 이어지면 7월 CPI 재가속 리스크가 6월 균열을 착시로 격하. 완화 시 워시의 매파 명분이 약해진다.</li>
+  <li><strong>ETH $2,000 시험</strong> — BTC 되밀림 속 ETH 상대강도가 유지되는지가 회전의 질을 가른다. $2,000 돌파는 '앵커 복귀', 실패는 BTC 동조 재편입.</li>
+</ul>
+
+<div class="prose-callout">
+  <p><strong>우리가 틀리는 조건.</strong> "필요조건이 다시 무너졌다" 읽기는 두 경우 깨진다 — (1) FOMC가 동결과 함께 '살아있는 인상' 문구를 걷어내고, 그 안도에 ETF 유입이 곧바로 재반전할 때(우리 예상보다 빠른 강세). (2) 반대로 인상 꼬리가 현실화하거나 유가가 재급등해 유출이 추세로 굳고 BTC가 #17의 방어선 <strong>$62,500</strong>을 잃을 때(약세 심화). 어느 쪽이든 판정 지표는 동일하다 — 회의 이후의 <strong>주간 ETF 순유입</strong>, 그리고 <strong>유가</strong>.</p>
+</div>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 주간 시황은 시장 구조에 대한 관찰·교육 콘텐츠이며 BBDX 시그널과 무관하다. 본문의 가격·플로우·확률 수치는 명시된 as-of/보도 기준 값으로 변동하며(출처 간 -$225M·-$240M 등 소폭 차이 존재), 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따른다. 본 글은 단독 매매 신호나 가격 목표를 발행하지 않으며, 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://www.coinreporter.io/2026/07/crypto-market-analysis/">CoinReporter — 7월 20~26 시황(BTC $66.5~66.7K 고점·7월 +13%·DeFi 익스플로잇 $35M)</a></li>
+  <li><a href="https://en.cryptonomist.ch/2026/07/24/bitcoin-etf-outflows-streak-end/">Cryptonomist — 7일 유입 행진 종료, 7/24 -$225.2M</a></li>
+  <li><a href="https://cryptobriefing.com/bitcoin-ethereum-etf-outflows-july-24/">Crypto Briefing — BTC -$225M(IBIT -$212M)·ETH -$71M(7/24)</a></li>
+  <li><a href="https://news.bitcoin.com/bitcoin-price-64000-reclaim-july-25-2026/">Bitcoin.com — 이틀 -$465M+·테헤란 긴장·10년물 금리 상승(7/25)</a></li>
+  <li><a href="https://coingape.com/markets/bitcoin-price-prediction-ahead-of-july-28-29-fomc-meeting/">CoinGape — FOMC 7/28~29 프리뷰, 인상 확률 ~1/3</a></li>
+  <li><a href="https://bitcoinworld.co.in/fomc-preview-fed-hold-rates-july-2026/">BitcoinWorld — 6월 매파 선회 후 동결 전망</a></li>
+  <li><a href="https://cryptobriefing.com/fed-warsh-policy-uncertainty-crypto/">Crypto Briefing — 워시의 '구성적 모호성'</a></li>
+  <li><a href="https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-monday-july-20-2026-crypto-prices-mixed-as-second-half-2026-outlooks-conflict-151956982.html">Yahoo Finance — ETH·SOL 상대강도·Crypto.com $400M(시타델, 밸류 $200억)</a></li>
+  <li><a href="https://cryptal.com/en/blog/top-5-cryptos-of-the-week-july-20-2026">Cryptal — 주간 최고 상승 PUMP +31%</a></li>
+</ul>
+`;
+
 const WEEKLY_17_BODY = `
 <h2 id="s1">1. 두 주 요약 — 인플레이션 벽에 첫 균열이 갔다, 그런데 하늘에서 미사일이 떨어진다</h2>
 <p>#16(7/4) 이후 두 주(7/6~7/20)는 우리가 5월부터 추적해 온 두 개의 거시 변수 — <strong>인플레이션(금리)과 지정학(이란)</strong> — 가 처음으로 <strong>반대 방향으로 갈라선</strong> 구간이었다. 한쪽에서는 6월 CPI가 예상을 크게 하회하며(근원 전월比 보합, 전년比 2.6% vs 예상 2.8%, 보도 기준) 워시 체제 아래 처음으로 "인상 리스크 소멸 → 인하 재논의"의 문이 열렸고, BTC는 발표 직후 $64K를 회복해 한때 <strong>$65,600</strong>까지 올랐다(<a href="https://www.coindesk.com/business/2026/07/14/live-updates-bitcoin-price-btc-higher-after-cpi-declined-in-june">CoinDesk</a>, <a href="https://bitcoinmagazine.com/markets/bitcoin-price-jumps-above-64000">Bitcoin Magazine</a>). 다른 쪽에서는 미국의 대이란 공습이 6일째 이어지고 <strong>호르무즈 해협이 사실상 봉쇄</strong>되며 유가가 되올랐고, BTC는 주말로 가며 $62,500 지지 방어전으로 되밀렸다(<a href="https://finance.yahoo.com/personal-finance/investing/article/bitcoin-and-ethereum-prices-today-friday-july-17-2026-prices-ease-as-conflict-in-iran-escalates-125602208.html">Yahoo Finance</a>, <a href="https://cryptoslate.com/bitcoin-must-defend-62500-as-altcoins-lose-8-8-billion-in-a-week/">CryptoSlate</a>).</p>
@@ -909,6 +987,34 @@ const MACRO_REGIME_BODY = `
 // ── seed 기사 (2026-06-14 발행분) ───────────────────────────────────
 export const RESEARCH_ARTICLES: ResearchArticle[] = [
   {
+    slug: "weekly-18-flows-reverse-into-fomc-2026-07",
+    type: "weekly",
+    title: "주간 시황 #18 — 흐름이 되돌아섰다: 7일 유입 랠리가 이틀 만에 꺾이고, 시장은 FOMC 앞에서 위험을 던다",
+    dek: "주 중반 BTC는 7거래일 연속 ETF 순유입(누적 ~$1B)에 힘입어 $66.7K까지 올라 #17 고점을 넘었다. 그런데 랠리를 만든 그 흐름이 이틀 만에 반대로 꺾였다 — 7/24 유입 행진 종료, 이틀 -$465M+ 유출(IBIT 주도). #17에서 '충족됐다'고 본 필요조건(ETF 유입)이 다시 무너진 것이 진짜 헤드라인이며, 시장은 7/28~29 FOMC 앞에서 위험을 덜어내고 있다.",
+    sector: "btc",
+    tags: ["주간 시황", "매크로", "FOMC", "워시", "ETF", "섹터 로테이션", "ETH"],
+    assets: ["BTC", "ETH"],
+    author: "Tradelab 리서치",
+    readMinutes: 9,
+    publishedAt: "2026-07-26T14:00:00+09:00",
+    featured: true,
+    takeaways: [
+      "흐름 반전이 헤드라인: 7거래일 유입(~$1B)에 BTC가 $66.7K(7/23)까지 올랐다가, 7/24 유입 행진 종료·이틀 -$465M+ 유출(IBIT -$212M)에 $64K대로 회귀. 7/13 이후 첫 마이너스 세션.",
+      "#17 프레임이 시험대에 — '충족됐다'고 본 필요조건(ETF 유입)이 다시 미충족으로 회귀했고, 충분조건(지정학)은 여전히 결석(테헤란 긴장 재점화·유가 고착·10년물 상승).",
+      "변동 관점: 컨센서스는 FOMC를 촉매로 보지만, 우리는 이미 진행 중인 ETF 흐름 반전이 더 정보량 큰 신호라 본다 — 시티 감응도($100M당 +53bp)로 -$465M ≈ -250bp, $66.7K→$64K 되밀림 대부분을 설명.",
+      "FOMC(7/28~29)는 동결 거의 확정, 관건은 '살아있는 인상(~1/3 꼬리)'과 워시의 톤. ETH는 $2,000 시험하며 상대강도 유지. 단독 매매신호·가격목표는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "한 주 요약 — 랠리를 만든 흐름이 반대로 돌았다" },
+      { no: "02", title: "매크로 — 홀드는 확실, 문제는 '살아있는 인상'과 유가" },
+      { no: "03", title: "시장 구조 — 흐름이 곧 가격이었다는 증거" },
+      { no: "04", title: "섹터 로테이션 — ETH 상대강도와 되살아난 DeFi 리스크" },
+      { no: "05", title: "관점이 바뀌는 조건 · 다음 주 관전 포인트" },
+    ],
+    bodyHtml: WEEKLY_18_BODY,
+    canonical: null,
+  },
+  {
     slug: "weekly-17-cpi-crack-vs-hormuz-2026-07",
     type: "weekly",
     title: "주간 시황 #17 — 인플레이션 벽의 첫 균열, 호르무즈의 덮개: ETF 유출 추세가 끝났다",
@@ -919,7 +1025,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     author: "Tradelab 리서치",
     readMinutes: 9,
     publishedAt: "2026-07-20T17:00:00+09:00",
-    featured: true,
+    featured: false,
     takeaways: [
       "인플레이션 벽의 첫 균열 — 6월 CPI 하회(근원 전월比 보합·전년比 2.6% vs 예상 2.8%, 보도 기준)에 BTC가 한때 $65.6K까지 반등. #16의 약한 고용과 합쳐 완화 데이터 2연속.",
       "구조 전환: 10거래일 -$2.73B ETF 유출 행진이 3거래일 +$510M(IBIT 주도)으로 종료 — #15~16의 판정 문턱(유입 지속) 충족. 시티는 '유입 $100M당 +53bp' 감응도를 공식화.",

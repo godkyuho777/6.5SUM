@@ -25,6 +25,186 @@ import type {
 
 // ── 본문 (HTML, .prose-research 타이포그래피) ─────────────────────────
 
+const MEME_DEEPDIVE_BODY = `
+<h2 id="s1">1. 핵심 요약 — 코인은 죽고, 하우스만 산다</h2>
+<p>밈코인 섹터를 "죽었다"고 부르기는 쉽다 — 정점 대비 시가총액이 <strong>-$110B</strong> 증발했고(2024 피크 이후, 보도 기준, <a href="https://bitcoinfoundation.org/news/altcoins/pump-fun-dead/">Bitcoin Foundation</a>), 대표 발행 플랫폼 Pump.fun의 <strong>토큰 '졸업률'(유동성 풀로 승격되는 비율)이 0.26%</strong>까지 붕괴했다(2026.6, <a href="https://www.dextools.io/news/pump-fun-graduation-collapse-solana-fees-2026">DEXTools</a>). 1,000개를 발행하면 <strong>2~3개만 살아남고 997개가 소멸</strong>한다는 뜻이다. 그러나 "죽었다"는 이 섹터의 진짜 구조를 가린다.</p>
+<p><strong>우리 관점.</strong> 밈코인은 실패한 자산군이 아니라, <strong>처음부터 자산군이 아니었다.</strong> 그것은 하우스(카지노)가 있는 <strong>게임</strong>이고, 그 하우스는 런치패드다. Pump.fun은 졸업률이 0.26%로 무너지는 와중에도 <strong>누적 매출 $1B</strong>를 돌파했다(<a href="https://www.tradingview.com/news/cointelegraph:9c3a24b10094b:0-how-pump-fun-captured-80-of-solana-memecoins-and-can-it-last/">Cointelegraph/TradingView</a>) — <strong>발행된 코인이 살든 죽든 하우스는 수수료를 걷기 때문</strong>이다. 그래서 우리는 이 섹터를 세 개의 서로 다른 것으로 분해해 읽는다 — (1) <strong>코인</strong>(투자 불가, 생존율 참혹), (2) <strong>런치패드=하우스</strong>(회전에 과세하는 실매출 인프라), (3) 섹터 전체 수수료라는 <strong>매크로 게이지</strong>(리테일 위험선호의 가장 순수한 체온계). 오늘 함께 발행한 <a href="/research/asset-sol-fee-collapse-vs-etf-bid-2026-07">SOL 분석</a>에서 밈 붕괴가 솔라나 수수료를 -84% 끌어내린 것을 봤다 — 그 사건의 섹터 측 해부가 이 글이다.</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 표기, 보도 기준)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>섹터 시총</td><td class="num">~$30.6B</td><td>2026.3 ~$47B서 축소, 2024 피크 대비 -$110B</td></tr>
+<tr><td>체인별(밈)</td><td class="num">SOL ~$3.78~4B / Base ~$308.5M</td><td>솔라나가 밈 생태계 압도</td></tr>
+<tr><td>Pump.fun 졸업률</td><td class="num">~0.26%</td><td>2026.6, 3개월간 -80% (1,000개 중 2~3개 생존)</td></tr>
+<tr><td>Pump.fun 일일 매출</td><td class="num">$4.8M → ~$0.8M</td><td>1월→6월 -83%, 누적 매출은 $1B 돌파</td></tr>
+<tr><td>Pump.fun 점유</td><td class="num">솔라나 밈의 ~80%</td><td>2위 LetsBonk/BONK.fun</td></tr>
+<tr><td>솔라나 앱 매출 기여</td><td class="num">Q1 ~36% ($124.7M/$342.2M)</td><td>단일 앱 최대 — 붕괴가 네트워크 수수료 -84% 유발</td></tr>
+</tbody>
+</table>
+</div>
+<figure>
+  <div class="prose-figure-placeholder" role="img" aria-label="졸업률 0.26%로 코인은 소멸하는데 런치패드 하우스 매출은 누적 $1B로 유지되는 구조 개념도 자리"></div>
+  <figcaption>그림 1. 코인 생존율(졸업률 0.26%)은 붕괴했지만 하우스(Pump.fun 누적 $1B)는 회전에 과세해 살아남는 구조 — 밈 섹터의 가치는 코인이 아니라 인프라에 있다(개념도, as-of 2026-07). 라이브 수치는 <a href="/sectors">섹터 동향</a> 참조.</figcaption>
+</figure>
+
+<h2 id="s2">2. 섹터 개요·시장 규모 — $30.6B, 정점서 -$110B</h2>
+<p>밈코인은 <strong>내재 현금흐름·유틸리티 없이 순전히 어텐션(관심)과 커뮤니티로만 값이 매겨지는</strong> 토큰이다. 섹터 시총은 2024년 피크 이후 <strong>~$110B</strong>가 증발했고, 2026년 3월 ~$47B에서 <strong>~$30.6B</strong>까지 재차 축소됐다(<a href="https://coinlaw.io/memecoin-statistics/">CoinLaw</a>). <a href="/research/weekly-17-cpi-crack-vs-hormuz-2026-07">주간 시황 #17</a>에서 짚었듯 Q2 2026은 8개 내러티브가 전부 마이너스로 마감했고, 밈은 그 최약체군에 있었다.</p>
+<p>지리적으로 이 섹터는 <strong>솔라나에 극단적으로 편중</strong>돼 있다 — 솔라나 밈 서브카테고리가 ~$3.78~4B인 반면 Base 밈은 ~$308.5M에 그친다(2026.4, <a href="https://coinlaw.io/memecoin-statistics/">CoinLaw</a>). 저수수료·고속 처리라는 솔라나의 <a href="/research/asset-sol-fee-collapse-vs-etf-bid-2026-07">모놀리식 설계</a>가 '초저비용 대량 발행'에 최적이었기 때문이다. 이 편중이 바로 밈 붕괴가 솔라나 펀더멘털에 직접 전이된 이유이기도 하다.</p>
+
+<h2 id="s3">3. 구조 해부 — 코인 vs 하우스 vs 게이지</h2>
+<p>이 섹터를 이해하는 유일한 방법은 <strong>세 층을 분리</strong>하는 것이다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>층</th><th>정체</th><th>투자 관점</th><th>핵심 지표</th></tr></thead>
+<tbody>
+<tr><td>① 코인</td><td>개별 밈 토큰(BONK·PENGU·WIF 등)</td><td><strong>투자 불가</strong> — 생존율 참혹, 극단적 왜도</td><td>졸업률·생존율·홀더 집중도</td></tr>
+<tr><td>② 하우스</td><td>런치패드(Pump.fun·LetsBonk·Bags·Zora)</td><td><strong>실매출 인프라</strong> — 회전에 과세</td><td>플랫폼 매출·발행량·점유율</td></tr>
+<tr><td>③ 게이지</td><td>섹터 전체 수수료·거래량</td><td><strong>매크로 신호</strong> — 리테일 위험선호</td><td>섹터 수수료 추세·체인 수수료 전이</td></tr>
+</tbody>
+</table>
+</div>
+<p>①에서 돈을 벌려는 시도는 통계적으로 카지노에서 개별 판에 베팅하는 것과 같다 — 졸업률 0.26%는 <strong>기대값이 구조적으로 마이너스</strong>임을 말한다. 진짜 '펀더멘털'이 있는 곳은 ②다. 그리고 ③은 이 글의 가장 비직관적인 통찰이다 — <strong>밈 수수료의 총합은 리테일 투기 수요의 순도 100% 체온계</strong>다. 밈에는 유틸리티 서사도 기관 내러티브도 없으므로, 오직 '지금 개미가 도박할 여력·의지가 있는가'만을 반영한다.</p>
+
+<h2 id="s4">4. 하우스의 경제학 — 런치패드는 왜 코인이 죽어도 버나</h2>
+<p>Pump.fun의 2026년은 하우스 경제학의 교과서다. 일일 매출이 1월 <strong>$4.8M → 6월 ~$0.8M(-83%)</strong>로 무너졌지만, 그 와중에 <strong>누적 매출 $1B</strong>를 돌파했다(<a href="https://www.dextools.io/news/pump-fun-graduation-collapse-solana-fees-2026">DEXTools</a>, <a href="https://www.tradingview.com/news/cointelegraph:9c3a24b10094b:0-how-pump-fun-captured-80-of-solana-memecoins-and-can-it-last/">Cointelegraph</a>). 핵심은 <strong>"플랫폼 매출이 발행의 '질'과 분리됐다"</strong>는 것이다 — 코인이 졸업하든 소멸하든, 발행되는 순간 모두가 하우스에 수수료를 낸다(<a href="https://blofin.com/academy/education/solana-memecoins-and-pump-fun-explained">BloFin</a>).</p>
+<blockquote>모든 코인은, 살든 죽든, 하우스에 낸다. 밈 섹터에서 지속 가능한 유일한 사업 모델은 코인을 <strong>사는</strong> 것이 아니라 코인 발행에 <strong>과세하는</strong> 것이다 — 그리고 그 과세 매출조차 회전이 식으면 무너진다는 것(-83%)이 이 섹터의 이중 교훈이다.</blockquote>
+<p>다만 하우스 매출의 -83% 붕괴는 중요한 각주를 남긴다 — <strong>하우스도 사이클을 탄다.</strong> 회전(발행·거래)이 리테일 위험선호에 연동되므로, 런치패드 매출은 '카지노 티켓 판매량'처럼 <strong>투기 사이클의 확대·축소를 증폭</strong>한다. Pump.fun 점유율은 솔라나 밈의 ~80%로 여전히 지배적이고 LetsBonk/BONK.fun이 2위를 지키지만(<a href="https://coinbureau.com/analysis/best-memecoin-launchpads">Coin Bureau</a>), 하우스들의 총매출 추세가 곧 ③ 게이지의 실체다.</p>
+
+<h2 id="s5">5. 게이지로서의 밈 — 왜 SOL·알트 전체가 함께 흔들렸나</h2>
+<p>이 섹터의 가장 실용적인 쓸모는 <strong>선행 지표</strong>로서다. 밈 수수료는 유틸리티·기관 수요가 섞이지 않은 <strong>순수 리테일 투기 신호</strong>이므로, 그 붕괴는 위험곡선 전체의 조기 경보로 읽힌다. 실제로 2026년 상반기 밈 회전 붕괴는 (1) 솔라나 네트워크 수수료 -84%(<a href="/research/asset-sol-fee-collapse-vs-etf-bid-2026-07">SOL 분석</a>), (2) 솔라나 일일 매출 -79%($314,700, 3월 초), (3) 알트 전반의 자금 이탈(<a href="/research/weekly-17-cpi-crack-vs-hormuz-2026-07">주간 #17</a>의 알트 -$8.8B)과 동시에 진행됐다. 밈이 먼저 식고, 그 다음 그것을 태우던 체인의 펀더멘털이 식은 것이다.</p>
+<p>2026년 7월엔 리스크가 한 겹 더 드러났다 — BONK 관련 $20M DAO 해킹과 함께 SOL이 한 주 -13%를 겪으며(<a href="https://www.kucoin.com/news/flash/solana-meme-coins-in-july-2026-20m-hack-13-sol-drop-and-market-survival">KuCoin</a>), 밈 인프라의 <strong>스마트컨트랙트·거버넌스 리스크</strong>가 위험회피 국면에서 증폭된다는 것을 다시 확인시켰다. <a href="/research/sector-depin-revenue-up-tokens-down-2026-07">DePIN 딥다이브</a>에서 '매출의 질'을 물었듯, 밈에서는 아예 <strong>'매출의 성격'(투기 vs 실수요)</strong>을 묻는 것이 핵심이다.</p>
+
+<h2 id="s6">6. 리스크</h2>
+<div class="prose-callout" data-variant="warn">
+  <ul>
+    <li><strong>개별 코인의 기대값은 구조적 마이너스.</strong> 졸업률 0.26% — 1,000개 중 997개 소멸. 이 섹터의 ①층(코인)은 투자 대상이 아니라 도박 대상이며, 본 글은 어떤 밈코인도 매수 대상으로 제시하지 않는다.</li>
+    <li><strong>하우스도 사이클을 탄다.</strong> 런치패드 매출은 회전 의존적이라 -83%처럼 급변. '인프라니까 안전'이라는 가정은 틀렸다.</li>
+    <li><strong>인프라 리스크 증폭.</strong> $20M DAO 해킹(BONK) 등 스마트컨트랙트·거버넌스 취약점이 위험회피 국면에서 연쇄 하락을 촉발.</li>
+    <li><strong>규제.</strong> 발행량 과세 모델·무등록 증권성·소비자 보호(생존율 0.26%) 논쟁이 런치패드를 규제 표적으로 만들 수 있다.</li>
+    <li><strong>집중·전이 리스크.</strong> 솔라나 편중(~$4B vs Base ~$0.3B)으로, 밈 붕괴가 특정 체인 펀더멘털로 직접 전이된다(SOL 수수료 -84%).</li>
+  </ul>
+</div>
+
+<h2 id="s7">7. 전망 — 자산이 아니라 게이지로 읽어라</h2>
+<p>밈코인 섹터에 대한 우리의 결론은 명확하다 — <strong>이것을 알파의 원천(사서 오를 자산)으로 다루지 말고, 정보의 원천(시장 상태를 읽는 계기판)으로 다뤄라.</strong> ①코인 층은 기대값이 마이너스라 배제하고, ②하우스 층은 (투자 가능하다면) '회전에 과세하는 실매출 인프라'로 냉정히 밸류에이션하되 사이클 민감도를 크게 할인하며, ③게이지 층 — <strong>섹터 전체 수수료 추세</strong> — 은 리테일 위험선호의 선행 신호로 상시 모니터링한다.</p>
+<p><a href="/research/asset-sol-fee-collapse-vs-etf-bid-2026-07">SOL</a>·<a href="/research/asset-eth-ultrasound-money-is-dead-2026-07">ETH</a>·<a href="/research/sector-depin-revenue-up-tokens-down-2026-07">DePIN</a>을 관통한 하나의 질문 — "활동이 토큰 가치로 귀속되는가" — 을 밈에 던지면 답은 잔인하도록 명료하다. <strong>밈코인에서 활동은 코인 보유자가 아니라 하우스에게 귀속된다.</strong> 그러니 이 섹터를 볼 때 던질 질문은 "어떤 밈을 살까"가 아니라 "지금 하우스의 티켓이 얼마나 팔리고 있으며, 그것이 시장 전체에 대해 무엇을 말하는가"다.</p>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 섹터 분석은 디스커버리·교육 콘텐츠이며 BBDX 시그널 시스템과 무관하다. 본문의 시총·매출·졸업률 수치는 명시된 as-of/보도 기준 값으로 크게 변동하며(집계·시점별 차이 존재), 본 글은 어떤 밈코인·런치패드 토큰도 매수 대상으로 제시하지 않는다. 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따르며, 본 글은 단독 매매 신호나 가격 목표를 발행하지 않는다. 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://coinlaw.io/memecoin-statistics/">CoinLaw — 밈코인 통계 2026($30.6B·체인별·Pump.fun)</a></li>
+  <li><a href="https://bitcoinfoundation.org/news/altcoins/pump-fun-dead/">Bitcoin Foundation — 밈코인 2024 피크 이후 -$110B·Pump.fun -80%</a></li>
+  <li><a href="https://www.dextools.io/news/pump-fun-graduation-collapse-solana-fees-2026">DEXTools — Pump.fun 졸업률 0.26% 붕괴·솔라나 수수료 -84%</a></li>
+  <li><a href="https://www.tradingview.com/news/cointelegraph:9c3a24b10094b:0-how-pump-fun-captured-80-of-solana-memecoins-and-can-it-last/">Cointelegraph/TradingView — Pump.fun 솔라나 밈 80% 점유·누적 $1B</a></li>
+  <li><a href="https://blofin.com/academy/education/solana-memecoins-and-pump-fun-explained">BloFin — 솔라나 밈·졸업의 실제 확률(하우스 경제학)</a></li>
+  <li><a href="https://coinbureau.com/analysis/best-memecoin-launchpads">Coin Bureau — 2026 밈 런치패드(Pump.fun·LetsBonk·Bags·Zora)</a></li>
+  <li><a href="https://www.kucoin.com/news/flash/solana-meme-coins-in-july-2026-20m-hack-13-sol-drop-and-market-survival">KuCoin — 2026.7 솔라나 밈($20M BONK 해킹·SOL -13%)</a></li>
+  <li><a href="https://www.spotedcrypto.com/pump-fun-volume-collapse-solana-fee-revenue-2026/">Spoted Crypto — Pump.fun 붕괴와 솔라나 앱 매출 기여(Q1 $124.7M/$342.2M)</a></li>
+</ul>
+`;
+
+const ETH_DEEPDIVE_BODY = `
+<h2 id="s1">1. 핵심 요약 — '울트라사운드 머니'는 죽었다, 그런데 그게 약세 신호가 아니다</h2>
+<p>이더리움(ETH)을 사고파는 사람들은 아직도 2021~2023년의 논리로 이 자산을 잰다 — <strong>"수수료 소각 &gt; 발행 = 디플레이션 = 울트라사운드 머니"</strong>. 그런데 그 서사는 2026년에 <strong>사실상 폐기됐다.</strong> 2026년 봄 기준 ETH의 순공급 증가율은 <strong>연 +0.23%로 (약)인플레이션</strong> 구간에 들어섰다(<a href="https://www.bitget.com/news/detail/12560605348225">Bitget/ETH Supply</a>, <a href="https://www.21shares.com/en-us/insights/ethereum-2026-outlook-staked-slightly-inflationary-levered-by-scalability">21Shares</a>). 이유는 역설적이다 — 이더리움이 <strong>스스로의 활동을 L2로 내보냈기</strong> 때문이다. Dencun(2024.3) 이후 L2 수수료가 90~99% 싸지면서 메인넷 가스 매출은 하루 <strong>$30M대에서 ~$500K로 붕괴</strong>했고(보도 기준, <a href="https://finance.yahoo.com/news/layer-2-networks-helping-hurting-190900460.html">Yahoo Finance</a>), 태우는 것이 없으니 소각도 말랐다.</p>
+<p><strong>우리 관점.</strong> 우리가 오늘 함께 발행한 <a href="/research/asset-sol-fee-collapse-vs-etf-bid-2026-07">SOL 분석</a>과 나란히 놓으면 구도가 선명하다 — <strong>두 대형 L1이 같은 질문(활동이 토큰 가치로 귀속되는가) 앞에 정반대 방식으로 서 있다.</strong> SOL은 활동(주간 10억 트랜잭션)은 폭발했는데 그 수수료를 만들던 밈 엔진이 무너졌다. ETH는 반대로 <strong>설계적으로 활동을 L2에 넘겨</strong> 메인넷 수수료를 스스로 비웠다. 컨센서스는 이 둘 다 "가치 귀속 실패"로 읽고 ETH의 인플레이션 전환을 약세 신호로 본다. 우리는 다르게 본다 — <strong>ETH를 '수수료 소각 디플레이션 자산'으로 재는 프레임 자체가 낡았다.</strong> 2026년의 ETH는 <strong>스테이킹 수익(~3%)을 내는 결제·담보 리저브 자산</strong>으로 재평가되는 중이며, 그 렌즈에서 중요한 변수는 소각률이 아니라 (1) 스테이킹 비율·수익률, (2) 스테이킹 ETF 채택, (3) Fusaka 이후 <strong>L1 가치 포획(burn floor)의 복원</strong>이다.</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 표기, 보도 기준)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>ETH 가격</td><td class="num">~$1,770대 (7월 초)</td><td>7/7 ~$1,774, 2025 ATH ~$4,950 대비 -60%대</td></tr>
+<tr><td>시가총액</td><td class="num">~$233~250B</td><td>#2 자산, 집계·시점별 상이</td></tr>
+<tr><td>순공급 증가율</td><td class="num">~+0.23%/년</td><td>2026 봄, (약)인플레이션 — 디플레이션 서사 종료</td></tr>
+<tr><td>스테이킹</td><td class="num">~35.86M ETH (~29~30%)</td><td>~1.1M 검증인, 총수익률 ~3.1~3.3%</td></tr>
+<tr><td>메인넷 가스 매출</td><td class="num">$30M+ → ~$500K/일</td><td>Dencun 이후 붕괴(-98%대)</td></tr>
+<tr><td>P/F (가격/수수료)</td><td class="num">~1,172</td><td>대형주 중 최고 — 수수료를 스스로 비웠기 때문(§5)</td></tr>
+<tr><td>스테이킹 ETF 유입 비중</td><td class="num">2026 유입의 ~36%</td><td>5월 스팟 ETH ETF +$1.5B(상장 후 최대)</td></tr>
+</tbody>
+</table>
+</div>
+<figure>
+  <div class="prose-figure-placeholder" role="img" aria-label="메인넷 수수료가 L2로 이전되며 소각이 마르고 ETH가 스테이킹 리저브 자산으로 재평가되는 개념도 자리"></div>
+  <figcaption>그림 1. Dencun(2024.3) 이후 활동이 L2로 이전되며 메인넷 가스 매출($30M+→~$500K/일)과 소각이 붕괴, ETH가 '소각 디플레이션'에서 '스테이킹 수익 리저브' 자산으로 재평가되는 구도(개념도, as-of 2026-07). 라이브 수치는 <a href="/sectors">섹터 동향</a> 참조.</figcaption>
+</figure>
+
+<h2 id="s2">2. 프로젝트 개요 — ETH는 무엇을 하는 자산인가</h2>
+<p>이더리움은 스마트컨트랙트를 처음 일반화한 L1이자, 스테이블코인·DeFi·RWA·NFT·L2가 최종 정산(settlement)을 의탁하는 <strong>기반 결제·보안 레이어</strong>다. 2026년의 이더리움은 <strong>모듈러(modular)</strong> 전략을 택했다 — 실행(execution)을 롤업(L2)에 위임하고, 메인넷(L1)은 <strong>데이터 가용성(blob)과 최종성·보안</strong>을 판다. SOL이 한 체인에서 전부 처리하는 <a href="/research/asset-sol-fee-collapse-vs-etf-bid-2026-07">모놀리식</a>과 대비되는 구조적 선택이다.</p>
+<p>ETH 토큰의 역할은 네 가지다 — (1) 가스 수수료 지불, (2) <strong>검증인 스테이킹 담보</strong>(보안 예산의 원천이자 수익률의 원천), (3) DeFi 전반의 <strong>기축 담보</strong>, (4) L2가 L1에 데이터를 올릴 때 내는 <strong>blob 수수료의 소각 대상</strong>. 여기서 2026년 이더리움의 핵심 긴장이 나온다 — 모듈러 전략은 확장성엔 성공했지만, <strong>실행(=수수료)을 L2에 넘긴 대가로 L1의 현금흐름을 스스로 비웠다.</strong> §4에서 보듯 이것이 밸류에이션 논쟁의 진앙이다.</p>
+
+<h2 id="s3">3. 토크노믹스 — 소각·발행·그리고 깨진 디플레이션</h2>
+<p>ETH는 하드캡이 없다. 발행은 <strong>스테이킹 보상</strong>으로 나가고, 소각은 <strong>EIP-1559 base fee</strong>로 이뤄진다. 2021~2023년엔 활동이 많아 소각 &gt; 발행 → 순디플레이션이 자주 나왔고, 이것이 '울트라사운드 머니' 서사의 근거였다. 그러나 2024~2026년 L2 이전으로 메인넷 소각이 마르면서 <strong>발행 &gt; 소각</strong>이 정상 상태가 됐고, 2026년 봄 순공급은 <strong>연 +0.23%</strong>로 돌아섰다(<a href="https://www.bitget.com/news/detail/12560605348225">Bitget</a>).</p>
+<p>발행의 반대편에는 <strong>스테이킹이라는 거대한 공급 싱크</strong>가 있다. 약 <strong>35.86M ETH(전체의 ~29~30%)</strong>가 ~1.1M 검증인에 스테이킹돼 유동 유통량을 묶는다(<a href="https://coinlaw.io/eth-staking-statistics/">CoinLaw</a>). 총 스테이킹 수익률은 ~3.1~3.3%이며, ETF·커스터디 수수료를 제하면 순분배는 ~1.9~2.6% 수준이다(<a href="https://everstake.one/resources/blog/ethereum-staking-etfs-for-institutions">Everstake</a>). 즉 스테이킹 안 하는 보유자는 매년 (약)희석되지만, 스테이킹한 보유자는 <strong>인플레이션을 상회하는 실질 수익</strong>을 받는다 — ETH가 '수익률 자산'으로 재평가되는 토크노믹스적 근거다.</p>
+<blockquote>디플레이션이 깨진 것은 이더리움이 실패해서가 아니라, 성공(L2 확장)의 청구서다. 문제는 인플레이션 자체가 아니라, <strong>L1이 자기 생태계가 만든 가치를 되받아오는 통로(소각·보안 예산)가 얇아진 것</strong>이다 — 그리고 그 통로를 다시 넓히는 것이 Fusaka의 목표다(§6).</blockquote>
+
+<h2 id="s4">4. 온체인·펀더멘털 — L2가 값을 가져갔다</h2>
+<p>2026년 이더리움 펀더멘털의 핵심 논쟁은 <strong>'L2 = 기생(parasite)인가 성장 동력인가'</strong>다. 가장 자주 인용되는 숫자 하나가 이 논쟁을 압축한다 — 코인베이스의 <strong>Base</strong>는 $94M 넘는 이익을 냈지만, 이더리움에 blob 수수료로 되돌린 것은 <strong>$4.9M에 불과</strong>했다(보도 기준, <a href="https://finance.yahoo.com/news/layer-2-networks-helping-hurting-190900460.html">Yahoo Finance</a>). L2들은 이더리움의 보안을 저렴하게 빌려 쓰면서, 정작 그 위에서 번 돈의 대부분을 <strong>L1에 지대(rent)로 내지 않는다.</strong> Dencun이 L2 비용을 90~99% 깎아준 뒤 메인넷 가스 매출이 하루 $30M+ → ~$500K로 무너진 것이 그 결과다.</p>
+<p>이 지점이 SOL과의 <strong>대칭 거울</strong>이다. <a href="/research/asset-sol-fee-collapse-vs-etf-bid-2026-07">SOL</a>은 밈 회전이 만든 수수료가 무너졌고, ETH는 L2 이전으로 수수료가 무너졌다 — <strong>원인은 정반대(과열 붕괴 vs 설계적 이전)지만, 결과(L1 현금흐름 고갈)는 같다.</strong> 그래서 두 자산 모두 "활동은 있는데 그 활동이 토큰으로 귀속되는가"라는 동일한 질문을 받는다. 다만 ETH엔 SOL에 없는 방어선이 하나 있다 — <strong>스테이킹 수익</strong>이라는 별도의 가치 귀속 통로다. 가스 소각이 말라도, 보안을 제공하는 검증인은 발행 보상 + MEV + 우선순위 수수료로 <strong>지속적 현금흐름</strong>을 받는다. ETH의 '수익'은 가스가 아니라 점점 <strong>보안 예산 자체</strong>가 되어간다.</p>
+
+<h2 id="s5">5. 밸류에이션 — P/F 1,172을 어떻게 정당화하나</h2>
+<p>ETH의 P/F는 <strong>~1,172배</strong>로, SOL(~260)·BNB(~601)를 훨씬 웃도는 대형주 최고 수준이다(<a href="https://www.bitdegree.org/cryptocurrency-comparison/ethereum-vs-solana">BitDegree</a>). 표면적으로는 "가장 비싼 L1"이다. 그러나 우리의 <strong>변동 관점</strong>은 이렇다 — <strong>ETH를 P/F로 재는 것 자체가 범주 오류다.</strong> 이더리움은 수수료를 극대화하도록 설계된 체인이 아니라, <strong>수수료를 L2에 양보하고 결제·보안·담보의 기반</strong>이 되도록 재설계된 체인이다. 자기가 안 벌기로 한 수수료로 배수를 매기면 당연히 무한대에 가까워진다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>프레임</th><th>측정 대상</th><th>ETH 평가</th></tr></thead>
+<tbody>
+<tr><td>P/F (구프레임)</td><td>메인넷 가스 수수료</td><td>~1,172배 — "가장 비싸다" (그러나 범주 오류)</td></tr>
+<tr><td>스테이킹 수익률</td><td>발행+MEV+수수료 → 검증인</td><td>총 ~3.1~3.3% — 채권형 수익 자산</td></tr>
+<tr><td>정산·담보 가치</td><td>스테이블코인·DeFi·RWA·L2 정산 규모</td><td>생태계 규모 = 해자, 정량화 어려움</td></tr>
+<tr><td>보안 예산 지속성</td><td>burn floor(Fusaka) + 스테이킹 참여</td><td>2026 핵심 재평가 변수</td></tr>
+</tbody>
+</table>
+</div>
+<p>즉 2026년 ETH의 올바른 질문은 "P/F가 정당하냐"가 아니라 <strong>"스테이킹 수익 + 정산 기반 + 보안 예산의 조합이 이 시총을 정당화하냐"</strong>다. 스테이킹 ETF가 ETH를 <strong>수익률 있는 기관 리저브 자산</strong>으로 자리매김시키고(§6), Fusaka가 L1 소각 바닥을 복원하면, 배수가 아니라 <strong>'수익률 × 정산 해자'</strong>로 재평가될 수 있다. 반대로 스테이킹 유입이 정체하고 L2가 계속 지대를 회피하면, ETH는 "인플레이션은 도는데 소각도 수수료도 없는" <strong>가치 귀속 공백</strong>에 갇힌다 — ETH가 ETF 유입에도 BTC를 계속 언더퍼폼하는 이유가 여기 있다(<a href="https://yellow.com/research/ethereum-etf-inflows-btc-underperformance-gap-2026">Yellow</a>).</p>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>수치 충돌 주의.</strong> 본문의 시총(~$233B vs ~$250B), 스테이킹 수익률(총 ~3.1~3.3% vs 순 ~1.9~2.6%), 순공급 증가율(~+0.23%)은 출처·시점·방법론(가스만 vs MEV 포함, ETF 수수료 차감 여부)에 따라 크게 달라진다. P/F ~1,172도 '메인넷 가스'만 분모로 잡은 값이라 L2 포함 시 크게 낮아진다. 어느 하나를 확정 밸류에이션으로 읽지 말 것.</p>
+</div>
+
+<h2 id="s6">6. 로드맵·촉매 — Fusaka의 burn floor와 스테이킹 ETF</h2>
+<ul>
+  <li><strong>Fusaka (2025.12, EIP-7918)</strong> — 최소 blob base fee를 <strong>L1 실행 base fee에 연동</strong>해, 한산한 시기에도 L2가 보안에 대한 <strong>최소한의 지대</strong>를 내도록 만든다. 즉 <strong>소각 바닥(burn floor)</strong>을 세워 Q1 2025 같은 '소각 제로' 상황을 방지한다. EIP-7918이 Dencun~2025.10 사이 살아 있었다면 누적 <strong>~24,641 ETH(~$78M)</strong>의 매출이 더 걷혔을 것이라는 추정이 이 변화의 크기를 보여준다(<a href="https://bitcoinfoundation.org/news/ethereum/major-ethereum-updates-2026/">Bitcoin Foundation</a>).</li>
+  <li><strong>스테이킹 ETF</strong> — 그레이스케일 ETHE(2025.10)·블랙록 ETHB(2026.3)가 스테이킹 수익을 얹은 상품으로 상장했고, 5개 이상이 승인 대기 중이다(<a href="https://everstake.one/resources/blog/ethereum-staking-etfs-for-institutions">Everstake</a>). 2026년 스테이킹형 구조가 <strong>ETF 유입의 ~36%</strong>를 차지했고, 5월 스팟 ETH ETF는 상장 이후 최대인 <strong>+$1.5B</strong> 순유입을 기록했다(<a href="https://www.coindesk.com/markets/2026/01/07/staking-goes-mainstream-what-2026-could-look-like-for-ether-investors">CoinDesk</a>). 이는 BTC 현물 ETF엔 없는 <strong>수익률 차별점</strong>이다.</li>
+  <li><strong>지속 확장(blob throughput)</strong> — Pectra(2025.5, EIP-7691)가 blob 처리량을 늘렸고, 이후 로드맵도 L2 수용력 확대에 집중. 확장은 성공했으니, 이제 관건은 <strong>확장된 활동이 L1 가치로 되돌아오는 통로(EIP-7918 계열)</strong>다.</li>
+</ul>
+<p>주의 — SOL과 마찬가지로, 이 촉매들은 상당 부분 <strong>공급·접근성 측(사기 쉽게, 수익 얹어서)</strong> 재료다. ETH의 진짜 시험대는 스테이킹 수익이라는 새 서사가 <strong>가스 소각 서사의 공백을 밸류에이션에서 실제로 메우느냐</strong>다.</p>
+
+<h2 id="s7">7. 리스크</h2>
+<div class="prose-callout" data-variant="warn">
+  <ul>
+    <li><strong>가치 귀속 공백.</strong> L2가 지대를 회피하는 한(Base $94M vs $4.9M) 메인넷 현금흐름은 얇고, 스테이킹 수익만으로 P/F ~1,172을 정당화하기 어렵다.</li>
+    <li><strong>깨진 디플레이션 서사.</strong> +0.23% 인플레이션 전환은 '울트라사운드 머니'로 ETH를 산 투자층의 논거를 무너뜨린다 — 서사 전환기의 밸류에이션 진공.</li>
+    <li><strong>BTC 상대 언더퍼폼.</strong> ETF 유입에도 BTC를 계속 밑돎 — 기관 자금이 ETH를 'BTC 대체'가 아니라 '수익형 위성'으로만 취급할 위험.</li>
+    <li><strong>경쟁·상대강도.</strong> SOL 등 고성능 L1에 개발자·유동성·내러티브 점유를 뺏기는 흐름. 모듈러 전략의 복잡성(L2 파편화, UX)도 부담.</li>
+    <li><strong>스테이킹 집중·규제.</strong> 스테이킹 ETF·리퀴드 스테이킹의 검증인 집중과, 스테이킹 수익의 증권성 논쟁이 재점화할 규제 리스크.</li>
+  </ul>
+</div>
+
+<h2 id="s8">8. 우리의 관점</h2>
+<p>ETH는 <strong>정체성 전환기</strong>에 있다. '수수료 태우는 디플레이션 화폐'라는 옛 정체성은 L2 확장의 성공과 함께 사실상 폐기됐고, '스테이킹 수익을 내는 결제·담보 리저브 자산'이라는 새 정체성은 아직 밸류에이션에 완전히 반영되지 않았다. 이 공백이 ETH가 ETF 유입에도 BTC·서사 모두에서 밀리는 근본 원인이다.</p>
+<p><strong>우리의 정리 — ETH의 리레이팅은 소각이 아니라 두 가지에 달렸다.</strong> (1) 스테이킹 수익 서사가 기관 자금에게 'ETH = 수익형 리저브'로 각인되는 속도(스테이킹 ETF 유입 비중 36%가 그 초기 신호), (2) Fusaka(EIP-7918)의 burn floor가 L1 가치 포획을 얼마나 복원하느냐. <a href="/research/asset-xrp-etf-clarity-vs-escrow-2026-07">XRP</a>에 '가치 귀속', <a href="/research/asset-sol-fee-collapse-vs-etf-bid-2026-07">SOL</a>에 '매출의 지속성'을 물었듯, ETH에는 <strong>'가치 귀속 통로의 재건'</strong>을 묻는다. 세 질문은 하나로 수렴한다 — <strong>토큰 가격을 정당화하는 것은 생태계의 활동이 아니라, 그 활동이 토큰 보유자에게 되돌리는 반복 가능한 돈이다.</strong> ETH에게 그 돈은 이제 가스 소각이 아니라 스테이킹 수익 + 복원된 burn floor다.</p>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 코인 분석은 디스커버리·교육 콘텐츠이며 BBDX 시그널 시스템과 무관하다. 본문의 가격·수익률·공급·유입 수치는 명시된 as-of/보도 기준 값으로 변동하며(시총·수익률 등 출처 간 차이 존재), 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따른다. 본 글은 단독 매매 신호나 가격 목표를 발행하지 않으며, 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://www.21shares.com/en-us/insights/ethereum-2026-outlook-staked-slightly-inflationary-levered-by-scalability">21Shares — Ethereum 2026 Outlook(staked·slightly inflationary·scalability)</a></li>
+  <li><a href="https://www.bitget.com/news/detail/12560605348225">Bitget — ETH 공급 2026: '울트라사운드 머니' 서사의 복잡화(+0.23%)</a></li>
+  <li><a href="https://finance.yahoo.com/news/layer-2-networks-helping-hurting-190900460.html">Yahoo Finance — L2가 ETH를 돕나 해치나(Base $94M vs $4.9M·가스 매출 $30M→$500K)</a></li>
+  <li><a href="https://coinlaw.io/eth-staking-statistics/">CoinLaw — ETH 스테이킹 통계(35.86M·~1.1M 검증인)</a></li>
+  <li><a href="https://everstake.one/resources/blog/ethereum-staking-etfs-for-institutions">Everstake — 기관용 ETH 스테이킹 ETF 가이드(수익률·수수료)</a></li>
+  <li><a href="https://www.coindesk.com/markets/2026/01/07/staking-goes-mainstream-what-2026-could-look-like-for-ether-investors">CoinDesk — 스테이킹 메인스트림화·2026 ETH 전망</a></li>
+  <li><a href="https://bitcoinfoundation.org/news/ethereum/major-ethereum-updates-2026/">Bitcoin Foundation — 2026 이더리움 업데이트(Fusaka·EIP-7918·~$78M 추정)</a></li>
+  <li><a href="https://www.datawallet.com/crypto/eip-4844-explained">Datawallet — EIP-4844(blobs·L2 수수료) 설명</a></li>
+  <li><a href="https://yellow.com/research/ethereum-etf-inflows-btc-underperformance-gap-2026">Yellow — ETH ETF 유입에도 BTC 언더퍼폼</a></li>
+  <li><a href="https://www.bitdegree.org/cryptocurrency-comparison/ethereum-vs-solana">BitDegree — ETH vs SOL P/F(ETH ~1,172)</a></li>
+  <li><a href="https://fortune.com/article/price-of-ethereum-07-07-2026/">Fortune — ETH 가격(as-of 7/7 ~$1,774)</a></li>
+</ul>
+`;
+
 const SOL_DEEPDIVE_BODY = `
 <h2 id="s1">1. 핵심 요약 — 가장 싸 보이는 L1, 그런데 그 '싸다'가 밈코인 잔해 위에 서 있다</h2>
 <p>솔라나(SOL)는 지금 크립토 대형주 중에서 가장 상반된 두 개의 평가를 동시에 받는 자산이다. 한쪽에서는 <strong>"가장 싼 대형 L1"</strong>이라고 부른다 — 가격/수수료(P/F) 배수가 <strong>~260배</strong>로, 이더리움(~1,172배)·BNB(~601배)·TON(2,000배+)보다 압도적으로 낮다(보도 기준, <a href="https://www.bitdegree.org/cryptocurrency-comparison/ethereum-vs-solana">BitDegree</a>). 다른 쪽에서는 정반대다 — 스탠다드차타드는 SOL을 <strong>이더리움보다 2배 비싼</strong> 자산으로 본다. 시가총액 대비 네트워크 수수료 매출 비율이 SOL <strong>~250</strong> vs ETH <strong>~121</strong>이라는 것이다(<a href="https://www.fxstreet.com/cryptocurrencies/news/ethereum-tipped-to-reach-7-000-beats-solana-on-key-valuation-metrics-standard-chartered-202410082120">FXStreet/Standard Chartered</a>). 같은 자산을 두고 "제일 싸다"와 "2배 비싸다"가 나란히 나온다.</p>
@@ -1102,6 +1282,67 @@ const MACRO_REGIME_BODY = `
 // ── seed 기사 (2026-06-14 발행분) ───────────────────────────────────
 export const RESEARCH_ARTICLES: ResearchArticle[] = [
   {
+    slug: "sector-meme-house-always-wins-2026-07",
+    type: "deepdive",
+    title: "밈코인 섹터 분석: 코인은 죽고 하우스만 산다 — 졸업률 0.26%가 말해주는 것",
+    dek: "2024 피크 대비 -$110B, 졸업률 0.26%(1,000개 중 2~3개 생존). 그런데 Pump.fun은 그 와중에 누적 매출 $1B를 돌파했다. 밈코인은 실패한 자산군이 아니라 처음부터 자산군이 아니었다 — 코인·하우스(런치패드)·게이지(리테일 위험선호 체온계) 세 층으로 분해해 읽어야 하는 이유, 그리고 이 붕괴가 왜 솔라나 수수료를 -84% 끌어내렸는지.",
+    sector: "meme",
+    tags: ["밈코인", "Pump.fun", "런치패드", "BONK", "솔라나", "리테일 투기", "위험선호"],
+    assets: ["BONK", "PENGU", "SOL"],
+    author: "Tradelab 리서치",
+    readMinutes: 11,
+    publishedAt: "2026-07-27T15:00:00+09:00",
+    featured: true,
+    takeaways: [
+      "코인은 투자 대상이 아니다: Pump.fun 졸업률 0.26%(3개월 -80%) — 1,000개 발행 시 997개 소멸. 개별 밈의 기대값은 구조적 마이너스이며, 본 글은 어떤 밈코인도 매수 대상으로 제시하지 않는다.",
+      "하우스만 산다: 일일 매출이 1→6월 -83%($4.8M→$0.8M)로 무너지는 와중에도 Pump.fun 누적 매출 $1B 돌파. 코인이 살든 죽든 발행되는 순간 모두가 하우스에 과세당하는 구조(솔라나 밈의 ~80% 점유).",
+      "세 층 분해: ①코인(투자 불가) ②하우스=런치패드(회전에 과세하는 실매출 인프라, 단 사이클 민감) ③게이지(섹터 수수료 = 유틸리티·기관 수요가 섞이지 않은 순수 리테일 위험선호 체온계).",
+      "전이 경로: 밈 회전 붕괴가 솔라나 네트워크 수수료 -84%·일일 매출 -79%로 직결(솔라나 편중 ~$4B vs Base ~$0.3B). 밈은 알파의 원천이 아니라 위험곡선의 조기 경보로 읽어야. 단독 매매신호는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "핵심 요약 — 코인은 죽고 하우스만 산다" },
+      { no: "02", title: "섹터 개요·시장 규모 — $30.6B, 정점서 -$110B" },
+      { no: "03", title: "구조 해부 — 코인 vs 하우스 vs 게이지" },
+      { no: "04", title: "하우스의 경제학 — 코인이 죽어도 버는 이유" },
+      { no: "05", title: "게이지로서의 밈 — 왜 알트 전체가 흔들렸나" },
+      { no: "06", title: "리스크" },
+      { no: "07", title: "전망 — 자산이 아니라 게이지로 읽어라" },
+    ],
+    bodyHtml: MEME_DEEPDIVE_BODY,
+    canonical: null,
+  },
+  {
+    slug: "asset-eth-ultrasound-money-is-dead-2026-07",
+    type: "deepdive",
+    title: "이더리움 ETH(ETH) 분석: '울트라사운드 머니'는 죽었다 — 그런데 그게 약세 신호가 아닌 이유",
+    dek: "ETH 순공급은 2026년 봄 +0.23%로 인플레이션 전환했고, 메인넷 가스 매출은 Dencun 이후 하루 $30M+에서 ~$500K로 붕괴했다. 이더리움이 스스로 활동을 L2로 내보낸 대가다(Base: 이익 $94M vs L1 환원 $4.9M). 컨센서스는 이를 가치 귀속 실패로 읽지만, 우리는 ETH를 '소각 디플레이션 화폐'로 재는 프레임 자체가 낡았다고 본다 — 스테이킹 수익·Fusaka burn floor로 갈아끼울 때다.",
+    sector: "layer-1",
+    tags: ["ETH", "Ethereum", "L2", "Dencun", "Fusaka", "스테이킹 ETF", "울트라사운드 머니", "밸류에이션"],
+    assets: ["ETH"],
+    author: "Tradelab 리서치",
+    readMinutes: 12,
+    publishedAt: "2026-07-27T13:00:00+09:00",
+    featured: false,
+    takeaways: [
+      "디플레이션 서사 종료: 2026 봄 순공급 ~+0.23%(약인플레). 원인은 실패가 아니라 성공의 청구서 — Dencun 이후 활동이 L2로 이전되며 메인넷 가스 매출이 $30M+→~$500K/일로 붕괴, 태울 것이 없어 소각이 마름.",
+      "L2 지대 회피 문제: Base는 이익 $94M+를 내고도 blob 수수료로 L1에 되돌린 것은 $4.9M — L1이 자기 생태계 가치를 되받는 통로가 얇아졌다. Fusaka(EIP-7918)가 burn floor로 이를 복원 시도(Dencun~2025.10 적용 시 ~24,641 ETH 추가 추정).",
+      "SOL과의 대칭 거울: SOL은 밈 붕괴로, ETH는 설계적 L2 이전으로 수수료가 사라졌다 — 원인은 정반대지만 결과(L1 현금흐름 고갈)는 같다. 단 ETH엔 스테이킹(~35.86M ETH, 29~30%, 총 3.1~3.3%)이라는 별도 귀속 통로가 있다.",
+      "P/F ~1,172은 범주 오류: 수수료를 L2에 양보하도록 재설계된 체인을 수수료 배수로 재면 무한대에 수렴. 리레이팅은 스테이킹 수익 서사(ETF 유입의 ~36%가 스테이킹형)와 burn floor 복원에 달렸다. 단독 매매신호·가격목표는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "핵심 요약 — 울트라사운드 머니의 죽음" },
+      { no: "02", title: "프로젝트 개요 — ETH는 무엇을 하는 자산인가" },
+      { no: "03", title: "토크노믹스 — 소각·발행·깨진 디플레이션" },
+      { no: "04", title: "온체인·펀더멘털 — L2가 값을 가져갔다" },
+      { no: "05", title: "밸류에이션 — P/F 1,172을 어떻게 정당화하나" },
+      { no: "06", title: "로드맵·촉매 — Fusaka burn floor와 스테이킹 ETF" },
+      { no: "07", title: "리스크" },
+      { no: "08", title: "우리의 관점" },
+    ],
+    bodyHtml: ETH_DEEPDIVE_BODY,
+    canonical: null,
+  },
+  {
     slug: "asset-sol-fee-collapse-vs-etf-bid-2026-07",
     type: "deepdive",
     title: "솔라나 SOL(SOL) 분석: ETF는 들어오고 속도는 100배 빨라지는데, 매출은 왜 무너졌나",
@@ -1112,7 +1353,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     author: "Tradelab 리서치",
     readMinutes: 12,
     publishedAt: "2026-07-27T11:00:00+09:00",
-    featured: true,
+    featured: false,
     takeaways: [
       "정반대 밸류에이션: SOL은 P/F ~260으로 '가장 싼 대형 L1'(ETH ~1,172)이면서, 동시에 스탠다드차타드 기준 시총/수수료매출 ~250 vs ETH ~121로 '이더보다 2배 비싼' 자산 — 같은 자산의 상충 평가.",
       "원인은 분모 붕괴: '싼' P/F는 밈코인 슈퍼사이클이 부풀린 것. Pump.fun(Q1 앱 매출 최대 기여, ~$124.7M)의 일일 수수료가 1→6월 -83%, 네트워크 수수료는 SOL 표시 -84%(33k→5.3k SOL/일)·주간 매출 -97% 붕괴.",

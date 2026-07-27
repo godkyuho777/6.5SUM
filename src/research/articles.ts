@@ -25,6 +25,121 @@ import type {
 
 // ── 본문 (HTML, .prose-research 타이포그래피) ─────────────────────────
 
+const SOL_DEEPDIVE_BODY = `
+<h2 id="s1">1. 핵심 요약 — 가장 싸 보이는 L1, 그런데 그 '싸다'가 밈코인 잔해 위에 서 있다</h2>
+<p>솔라나(SOL)는 지금 크립토 대형주 중에서 가장 상반된 두 개의 평가를 동시에 받는 자산이다. 한쪽에서는 <strong>"가장 싼 대형 L1"</strong>이라고 부른다 — 가격/수수료(P/F) 배수가 <strong>~260배</strong>로, 이더리움(~1,172배)·BNB(~601배)·TON(2,000배+)보다 압도적으로 낮다(보도 기준, <a href="https://www.bitdegree.org/cryptocurrency-comparison/ethereum-vs-solana">BitDegree</a>). 다른 쪽에서는 정반대다 — 스탠다드차타드는 SOL을 <strong>이더리움보다 2배 비싼</strong> 자산으로 본다. 시가총액 대비 네트워크 수수료 매출 비율이 SOL <strong>~250</strong> vs ETH <strong>~121</strong>이라는 것이다(<a href="https://www.fxstreet.com/cryptocurrencies/news/ethereum-tipped-to-reach-7-000-beats-solana-on-key-valuation-metrics-standard-chartered-202410082120">FXStreet/Standard Chartered</a>). 같은 자산을 두고 "제일 싸다"와 "2배 비싸다"가 나란히 나온다.</p>
+<p><strong>우리 관점.</strong> 이 모순은 데이터 오류가 아니라, <strong>분모(수수료)가 지금 무너지고 있기 때문</strong>에 생긴다. SOL의 P/F가 싸 보였던 이유의 상당 부분은 2025~2026년 초의 <strong>밈코인 슈퍼사이클</strong>이 분모를 부풀렸기 때문이었다 — Pump.fun 한 곳이 Q1 2026 솔라나 앱 매출의 가장 큰 단일 기여자였다(<a href="https://www.spotedcrypto.com/pump-fun-volume-collapse-solana-fee-revenue-2026/">Spoted Crypto/Messari 집계</a>). 그런데 그 밈 엔진이 상반기에 <strong>83~97% 붕괴</strong>했다. 분모가 쪼그라들면 "싼" P/F는 <strong>기계적으로 다시 비싸진다</strong> — 스탠차타의 250(붕괴 후)과 강세론의 260(붕괴 전)의 간극이 바로 그 시차다. 그래서 SOL에 던져야 할 질문은 이더리움 대비 몇 배냐가 아니다. 우리가 <a href="/research/sector-depin-revenue-up-tokens-down-2026-07">DePIN</a>과 <a href="/research/asset-xrp-etf-clarity-vs-escrow-2026-07">XRP</a>에 던졌던 바로 그 질문이다 — <strong>남은 매출이 진짜 수요(결제·스테이블코인·토큰화 주식·실사용 DeFi)인가, 아니면 반사적 회전(밈)인가.</strong> ETF 유입과 Firedancer·Alpenglow라는 성능 도약은 진짜지만, 그것들은 <strong>공급·접근성 측</strong> 재료다. 승부는 밈이 비운 자리를 <strong>수요측 매출</strong>이 다시 채우느냐에 있다.</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 표기, 보도 기준)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>SOL 가격</td><td class="num">~$74~76 (7월 중순)</td><td>7/19 ~$76.33, 라이브는 <a href="/sectors">섹터 동향</a> 위임</td></tr>
+<tr><td>시가총액</td><td class="num">~$44~49B</td><td>집계·시점별 상이(#7위권), 순환공급 기준</td></tr>
+<tr><td>순환/총공급</td><td class="num">~516M / ~599M SOL</td><td>순환 ~86%, 하드캡 없음</td></tr>
+<tr><td>Q1 2026 네트워크 수수료</td><td class="num">~$89.5M</td><td>101억 트랜잭션 기준</td></tr>
+<tr><td>일일 수수료(SOL 표시)</td><td class="num">33,000 → 5,300 SOL</td><td>1월→6월, ~-84% (밈 붕괴)</td></tr>
+<tr><td>P/F (가격/수수료)</td><td class="num">~250~260</td><td>ETH ~1,172 대비 낮음 / 매출대비론 ETH의 2배(§5)</td></tr>
+<tr><td>현물 SOL ETF 누적 유입</td><td class="num">$1B+</td><td>2025.10 상장 이후 누적</td></tr>
+</tbody>
+</table>
+</div>
+<figure>
+  <div class="prose-figure-placeholder" role="img" aria-label="밈코인 수수료 붕괴로 분모가 줄며 SOL의 '싼' P/F가 다시 비싸지는 개념도 자리"></div>
+  <figcaption>그림 1. 밈코인(Pump.fun) 수수료 붕괴(1→6월 -83~97%)로 P/F의 분모(수수료)가 줄면서, "가장 싼 L1"이라는 배수가 기계적으로 재평가되는 구도(개념도, as-of 2026-07). 라이브 수치는 <a href="/sectors">섹터 동향</a> 참조.</figcaption>
+</figure>
+
+<h2 id="s2">2. 프로젝트 개요 — SOL은 무엇을 하는 자산인가</h2>
+<p>솔라나는 단일 글로벌 상태(single global state)를 <strong>고성능·저수수료</strong>로 처리하는 것을 목표로 한 Layer 1이다. 이더리움이 롤업(L2)으로 확장성을 밖으로 밀어낸 것과 달리, 솔라나는 <strong>모놀리식(monolithic)</strong> 접근 — 한 체인에서 병렬 실행·초저지연으로 전부 처리한다. 이 설계 덕에 SOL은 결제·고빈도 트레이딩·밈코인 발행처럼 <strong>트랜잭션 밀도가 높은</strong> 활동의 허브가 됐다. 2026년 들어 주간 트랜잭션은 <strong>10억 건</strong>을 넘겼고, 토큰화 주식 거래는 주간 <strong>$3.32B</strong> 규모까지 올라왔다(<a href="https://coinlaw.io/solana-statistics/">CoinLaw 집계</a>).</p>
+<p>SOL 토큰의 역할은 세 가지다 — (1) 네트워크 <strong>수수료 지불</strong>(base fee + priority fee), (2) 검증인에게 위임하는 <strong>스테이킹 담보</strong>(현재 인플레이션 보상의 원천), (3) 온체인 앱의 <strong>기축 담보·유동성</strong>. 여기서 SOL이 XRP와 결정적으로 다른 점 하나 — <a href="/research/asset-xrp-etf-clarity-vs-escrow-2026-07">XRP 분석</a>에서 짚었듯 XRPL 수수료는 극소·소각되어 보유자에 귀속되지 않는 반면, <strong>솔라나는 수수료의 50%를 소각하고 나머지 + 인플레이션 보상을 스테이커에게 분배</strong>한다. 즉 SOL은 (불완전하게나마) <strong>현금흐름·수익률 자산의 성격</strong>을 갖는다 — 이것이 뒤에서 P/F·스테이킹 ETF 논의가 성립하는 이유다.</p>
+
+<h2 id="s3">3. 토크노믹스 — 인플레이션·소각·그리고 2028년까지 이어지는 FTX 오버행</h2>
+<p>SOL은 <strong>하드캡이 없는 인플레이션 토큰</strong>이다. 초기 8%에서 매년 15%씩 체감(disinflation)해 장기적으로 <strong>1.5% 바닥</strong>으로 수렴하는 스케줄이며, 2025년 기준 유효 인플레이션은 <strong>~3.73%</strong>였다(<a href="https://www.helius.dev/blog/solana-issuance-inflation-schedule">Helius</a>, <a href="https://solanacompass.com/tokenomics">Solana Compass</a>). 신규 발행은 대부분 스테이커에게 흘러가므로, <strong>스테이킹하지 않는 보유자는 매년 희석</strong>된다 — 이 점이 스테이킹 수익을 얹는 SOL ETF 상품 설계가 중요해지는 이유다.</p>
+<p>반대편에는 <strong>소각</strong>이 있다. 각 트랜잭션 수수료의 50%가 소각되므로, 네트워크 활동이 충분히 높으면 순발행이 줄고 이론적으로 디플레이션 구간도 가능하다. 그런데 §4에서 보듯 <strong>2026년 상반기 수수료가 SOL 표시로 -84% 무너지면서</strong>, 이 소각 상쇄 효과도 함께 약해졌다 — 활동 둔화는 매출뿐 아니라 <strong>공급 측 디플레이션 압력까지 동시에</strong> 깎아낸다.</p>
+<p>가장 구체적인 수급 변수는 <strong>FTX 파산 재단 물량</strong>이다. 파산 절차에서 <strong>4,100만 SOL</strong>이 갤럭시디지털·판테라 등 대형 주체에 매각됐고, 이 중 20%가 2025년 3월 해제된 뒤 <strong>나머지가 2028년 초까지 매월 선형 해제</strong>된다(<a href="https://www.tokenomist.ai/solana/tokenomics">Tokenomist</a>). 순환공급의 상당 비중이 걸린 이 오버행은 XRP의 에스크로 해제와 성격이 같다 — <strong>가격이 올라야 소화되는 만성 공급</strong>이며, 약세장에서 상단을 누르는 구조적 무게추다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>토크노믹스 항목</th><th class="num">값 (보도 기준)</th><th>함의</th></tr></thead>
+<tbody>
+<tr><td>총공급 / 순환</td><td class="num">~599M / ~516M SOL</td><td>순환 ~86.2%, 하드캡 없음</td></tr>
+<tr><td>인플레이션(2025)</td><td class="num">~3.73%</td><td>15%/년 체감 → 1.5% 바닥 수렴</td></tr>
+<tr><td>수수료 소각</td><td class="num">거래 수수료의 50%</td><td>활동 높으면 순발행 억제 — 단 2026 상반기 약화</td></tr>
+<tr><td>FTX 재단 물량</td><td class="num">~41M SOL</td><td>2025.3 20% 해제, 잔여는 ~2028 초까지 월 선형 해제</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s4">4. 온체인·펀더멘털 — 매출의 붕괴, 그리고 그 원인의 해부</h2>
+<p>솔라나 펀더멘털의 2026년 상반기는 한 문장으로 요약된다 — <strong>네트워크는 여전히 붐비는데, 그 붐빔이 돈을 덜 만든다.</strong> Q1 2026 네트워크 수수료 매출은 101억 트랜잭션에서 <strong>~$89.5M</strong>이었고(<a href="https://soltransactionfee.org/solana-network-fee-tracker/">Sol Transaction Fee Tracker</a>), 앱 레이어까지 포함한 Q1 총 앱 매출은 <strong>~$342.2M</strong>이었다. 그런데 주간 네트워크 매출은 1월 피크 <strong>~$55.2M</strong>에서 3월 한 주 <strong>~$1.8M</strong>으로 <strong>약 -97%</strong> 무너졌고, 일일 수수료는 SOL 표시로 1월 33,000 SOL → 6월 <strong>5,300 SOL(-84%)</strong>로 급감했다(<a href="https://coinlaw.io/solana-statistics/">CoinLaw</a>, <a href="https://www.spotedcrypto.com/pump-fun-volume-collapse-solana-fee-revenue-2026/">Spoted Crypto</a>).</p>
+<p><strong>원인은 단일 앱이었다 — Pump.fun.</strong> 이 밈코인 발행 플랫폼은 Q1 2026에만 <strong>$124.7M</strong>의 수수료를 냈고, 이는 솔라나 앱 매출의 가장 큰 단일 몫이었다. 그런데 상반기 Pump.fun의 일일 프로토콜 수수료가 1월 <strong>$4.8M → 6월 ~$0.8M(-83%)</strong>로 붕괴했다. 방아쇠는 <strong>토큰 '졸업률'(유동성 풀로 승격되는 비율)이 ~0.26%로, 분기 대비 약 -80%</strong> 폭락한 것이다(<a href="https://www.spotedcrypto.com/pump-fun-volume-collapse-solana-fee-revenue-2026/">Spoted Crypto</a>). 흥미로운 대목은 <strong>영향의 비대칭성</strong>이다 — Pump.fun은 24시간 DEX 거래량의 3.6%($1.599B 중 $57.77M)에 불과했지만, 앱 수수료의 ~13%·앱 매출의 ~20%를 차지했다. 노셔널(금액)이 아니라 <strong>트랜잭션 밀도</strong>(한때 DEX 트랜잭션의 40~67%)로 우선순위 수수료 입찰을 밀어올렸기 때문이다. 밈 회전이 죽자, 그 '밀도 프리미엄'이 사라졌다.</p>
+<blockquote>SOL의 수수료는 노셔널이 아니라 밀도가 만들었다. 밈코인이 만든 것은 큰 거래가 아니라 <strong>많은 거래</strong>였고, 그 많음이 우선순위 수수료를 입찰시켰다. 그래서 밈이 식자 거래량(DEX $284.5B, Q1)은 버텼지만 수수료는 무너졌다 — 이 괴리가 SOL 밸류에이션 논쟁의 진짜 진앙이다.</blockquote>
+<p>그렇다고 이것이 <strong>실존적 위협은 아니다.</strong> 거래 앱 Axiom이 Q1 2026에 <strong>$42.4M</strong>을 벌며 Pump.fun의 빈자리를 메우기 시작했고(<a href="https://www.spotedcrypto.com/pump-fun-volume-collapse-solana-fee-revenue-2026/">Spoted Crypto</a>), 결제·스테이블코인·토큰화 주식(주간 $3.32B)처럼 <strong>밈과 무관한 수요</strong>가 조용히 성장 중이다. 핵심은 다양화의 <strong>속도</strong>다 — 밈이 비운 매출 구멍을 실사용 REV가 얼마나 빨리 채우느냐가, 아래 밸류에이션 논쟁의 답을 결정한다.</p>
+
+<h2 id="s5">5. 밸류에이션 — P/F 260과 매출대비 250이 정반대 결론을 내는 이유</h2>
+<p>SOL 밸류에이션의 혼란은 <strong>"수수료"를 무엇으로 세느냐</strong>에서 나온다. §1에서 본 두 수치를 분해하면 이렇다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>프레임</th><th class="num">SOL</th><th class="num">ETH</th><th>결론 / 방법론</th></tr></thead>
+<tbody>
+<tr><td>가격/수수료 P/F (강세론)</td><td class="num">~260</td><td class="num">~1,172</td><td>SOL이 "제일 싸다" — 낮은 절대 수수료·높은 활동 반영</td></tr>
+<tr><td>시총/수수료매출 (스탠차타)</td><td class="num">~250</td><td class="num">~121</td><td>SOL이 "2배 비싸다" — 매출 규모 대비로 보면 역전</td></tr>
+<tr><td>NVT (활동 대비 가치)</td><td class="num">7개월 최고</td><td class="num">—</td><td>시총이 활동보다 빨리 오름 → 과열 신호</td></tr>
+</tbody>
+</table>
+</div>
+<p>두 P/F가 정반대인 이유는 <strong>측정 시점과 분자·분모의 정의</strong> 차이다. 강세론의 260은 밈 붐이 부풀린 <strong>높은 활동/낮은 개별 수수료</strong>를, 스탠차타의 250은 <strong>붕괴 후 줄어든 매출 규모</strong>를 반영한다. 여기에 NVT가 7개월 최고라는 신호(<a href="https://www.bitdegree.org/cryptocurrency-comparison/ethereum-vs-solana">BitDegree</a>)까지 겹치면 그림이 선명해진다 — <strong>가격(ETF·성능 기대)은 앞서 뛰었는데, 그것을 정당화할 활동/매출은 뒤처졌다.</strong> 이것이 우리의 <strong>변동 관점</strong>이다. 컨센서스는 "SOL이 ETH보다 싸냐 비싸냐"로 싸우지만, 우리는 <strong>그 비교 자체가 함정</strong>이라고 본다 — SOL의 배수는 지금 <strong>급변하는 분모</strong> 위에 얹혀 있어, 어느 스냅샷을 찍느냐에 따라 결론이 뒤집힌다.</p>
+<p>SOL을 제대로 재려면 XRP·DePIN에서와 같은 규율이 필요하다 — 단일 P/F 스냅샷을 확정치로 취급하지 말고, (1) <strong>밈 제외 '기저(baseline) 수수료'</strong>의 추세, (2) 스테이킹 실질수익률(인플레이션 차감 후), (3) 결제·토큰화·실DeFi 등 <strong>비(非)밈 REV의 성장 기울기</strong>로 나눠 봐야 한다. 밈을 걷어낸 기저 매출이 우상향으로 재확인되면 250~260 배수는 <strong>정당한 성장 프리미엄</strong>이 되고, 그렇지 않으면 <strong>ETF 유동성이 떠받친 과열</strong>로 남는다.</p>
+<div class="prose-callout" data-variant="warn">
+  <p><strong>수치 충돌 주의.</strong> 본 섹션의 배수는 출처·시점·방법론이 서로 다르다 — P/F ~260(<a href="https://www.bitdegree.org/cryptocurrency-comparison/ethereum-vs-solana">BitDegree</a>)과 시총/수수료매출 ~250(<a href="https://www.fxstreet.com/cryptocurrencies/news/ethereum-tipped-to-reach-7-000-beats-solana-on-key-valuation-metrics-standard-chartered-202410082120">Standard Chartered</a>)은 우연히 숫자가 비슷할 뿐 <strong>분자·분모가 다른 별개 지표</strong>다. 시총(~$44B vs $48.8B)·연율화 방식·'수수료 vs 앱 매출' 정의에 따라 값이 크게 달라진다. 어느 하나를 확정 밸류에이션으로 읽지 말 것.</p>
+</div>
+
+<h2 id="s6">6. 로드맵·촉매 — Firedancer·Alpenglow, 그리고 ETF라는 공급측 방아쇠</h2>
+<p>SOL의 촉매는 대부분 <strong>공급·접근성 측</strong>에 몰려 있다. 세 개가 핵심이다.</p>
+<ul>
+  <li><strong>Firedancer (Jump Crypto 검증인 클라이언트)</strong> — 출시 100일 만에 메인넷 스테이크 <strong>20%</strong>를 넘겼다(<a href="https://rpcfast.com/blog/what-is-firedancer-solana-validator-client">RPC Fast</a>). 클라이언트 다양성을 높여 솔라나의 아킬레스건이던 <strong>네트워크 중단(outage)</strong> 리스크를 구조적으로 줄이고, 수수료 스파이크를 안정화한다.</li>
+  <li><strong>Alpenglow (Anza 컨센서스 개편)</strong> — 최종성(finality)을 <strong>12.8초 → 100~150ms(~100배)</strong>로 압축한다. 2025년 9월 스테이커 <strong>98.27% 찬성</strong>으로 통과했고, 야코벤코는 2026년 5월 Consensus Miami에서 테스트가 순조로우면 <strong>Q3 2026 메인넷 활성화</strong>도 가능하다고 밝혔다(<a href="https://yellow.com/news/solana-alpenglow-upgrade-targets-100-150-millisecond-finality-through-consensus-overhaul">Yellow</a>, <a href="https://solanacompass.com/learn/Lightspeed/alpenglow-solanas-largest-protocol-upgrade-ever-brennan-watt-anza">Solana Compass</a>). 실현 시 결제·고빈도 금융에서 SOL의 경쟁 우위가 크게 벌어진다.</li>
+  <li><strong>현물 SOL ETF</strong> — 2025년 10월 상장 이후 누적 순유입 <strong>$1B+</strong>, 7월에는 전 거래일 순유입(첫 주 ~$5.75M)을 기록했다. 모건스탠리 상품이 <strong>7월 24일 NYSE Arca 승인(수수료 0.14%)</strong>을 받으며 접근성이 계속 넓어지고 있다(보도 기준, <a href="https://crypto.news/solana-price-prediction-2026-2030-beyond-the-etf-paradox/">crypto.news</a>, <a href="https://coinmarketcap.com/cmc-ai/solana/latest-updates/">CoinMarketCap</a>). 다수 상품이 <strong>스테이킹 수익</strong>을 얹을 수 있다는 점은 BTC·ETH 현물 ETF와의 차별점이다.</li>
+</ul>
+<p>주의할 점 — 이 세 촉매는 모두 <strong>"솔라나를 사기 쉽게, 쓰기 쉽게" 만드는</strong> 재료다. 그러나 §4·§5의 논리에서 보듯, 접근성·성능이 곧 <strong>수요측 매출</strong>을 보장하지는 않는다. DePIN이 "노드를 깔기 쉬워진다"고 매출이 늘지 않았듯, SOL도 "빠르고 사기 쉬워진다"가 곧 REV 성장은 아니다. 촉매의 진짜 시험대는 <strong>Alpenglow 이후 결제·토큰화 볼륨이 실제로 붙느냐</strong>다.</p>
+
+<h2 id="s7">7. 리스크</h2>
+<div class="prose-callout" data-variant="warn">
+  <ul>
+    <li><strong>매출의 질·집중도.</strong> 밈 의존이 드러났고(Pump.fun 단일 앱이 앱 매출 20%대), 다양화(Axiom·토큰화)가 그 속도를 못 따라가면 P/F는 재평가로 계속 비싸진다.</li>
+    <li><strong>공급 오버행.</strong> FTX 재단 물량이 2028년 초까지 월 선형 해제 + 무(無)하드캡 인플레이션(스테이킹 안 하면 희석). 약세장 상단을 누르는 만성 무게추.</li>
+    <li><strong>네트워크 신뢰성 이력.</strong> 과거 다수 중단 사고가 있었고, Firedancer가 이를 개선 중이나 <strong>단일 모놀리식 설계의 꼬리 리스크</strong>는 완전히 사라지지 않았다. Alpenglow는 아직 메인넷 미적용(Q3 2026 목표).</li>
+    <li><strong>밸류에이션 과열 신호.</strong> NVT 7개월 최고 — 가격이 활동을 앞질렀다는 신호. ETF 유동성이 얇아지면 이 괴리가 조정 압력으로 전환.</li>
+    <li><strong>경쟁.</strong> ETH L2·기타 고성능 L1과의 개발자·유동성 경쟁. Alpenglow가 지연되면 성능 내러티브의 시효가 짧아진다.</li>
+  </ul>
+</div>
+
+<h2 id="s8">8. 우리의 관점</h2>
+<p>SOL은 <strong>구조적 강세 재료(ETF·Firedancer·Alpenglow)와 펀더멘털 균열(밈발 매출 붕괴)이 정면충돌</strong>하는 자산이다. 우리는 "싸냐 비싸냐" 논쟁에 편들지 않는다 — 그 답은 지금 <strong>급변하는 분모</strong> 때문에 스냅샷마다 뒤집히기 때문이다. 대신 우리는 이렇게 정리한다.</p>
+<p><strong>SOL은 접근성·성능 스토리는 이미 강세로 가격에 반영됐고, 남은 리레이팅은 전적으로 '비(非)밈 수요측 매출'의 재확인에 달렸다.</strong> 결제·스테이블코인·토큰화 주식·실DeFi(Axiom 등)의 REV가 우상향을 지속하면, 밈이 비운 구멍은 <strong>질이 더 좋은 매출</strong>로 채워지고 250~260 배수는 정당한 성장 프리미엄이 된다. 반대로 그 기저 매출이 정체하면, ETF·성능 기대만 남아 NVT 과열이 조정으로 풀린다. XRP에서 '가치 귀속', DePIN에서 '매출의 질'을 물었듯, SOL에는 <strong>'매출의 지속성'</strong>을 묻는다 — 이 세 질문은 사실 하나다. <strong>토큰 가격을 정당화하는 것은 활동의 양이 아니라, 그 활동이 만드는 반복 가능한 돈이다.</strong></p>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 코인 분석은 디스커버리·교육 콘텐츠이며 BBDX 시그널 시스템과 무관하다. 본문의 가격·수수료·배수·유입 수치는 명시된 as-of/보도 기준 값으로 변동하며(시총 $44B vs $48.8B 등 출처 간 차이 존재), 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따른다. 본 글은 단독 매매 신호나 가격 목표를 발행하지 않으며, 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://www.spotedcrypto.com/pump-fun-volume-collapse-solana-fee-revenue-2026/">Spoted Crypto — Pump.fun 붕괴와 솔라나 수수료 영향(Q1 $124.7M·-83%·졸업률 0.26%·Axiom $42.4M)</a></li>
+  <li><a href="https://coinlaw.io/solana-statistics/">CoinLaw — Solana 통계 2026(수수료·TPS·Firedancer 채택·토큰화 주식 $3.32B)</a></li>
+  <li><a href="https://soltransactionfee.org/solana-network-fee-tracker/">Sol Transaction Fee Tracker — Q1 네트워크 수수료 ~$89.5M·수수료 구조</a></li>
+  <li><a href="https://www.helius.dev/blog/solana-issuance-inflation-schedule">Helius — 솔라나 발행·인플레이션 스케줄</a></li>
+  <li><a href="https://solanacompass.com/tokenomics">Solana Compass — 토크노믹스·공급·인플레이션 3.73%</a></li>
+  <li><a href="https://www.tokenomist.ai/solana/tokenomics">Tokenomist — SOL 공급·언락(FTX 재단 41M SOL·2028 초까지 선형)</a></li>
+  <li><a href="https://www.bitdegree.org/cryptocurrency-comparison/ethereum-vs-solana">BitDegree — ETH vs SOL P/F(SOL ~260, ETH ~1,172)·NVT</a></li>
+  <li><a href="https://www.fxstreet.com/cryptocurrencies/news/ethereum-tipped-to-reach-7-000-beats-solana-on-key-valuation-metrics-standard-chartered-202410082120">Standard Chartered/FXStreet — 시총/수수료매출 SOL 250 vs ETH 121</a></li>
+  <li><a href="https://yellow.com/news/solana-alpenglow-upgrade-targets-100-150-millisecond-finality-through-consensus-overhaul">Yellow — Alpenglow 100~150ms 최종성</a></li>
+  <li><a href="https://solanacompass.com/learn/Lightspeed/alpenglow-solanas-largest-protocol-upgrade-ever-brennan-watt-anza">Solana Compass — Alpenglow(98.27% 찬성·Q3 2026 목표)</a></li>
+  <li><a href="https://rpcfast.com/blog/what-is-firedancer-solana-validator-client">RPC Fast — Firedancer(100일 만에 스테이크 20%)</a></li>
+  <li><a href="https://crypto.news/solana-price-prediction-2026-2030-beyond-the-etf-paradox/">crypto.news — SOL ETF 패러독스·유입</a></li>
+  <li><a href="https://coinmarketcap.com/cmc-ai/solana/latest-updates/">CoinMarketCap — 모건스탠리 SOL ETF NYSE Arca 승인(7/24, 0.14%)</a></li>
+  <li><a href="https://metamask.io/price/solana">MetaMask — SOL 가격·시총(as-of 7/19 ~$76.33)</a></li>
+</ul>
+`;
+
 const WEEKLY_18_BODY = `
 <h2 id="s1">1. 한 주 요약 — 랠리를 만든 흐름이, 이틀 만에 반대로 돌았다</h2>
 <p>#17(7/20) 이후 한 주(7/20~7/26)는 우리가 지난 글 말미에 "판정 지표"로 걸어 둔 두 변수 — <strong>주간 ETF 순유입과 유가</strong> — 가 <strong>둘 다 우리에게 불리한 방향으로 답을 준</strong> 구간이었다. 주 초·중반까지는 #17의 강세 서사가 이어졌다. 6월 CPI 균열이 만든 온기와 7거래일 연속 ETF 순유입(누적 ~$1B, SoSoValue 집계 보도 기준)에 힘입어 BTC는 7월 23일 한때 <strong>$66,500~66,700</strong>까지 올라 #17의 고점($65.6K)마저 넘어섰다(<a href="https://www.coinreporter.io/2026/07/crypto-market-analysis/">CoinReporter</a>). 그런데 주 후반, 랠리를 떠받치던 그 흐름이 <strong>정확히 반대로 꺾였다</strong> — 7월 24일 7일 유입 행진이 끊기며 BTC 현물 ETF에서 <strong>-$225.2M</strong>(IBIT -$212M 주도)이 빠졌고, 25일에도 유출이 이어져 <strong>이틀 합산 $465M 이상</strong>이 이탈했다(보도 기준, <a href="https://en.cryptonomist.ch/2026/07/24/bitcoin-etf-outflows-streak-end/">Cryptonomist</a>, <a href="https://news.bitcoin.com/bitcoin-price-64000-reclaim-july-25-2026/">Bitcoin.com</a>). BTC는 <strong>$64K대</strong>로 되밀렸고, 공포·탐욕 지수는 27(공포)로 내려앉았다.</p>
@@ -987,6 +1102,37 @@ const MACRO_REGIME_BODY = `
 // ── seed 기사 (2026-06-14 발행분) ───────────────────────────────────
 export const RESEARCH_ARTICLES: ResearchArticle[] = [
   {
+    slug: "asset-sol-fee-collapse-vs-etf-bid-2026-07",
+    type: "deepdive",
+    title: "솔라나 SOL(SOL) 분석: ETF는 들어오고 속도는 100배 빨라지는데, 매출은 왜 무너졌나",
+    dek: "SOL은 '가장 싼 L1'(P/F ~260 vs ETH ~1,172)과 '이더보다 2배 비싼 자산'(시총/수수료매출 250 vs 121)이라는 정반대 평가를 동시에 받는다. 답은 급변하는 분모에 있다 — 밈코인(Pump.fun) 수수료가 상반기 -83~97% 붕괴하며 '싼' P/F가 기계적으로 재평가되는 중. ETF 유입·Firedancer·Alpenglow는 공급측 강세지만, 진짜 승부는 밈이 비운 자리를 비(非)밈 수요측 매출이 채우느냐다.",
+    sector: "layer-1",
+    tags: ["SOL", "Solana", "ETF", "Firedancer", "Alpenglow", "Pump.fun", "밸류에이션", "토크노믹스"],
+    assets: ["SOL"],
+    author: "Tradelab 리서치",
+    readMinutes: 12,
+    publishedAt: "2026-07-27T11:00:00+09:00",
+    featured: true,
+    takeaways: [
+      "정반대 밸류에이션: SOL은 P/F ~260으로 '가장 싼 대형 L1'(ETH ~1,172)이면서, 동시에 스탠다드차타드 기준 시총/수수료매출 ~250 vs ETH ~121로 '이더보다 2배 비싼' 자산 — 같은 자산의 상충 평가.",
+      "원인은 분모 붕괴: '싼' P/F는 밈코인 슈퍼사이클이 부풀린 것. Pump.fun(Q1 앱 매출 최대 기여, ~$124.7M)의 일일 수수료가 1→6월 -83%, 네트워크 수수료는 SOL 표시 -84%(33k→5.3k SOL/일)·주간 매출 -97% 붕괴.",
+      "밀도가 만든 수수료: Pump.fun은 DEX 거래량의 3.6%지만 앱 매출 ~20% — 노셔널이 아니라 트랜잭션 밀도(DEX 트랜잭션 40~67%)로 우선순위 수수료를 입찰. 밈이 식자 거래량은 버텼으나 수수료가 무너짐.",
+      "촉매는 공급측: ETF 누적 $1B+·모건스탠리 7/24 승인, Firedancer 스테이크 20%+, Alpenglow 최종성 12.8s→~150ms(Q3 2026 목표). 그러나 접근성·성능이 곧 수요측 매출은 아니다 — 리레이팅은 비(非)밈 REV 재확인에 달림. 단독 매매신호·가격목표는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "핵심 요약 — 가장 싸 보이는 L1의 함정" },
+      { no: "02", title: "프로젝트 개요 — SOL은 무엇을 하는 자산인가" },
+      { no: "03", title: "토크노믹스 — 인플레이션·소각·FTX 오버행" },
+      { no: "04", title: "온체인·펀더멘털 — 매출의 붕괴와 그 원인" },
+      { no: "05", title: "밸류에이션 — P/F 260 vs 매출대비 250" },
+      { no: "06", title: "로드맵·촉매 — Firedancer·Alpenglow·ETF" },
+      { no: "07", title: "리스크" },
+      { no: "08", title: "우리의 관점" },
+    ],
+    bodyHtml: SOL_DEEPDIVE_BODY,
+    canonical: null,
+  },
+  {
     slug: "weekly-18-flows-reverse-into-fomc-2026-07",
     type: "weekly",
     title: "주간 시황 #18 — 흐름이 되돌아섰다: 7일 유입 랠리가 이틀 만에 꺾이고, 시장은 FOMC 앞에서 위험을 던다",
@@ -997,7 +1143,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     author: "Tradelab 리서치",
     readMinutes: 9,
     publishedAt: "2026-07-26T14:00:00+09:00",
-    featured: true,
+    featured: false,
     takeaways: [
       "흐름 반전이 헤드라인: 7거래일 유입(~$1B)에 BTC가 $66.7K(7/23)까지 올랐다가, 7/24 유입 행진 종료·이틀 -$465M+ 유출(IBIT -$212M)에 $64K대로 회귀. 7/13 이후 첫 마이너스 세션.",
       "#17 프레임이 시험대에 — '충족됐다'고 본 필요조건(ETF 유입)이 다시 미충족으로 회귀했고, 충분조건(지정학)은 여전히 결석(테헤란 긴장 재점화·유가 고착·10년물 상승).",

@@ -25,6 +25,97 @@ import type {
 
 // ── 본문 (HTML, .prose-research 타이포그래피) ─────────────────────────
 
+const WEEKLY_19_BODY = `
+<h2 id="s1">1. 한 주 요약 — 동결했는데, 더 매파적이었다</h2>
+<p><a href="/research/weekly-18-flows-reverse-into-fomc-2026-07">#18</a>(7/26) 이후 한 주(7/27~8/3)의 중심에는 7월 28~29일 FOMC가 있었다. 결과부터 보면 시장이 예상한 그대로다 — 연준은 정책금리를 <strong>3.50~3.75%</strong>에서 <strong>동결</strong>했다. 그런데 크립토는 안도하지 않았다. BTC는 회의 전후로 <strong>$63,100</strong>(7/28 장중 저점)까지 밀렸고(<a href="https://www.coinspeaker.com/bitcoin-etf-outflows-fed-rate-hike-price-drop/">Coinspeaker</a>), 8월 1일에는 하루 -3%대의 <strong>~$62,870</strong>까지 내려갔다가(<a href="https://www.coingabbar.com/en/crypto-currency-news/crypto-news-today-1-august-bitcoin-eth-drops-anthropic-gains">CoinGabbar</a>) 주말 <strong>$63,700대</strong>에서 마감했다. 공포·탐욕 지수는 <strong>25(극도의 공포)</strong>로 내려앉았다(as-of 8/2~3, <a href="https://milkroad.com/fear-greed/">Milk Road</a>).</p>
+<p><strong>우리 관점 — 이번 FOMC의 정보는 '결정'이 아니라 '분포'에 있었다.</strong> 컨센서스는 동결을 이벤트 리스크의 해소로 읽는다. 우리는 정반대로 본다. 표결은 <strong>9 대 3</strong>이었고, 반대표 3인(해맥·카시카리·로건)은 전원 <strong>즉각 25bp '인상'</strong>을 원했다 — <strong>2016년 9월 이후 가장 분열된 결정</strong>이다(<a href="https://www.tftc.io/fomc-9-3-vote-30-year-treasury-yield-19-year-high-bitcoin-etf-outflows">TFTC</a>). 그 결과 <strong>9월 인상 확률이 회의 전 ~31.5%에서 50% 위로</strong> 뛰었고, 30년물 금리는 <strong>2007년 7월 이후 최고</strong>(19년 만의 고점)로 올라섰다. 즉 이번 주 크립토를 누른 것은 위험선호의 후퇴가 아니라 <strong>무위험 수익률(할인율)의 상향</strong>이다. #18에서 우리가 "필요조건(ETF 유입)이 다시 무너졌다"고 썼다면, 이번 주의 발견은 그 유입을 되살릴 <strong>가격 조건 자체가 나빠졌다</strong>는 것이다.</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 7/28~8/3, 보도 기준)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>BTC</td><td class="num">~$62,870~63,750</td><td>7/28 장중 $63,100 → 8/1 -3.25% → 주말 $63.7K대, 저항 $65,000~65,500</td></tr>
+<tr><td>ETH</td><td class="num">~$1,865</td><td>8/1 -3.18%, $2,000 재시험 실패 후 되돌림</td></tr>
+<tr><td>연준 정책금리</td><td class="num">3.50~3.75% 동결</td><td><strong>9-3</strong> 표결, 반대 3인 전원 '인상' 선호 — 2016.9 이후 최대 분열</td></tr>
+<tr><td>9월 인상 확률</td><td class="num">~31.5% → 50%+</td><td>회의 직후 급등(보도 기준)</td></tr>
+<tr><td>미 30년물</td><td class="num">2007.7 이후 최고</td><td>10년물 ~4.66~4.68%, 장기물 5.2%대 보도 존재</td></tr>
+<tr><td>BTC 현물 ETF</td><td class="num">주간 -$61.5M</td><td>7/25~31, 7월 월간 +$172~205M(집계 기준 차)</td></tr>
+<tr><td>ETH 현물 ETF</td><td class="num">주간 +$27.4M</td><td>4주 연속 유입, 7월 월간 +$365.2M</td></tr>
+<tr><td>공포·탐욕 지수</td><td class="num">25 (극도의 공포)</td><td>8/2~3 기준</td></tr>
+<tr><td>전체 시총 / BTC 도미넌스</td><td class="num">~$2.25~2.27조 / ~56.3%</td><td>알트 대비 BTC 우위 지속</td></tr>
+</tbody>
+</table>
+</div>
+<figure>
+  <div class="prose-figure-placeholder" role="img" aria-label="동결에도 9-3 분열과 30년물 19년 고점으로 할인율이 오르며 BTC가 눌리고, 기관 자금이 BTC ETF에서 ETH ETF로 이동하는 개념도 자리"></div>
+  <figcaption>그림 1. 동결(3.50~3.75%)에도 9-3 분열·9월 인상 확률 50%+·30년물 19년 고점으로 <strong>할인율</strong>이 올라 BTC가 $62.9~63.7K로 눌린 반면, 7월 기관 자금은 BTC ETF(+$172~205M)보다 ETH ETF(+$365.2M)로 더 많이 들어옴(개념도, as-of 8/3). 라이브 수치는 <a href="/sectors">섹터 동향</a>·<a href="/">시그널 스캐너</a> 참조.</figcaption>
+</figure>
+
+<h2 id="s2">2. 매크로 — 결정이 아니라 표결의 분포가 신호였다</h2>
+<p><strong>① 9-3, 그리고 전원이 '인상' 쪽이었다.</strong> 동결은 다섯 번 연속으로, 2008년 사이클 이후 가장 긴 정지다. 그러나 정지의 성격이 바뀌었다 — 이번 반대표 3인은 <strong>완화가 아니라 긴축</strong>을 요구했다(<a href="https://www.tftc.io/fomc-9-3-vote-30-year-treasury-yield-19-year-high-bitcoin-etf-outflows">TFTC</a>, <a href="https://www.cnbc.com/2026/07/29/fed-meeting-today-live-updates.html">CNBC</a>). 워시 의장은 기자회견에서 <strong>"필요하고 적절한 곳에서 우리는 행동을 주저하지 않겠다"</strong>고 했고, 고금리가 5년 넘게 2%를 웃도는 인플레이션에 대한 <strong>"해결책의 일부가 될 수 있다"</strong>고 말했다. #16~18에서 추적해 온 워시의 '구성적 모호성'이 이번엔 모호하지 않았다 — 인상은 수사가 아니라 <strong>표로 실체화된 소수 의견</strong>이 됐다.</p>
+<p><strong>② 그래서 움직인 것은 금리 곡선의 뒤끝이다.</strong> 회의 후 10년물은 4.66~4.68% 수준, 30년물은 <strong>2007년 7월 이후 최고</strong>로 올라섰다. 이 지점이 이번 주 크립토 서사의 핵심이다 — <strong>장기 무위험 수익률이 오르면, 현금흐름이 없는 자산의 상대 매력은 기계적으로 하락한다.</strong> 기관 배분 관점에서 BTC의 경쟁 상대는 나스닥이 아니라 <strong>국채</strong>가 됐다는 뜻이다. 실제로 이번 주 ETF 유출을 두고 "비트코인 펀더멘털이 아니라 고수익 국채로의 재배분"이라는 해석이 나온 것도 같은 맥락이다(<a href="https://tokenist.com/treasury-yields-bitcoin-etf-fed-dissent-ibit-flows/">Tokenist</a>).</p>
+<p><strong>③ 유가·지정학은 여전히 덮개로 남았다.</strong> 7월 28일 미 중부사령부가 이란발 공격을 요격했다고 밝히자 WTI는 <strong>+4.4% $82.73</strong>까지 올랐다(<a href="https://www.cnbc.com/2026/07/28/oil-price-today-wti-brent-us-iran-hormuz.html">CNBC</a>). #17부터 우리가 "충분조건"으로 걸어 둔 지정학은 이번에도 결석했고, 오히려 매파 3인에게 명분을 보탰다. 다만 방향은 양날이다 — 유가가 식으면 7월 CPI가 6월의 균열을 이어받을 여지가 생긴다.</p>
+
+<h2 id="s3">3. 시장 구조 — 흐름만으로는 이번 하락을 다 설명할 수 없다</h2>
+<p>#13부터 우리가 앞세워 온 "가격보다 흐름" 프레임을 이번 주에도 그대로 대입해 보자. 회의를 전후해 BTC 현물 ETF는 <strong>4거래일 누적 약 -$526M</strong>이 빠졌고(<a href="https://tokenist.com/treasury-yields-bitcoin-etf-fed-dissent-ibit-flows/">Tokenist</a>), 발표 당일인 7월 29일 <strong>+$32.1M</strong>으로 유출 행진이 끊긴 뒤 30일 <strong>+$233M</strong>까지 회복했다가, 31일 다시 <strong>IBIT -$122.7M·피델리티 -$54.8M·비트와이즈 -$17.8M·ARK -$17.5M</strong>의 대량 유출로 되꺾였다. 결국 7/25~31 <strong>주간 -$61.53M</strong>으로 마감했다(<a href="https://www.cryptotimes.io/2026/08/01/bitcoin-etfs-see-weekly-outflows-as-ethereum-funds-extend-winning-streak/">The Crypto Times</a>).</p>
+<p>여기서 <a href="/research/weekly-17-cpi-crack-vs-hormuz-2026-07">#17</a>에서 인용한 시티의 감응도 — <strong>"ETF 순유입 $100M당 당일 BTC +53bp"</strong> — 를 대입하면 흥미로운 잔차가 남는다. 4일 -$526M은 대략 <strong>-280bp(약 -2.8%)</strong>의 기계적 하방에 해당한다. 그런데 7월 23일 고점 $66.7K에서 8월 1일 $62.87K까지의 실제 낙폭은 <strong>약 -5.7%</strong>다. <strong>흐름이 설명하는 몫은 절반뿐이고, 나머지 절반은 흐름 밖에서 왔다.</strong> 우리는 그 잔차를 <strong>할인율의 재평가</strong>로 읽는다 — 9월 인상 확률 50%+와 30년물 19년 고점이 만든, 플로우가 아니라 밸류에이션 경로의 압력이다.</p>
+<blockquote>#18의 헤드라인이 "흐름이 반대로 돌았다"였다면, #19의 헤드라인은 "흐름이 돌아올 <em>가격</em>이 비싸졌다"이다. 유입을 되살리려면 이제 심리가 아니라 금리 곡선이 먼저 꺾여야 한다.</blockquote>
+<p>더 구조적인 신호는 <strong>월간 집계</strong>에 있다. 7월 BTC 현물 ETF 순유입은 집계 기준에 따라 <strong>+$172.4M</strong>(<a href="https://www.cryptotimes.io/2026/08/01/bitcoin-etfs-see-weekly-outflows-as-ethereum-funds-extend-winning-streak/">The Crypto Times</a>) 또는 <strong>+$205M</strong>(SoSoValue 기준, <a href="https://www.coindesk.com/daybook-us/2026/07/30/bitcoin-etfs-on-track-for-the-smallest-monthly-inflows-ever">CoinDesk</a>)로 갈리지만, 어느 쪽이든 결론은 같다 — <strong>ETF 출범 이래 최저 수준의 월간 유입</strong>이다. 두 달 연속 유출이 끝났다는 점에서 방향은 플러스지만, 그 크기는 사실상 0에 수렴한다. 여기에 7월 BTC 현물 거래량이 <strong>2023년 11월 이후 가장 약했다</strong>는 사실을 겹치면 그림은 분명하다 — 이 시장은 팔려서 빠지는 게 아니라 <strong>사는 사람이 사라져서</strong> 빠지고 있다.</p>
+
+<h2 id="s4">4. 섹터 로테이션 — 기관이 조용히 '그릇'을 바꿨다</h2>
+<p>이번 주 로테이션의 진짜 뉴스는 알트 순위표가 아니라 <strong>ETF 통계 안</strong>에 있었다. 같은 7월, BTC 현물 ETF가 +$172~205M에 그치는 동안 <strong>ETH 현물 ETF는 +$365.2M</strong>이 들어왔고, 주간 기준으로도 BTC -$61.53M vs <strong>ETH +$27.42M(4주 연속 유입)</strong>으로 방향이 갈렸다(7/31 ETH 유입은 그레이스케일 ETHB +$15.4M 주도, <a href="https://www.cryptotimes.io/2026/08/01/bitcoin-etfs-see-weekly-outflows-as-ethereum-funds-extend-winning-streak/">The Crypto Times</a>). 같은 집계 안에서 <strong>ETH ETF가 BTC ETF보다 더 많은 돈을 모은 달</strong>이 나온 것이다.</p>
+<p>이것이 <a href="/research/asset-eth-ultrasound-money-is-dead-2026-07">지난주 ETH 딥다이브</a>에서 우리가 제시한 재프레임의 실시간 검증이다. 우리는 거기서 "ETH를 소각 디플레이션 화폐로 재는 프레임은 낡았고, <strong>스테이킹 수익</strong>으로 갈아끼워야 한다"고 썼다. 그리고 이번 주는 <strong>무위험 수익률이 튀어오른 주</strong>였다. 금리가 오를 때 현금흐름 없는 자산은 할인당하지만, <strong>자체 수익률을 가진 자산은 상대적으로 덜 할인당한다</strong> — BTC와 ETH의 ETF 자금 방향이 갈린 것은 우연이 아니라 이 산수의 결과라고 본다. 주의할 점도 명확하다: 절대 규모는 여전히 작고(수천만~수억 달러 단위), ETH 가격 자체는 $1,865까지 -3%대로 밀렸다. <strong>자금 방향과 가격 성과는 아직 일치하지 않는다.</strong></p>
+<p>알트 구간은 <strong>선별의 시장</strong>이 더 뚜렷해졌다. 주간 상승은 <strong>PUMP +37%(3주 연속 상승)·KAITO +18%·BEAT +14%</strong>, 하락은 <strong>M -13%·FET -11%·LDO -10%</strong>였고, AI 섹터는 섹터 전체 랠리가 아니라 <strong>TAO 같은 강자로 자본이 집중</strong>되는 분화 양상이었다(<a href="https://ambcrypto.com/crypto-market-weekly-review-02-august/">AMBCrypto</a>). PUMP의 3주 연속 강세는 <a href="/research/sector-meme-house-always-wins-2026-07">밈코인 섹터 딥다이브</a>의 논지를 그대로 재현한다 — 리테일 위험선호가 식은 구간에서도 오르는 것은 <strong>밈 코인이 아니라 '하우스'(런치패드) 토큰</strong>이다. 밈을 자산이 아니라 게이지로 읽으라는 프레임이 이번 주에도 유효했다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th class="num">순위</th><th>섹터/자산</th><th>성격</th><th>이번 구간 동인</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td>ETH (ETF 자금)</td><td>자금 방향 리더</td><td>7월 ETF +$365.2M·4주 연속 유입으로 BTC 상회 — 금리 상승기의 '수익형 자산' 논리. 단, 가격은 -3%대로 미확인</td></tr>
+<tr><td class="num">2</td><td>PUMP (런치패드)</td><td>3주 연속 강세</td><td>주간 +37% — 코인이 아니라 하우스가 버는 구조(밈 딥다이브 참조)</td></tr>
+<tr><td class="num">3</td><td>BTC</td><td>할인율 피해자</td><td>도미넌스 ~56.3%로 견고하나 30년물 19년 고점·9월 인상 확률 50%+에 눌림</td></tr>
+<tr><td class="num">4</td><td>AI (TAO 등)</td><td>내부 분화</td><td>섹터 랠리 없음 — 강자 집중, FET -11%로 약자 이탈</td></tr>
+<tr><td class="num">5</td><td>DeFi·스테이킹(LDO)</td><td>약세</td><td>LDO -10%, 위험회피 국면에서 알트 유동성 이탈 지속</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s5">5. 관점이 바뀌는 조건 · 다음 주 관전 포인트</h2>
+<ul>
+  <li><strong>이번 주(8/3~7) 고용지표</strong> — 9월 인상 확률(현재 50%+)을 가장 빠르게 되돌릴 수 있는 단일 변수. 고용이 식으면 매파 3인의 근거가 약해지고 장기물 압력이 완화된다. 강한 임금은 반대 방향.</li>
+  <li><strong>7월 CPI (8월 중순)</strong> — #17의 '인플레이션 벽 균열'이 두 달 연속인지 일회성인지 판정. 유가($82대)가 지표로 번졌는지가 관건.</li>
+  <li><strong>30년물·장기 금리</strong> — 우리의 1차 판정 지표가 이번 주부터 바뀐다. #18까지는 주간 ETF 순유입이었지만, 지금은 <strong>장기 금리가 유입의 선행 변수</strong>다. 19년 고점에서 물러서지 않으면 유입 회복은 구조적으로 어렵다.</li>
+  <li><strong>BTC ETF vs ETH ETF 자금 방향</strong> — 8월에도 ETH가 BTC를 앞서면 '금리 상승기 = 수익형 자산 선호'는 한 달의 우연이 아니라 배분 패턴이 된다. 역전되면 우리 해석을 폐기해야 한다.</li>
+  <li><strong>9월 FOMC (9/15~16)</strong> — 이번 사이클의 다음 분기점(<a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm">Federal Reserve</a>). 그 사이 나오는 데이터가 3인의 소수 의견을 다수로 만들지 여부를 결정한다.</li>
+</ul>
+
+<div class="prose-callout">
+  <p><strong>우리가 틀리는 조건.</strong> "이번 주 크립토를 누른 것은 위험선호가 아니라 할인율"이라는 읽기는 두 경우 깨진다 — (1) 고용·CPI가 빠르게 식어 9월 인상 확률이 30% 아래로 되밀리고 30년물이 물러섰는데도 <strong>ETF 유입이 회복되지 않을 때</strong>(그렇다면 문제는 금리가 아니라 크립토 수요 자체다). (2) 반대로 금리가 그대로인데 <strong>ETF 유입이 먼저 플러스로 굳을 때</strong>(할인율보다 배분 결정이 앞선다는 뜻이므로, 우리의 인과 순서가 틀린 것이다). 판정 지표는 하나로 압축된다 — <strong>장기 금리와 주간 ETF 순유입의 시차</strong>.</p>
+</div>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>수치 주의.</strong> 7월 BTC 현물 ETF 월간 순유입은 출처에 따라 <strong>+$172.4M</strong>과 <strong>+$205M</strong>으로 갈린다(집계 시점·상품 범위 차이로 추정). 장기 금리도 "10년물 4.66~4.68%"와 "장기물 5.2%대" 보도가 병존한다(만기 구간이 다른 것으로 보이나 원자료 미확인). 본문은 두 값을 모두 표기했으며, 어느 쪽을 취해도 본문의 결론(월간 유입은 기록적 저조, 장기 금리는 다년 고점)은 바뀌지 않는다.</p>
+</div>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 주간 시황은 시장 구조에 대한 관찰·교육 콘텐츠이며 BBDX 시그널과 무관하다. 본문의 가격·플로우·확률 수치는 명시된 as-of/보도 기준 값으로 변동하며, 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따른다. 본 글은 단독 매매 신호나 가격 목표를 발행하지 않으며, 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://www.tftc.io/fomc-9-3-vote-30-year-treasury-yield-19-year-high-bitcoin-etf-outflows">TFTC — FOMC 9-3 표결·반대 3인·30년물 2007년 이후 최고·9월 인상 확률 50%+</a></li>
+  <li><a href="https://www.cnbc.com/2026/07/29/fed-meeting-today-live-updates.html">CNBC — 7월 FOMC 결과 정리(동결 3.50~3.75%, 5회 연속)</a></li>
+  <li><a href="https://tokenist.com/treasury-yields-bitcoin-etf-fed-dissent-ibit-flows/">Tokenist — 국채 금리 상승과 BTC ETF 4일 -$526M, 국채로의 재배분 해석</a></li>
+  <li><a href="https://www.cryptotimes.io/2026/08/01/bitcoin-etfs-see-weekly-outflows-as-ethereum-funds-extend-winning-streak/">The Crypto Times — 주간 BTC -$61.53M vs ETH +$27.42M, 7월 월간 BTC +$172.4M·ETH +$365.2M</a></li>
+  <li><a href="https://www.coindesk.com/daybook-us/2026/07/30/bitcoin-etfs-on-track-for-the-smallest-monthly-inflows-ever">CoinDesk — 7월 ETF 유입 사상 최저 수준(SoSoValue 기준 $205M)·거래량 2023년 11월 이후 최약</a></li>
+  <li><a href="https://www.coinspeaker.com/bitcoin-etf-outflows-fed-rate-hike-price-drop/">Coinspeaker — 7/28 BTC $63.1K 장중 저점·저항 $65.0~65.5K</a></li>
+  <li><a href="https://www.coingabbar.com/en/crypto-currency-news/crypto-news-today-1-august-bitcoin-eth-drops-anthropic-gains">CoinGabbar — 8/1 BTC ~$62,869(-3.25%)·ETH ~$1,864(-3.18%)·시총 $2.25조</a></li>
+  <li><a href="https://ambcrypto.com/crypto-market-weekly-review-02-august/">AMBCrypto — 주간 승자/패자(PUMP +37%·KAITO +18%·BEAT +14% / M·FET·LDO), 시총 $2.268조·도미넌스 56.28%</a></li>
+  <li><a href="https://www.cnbc.com/2026/07/28/oil-price-today-wti-brent-us-iran-hormuz.html">CNBC — 이란 공격 요격 후 WTI +4.4% $82.73(7/28)</a></li>
+  <li><a href="https://milkroad.com/fear-greed/">Milk Road — 공포·탐욕 지수 25(극도의 공포, 8/2)</a></li>
+  <li><a href="https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm">Federal Reserve — FOMC 일정(9/15~16)</a></li>
+</ul>
+`;
+
 const MEME_DEEPDIVE_BODY = `
 <h2 id="s1">1. 핵심 요약 — 코인은 죽고, 하우스만 산다</h2>
 <p>밈코인 섹터를 "죽었다"고 부르기는 쉽다 — 정점 대비 시가총액이 <strong>-$110B</strong> 증발했고(2024 피크 이후, 보도 기준, <a href="https://bitcoinfoundation.org/news/altcoins/pump-fun-dead/">Bitcoin Foundation</a>), 대표 발행 플랫폼 Pump.fun의 <strong>토큰 '졸업률'(유동성 풀로 승격되는 비율)이 0.26%</strong>까지 붕괴했다(2026.6, <a href="https://www.dextools.io/news/pump-fun-graduation-collapse-solana-fees-2026">DEXTools</a>). 1,000개를 발행하면 <strong>2~3개만 살아남고 997개가 소멸</strong>한다는 뜻이다. 그러나 "죽었다"는 이 섹터의 진짜 구조를 가린다.</p>
@@ -1282,6 +1373,34 @@ const MACRO_REGIME_BODY = `
 // ── seed 기사 (2026-06-14 발행분) ───────────────────────────────────
 export const RESEARCH_ARTICLES: ResearchArticle[] = [
   {
+    slug: "weekly-19-hold-that-was-more-hawkish-2026-08",
+    type: "weekly",
+    title: "주간 시황 #19 — 동결인데 왜 더 매파적인가: 3인의 인상 반대표, 19년 만의 30년물, 그리고 조용히 바뀐 기관의 그릇",
+    dek: "연준은 3.50~3.75%를 동결했지만 크립토는 안도하지 않았다. 표결은 9-3, 반대 3인은 전원 '인상'을 원했고(2016년 9월 이후 최대 분열) 9월 인상 확률은 31.5%→50%+, 30년물은 2007년 7월 이후 최고로 올라섰다. 이번 주 BTC를 누른 것은 위험선호가 아니라 할인율이다 — 그리고 그 와중에 7월 기관 자금은 BTC ETF(+$172~205M, 기록적 저조)보다 ETH ETF(+$365.2M)로 더 많이 흘렀다.",
+    sector: "btc",
+    tags: ["주간 시황", "매크로", "FOMC", "워시", "금리", "ETF", "섹터 로테이션", "ETH"],
+    assets: ["BTC", "ETH"],
+    author: "Tradelab 리서치",
+    readMinutes: 10,
+    publishedAt: "2026-08-03T14:00:00+09:00",
+    featured: true,
+    takeaways: [
+      "정보는 '결정'이 아니라 '분포'에 있었다: 동결(3.50~3.75%, 5회 연속)이지만 표결은 9-3이고 반대 3인(해맥·카시카리·로건)은 전원 즉각 25bp '인상'을 원했다 — 2016년 9월 이후 최대 분열. 9월 인상 확률이 ~31.5%에서 50% 위로 뛰었다.",
+      "변동 관점 — 크립토를 누른 것은 위험선호가 아니라 할인율: 30년물이 2007년 7월 이후 최고(19년 고점). 시티 감응도($100M당 +53bp)로 4일 -$526M은 약 -280bp를 설명하지만 실제 낙폭($66.7K→$62.87K)은 -5.7% — 잔차 절반은 흐름 밖, 즉 금리 재평가에서 왔다고 본다.",
+      "수요가 사라진 시장: 7월 BTC 현물 ETF 순유입은 +$172.4M~$205M(집계 기준 차)으로 출범 이래 최저 수준이고 7월 현물 거래량은 2023년 11월 이후 최약. 팔려서 빠지는 게 아니라 사는 사람이 사라져서 빠지는 국면.",
+      "기관이 그릇을 바꿨다: 같은 7월 ETH ETF는 +$365.2M(4주 연속 유입)으로 BTC ETF를 앞섰고 주간도 BTC -$61.5M vs ETH +$27.4M. 금리 상승기엔 자체 수익률을 가진 자산이 덜 할인당한다는 산수 — 단 ETH 가격 자체는 -3%대로 자금 방향과 성과는 아직 불일치. 단독 매매신호·가격목표는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "한 주 요약 — 동결했는데, 더 매파적이었다" },
+      { no: "02", title: "매크로 — 결정이 아니라 표결의 분포가 신호였다" },
+      { no: "03", title: "시장 구조 — 흐름만으로는 이번 하락을 다 설명할 수 없다" },
+      { no: "04", title: "섹터 로테이션 — 기관이 조용히 '그릇'을 바꿨다" },
+      { no: "05", title: "관점이 바뀌는 조건 · 다음 주 관전 포인트" },
+    ],
+    bodyHtml: WEEKLY_19_BODY,
+    canonical: null,
+  },
+  {
     slug: "sector-meme-house-always-wins-2026-07",
     type: "deepdive",
     title: "밈코인 섹터 분석: 코인은 죽고 하우스만 산다 — 졸업률 0.26%가 말해주는 것",
@@ -1292,7 +1411,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     author: "Tradelab 리서치",
     readMinutes: 11,
     publishedAt: "2026-07-27T15:00:00+09:00",
-    featured: true,
+    featured: false,
     takeaways: [
       "코인은 투자 대상이 아니다: Pump.fun 졸업률 0.26%(3개월 -80%) — 1,000개 발행 시 997개 소멸. 개별 밈의 기대값은 구조적 마이너스이며, 본 글은 어떤 밈코인도 매수 대상으로 제시하지 않는다.",
       "하우스만 산다: 일일 매출이 1→6월 -83%($4.8M→$0.8M)로 무너지는 와중에도 Pump.fun 누적 매출 $1B 돌파. 코인이 살든 죽든 발행되는 순간 모두가 하우스에 과세당하는 구조(솔라나 밈의 ~80% 점유).",

@@ -25,6 +25,100 @@ import type {
 
 // ── 본문 (HTML, .prose-research 타이포그래피) ─────────────────────────
 
+const WEEKLY_20_BODY = `
+<h2 id="s1">1. 지난 4주 요약 — 연준이 아니라 재무부가 랠리를 만들었고, 워시가 그것을 되돌렸다</h2>
+<p><a href="/research/weekly-19-hold-that-was-more-hawkish-2026-08">#19</a>(8/3) 이후 발행 공백이 길었던 것은 이 4주가 조용해서가 아니라 정반대였기 때문이다 — 8월 초 옆걸음, 재무부發 사상급 숏스퀴즈, 그리고 잭슨홀에서의 매파적 반전이 한 달 안에 압축됐다. 순서대로 보면: 8/12 발표된 7월 CPI는 헤드라인 <strong>3.4%(전월비 +0.1%)·근원 2.5%</strong>로 컨센서스에 부합했고, BTC는 <strong>$63,000</strong>대에서 거의 움직이지 않았다(<a href="https://www.cryptotimes.io/2026/08/12/crypto-market-flat-as-us-cpi-cools-to-3-4-core-inflation-eases-to-2-5/">The Crypto Times</a>). #19가 걸었던 "장기 금리가 유입의 선행 변수"라는 판정 지표가 조용히 시험대에 오른 채로 2주가 흘렀다.</p>
+<p><strong>우리 관점 — 이번 구간의 정보는 '누가 금리를 움직였는가'에 있었다.</strong> 컨센서스는 8월 랠리를 위험선호 복귀·리테일 재유입으로 읽는다. 우리는 다르게 본다. 8월 19일, 재무부(베센트 장관)가 10~20년·20~30년 구간 <strong>바이백 오퍼레이션 최대 규모를 $2B→$4B로 두 배</strong> 늘려 9월 9일부터 11월 4일 리펀딩 분기까지 시행한다고 발표했다(<a href="https://crypto.news/treasury-buyback-bitcoin-yield-curve-rally/">crypto.news</a>). 이 채권 재융자 오퍼레이션(신규 단기채 발행으로 장기채 매입 — 통화량 확장이 아님)이 장기 금리를 <strong>약 15bp 압축</strong>시켰고, 그 압축이 극단적으로 숏에 쏠려 있던 크립토 포지셔닝을 연쇄 청산시켰다. <strong>즉 8월 BTC를 밀어올린 것은 완화적 연준이 아니라 재무부의 부채관리 레버였다</strong> — 그리고 8월 28일, 진짜 연준(신임 워시 의장)이 처음으로 입을 열자 시장은 다시 눌렸다. #19의 "할인율이 크립토를 움직인다"는 프레임은 유효했지만, 이번엔 그 할인율을 움직인 손이 바뀌었다.</p>
+
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th>지표</th><th class="num">값 (as-of 8/3~8/31, 보도 기준)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>BTC</td><td class="num">$63.0K(8/12) → $69.5K(8/19 스퀴즈) → $81.2K(8/24 고점) → $77.6~78.2K(8/28 이후~8/31)</td><td>5월 이후 최고(8/24) 찍고 워시 발언 후 되돌림</td></tr>
+<tr><td>ETH</td><td class="num">~$2,494(8/31)</td><td>8월 저점 대비 +30%대, 1~2월 이후 최고권</td></tr>
+<tr><td>7월 CPI</td><td class="num">헤드라인 3.4%·근원 2.5%</td><td>컨센서스 부합, 크립토 반응은 옆걸음</td></tr>
+<tr><td>재무부 바이백</td><td class="num">$2B→$4B/회, 9/9~11/4 시행</td><td>10~20Y·20~30Y 구간, 장기 금리 ~15bp 압축</td></tr>
+<tr><td>숏 청산(8/19)</td><td class="num">~$1.3B~3.0B(집계 상이)</td><td>2026년 8번째~2번째 규모로 보도가 갈림 — §3 참고</td></tr>
+<tr><td>BTC 현물 ETF(8월 누적)</td><td class="num">+$1.5B(13거래일, 9입/4출)</td><td>8/19 단일일 +$517M(5월 이후 최대), 8/28 -$202M(9일 유입 행진 종료)</td></tr>
+<tr><td>ETH 현물 ETF</td><td class="num">8/17~27 9~10일 연속 유입, 누적 +$1.42B</td><td>블랙록 ETHA가 ~$1.02B(≈72%) 주도, 8/28 워시 발언일에도 유입 지속</td></tr>
+<tr><td>공포·탐욕 지수</td><td class="num">67(탐욕, 8/29)</td><td>30일 평균 43(공포) — 급격한 심리 반전, 월간 저 24~고 74</td></tr>
+<tr><td>전체 시총 / BTC 도미넌스</td><td class="num">~$2.6~2.7조 / ~58%</td><td>7월 말 56.3%에서 소폭 상승</td></tr>
+</tbody>
+</table>
+</div>
+<figure>
+  <div class="prose-figure-placeholder" role="img" aria-label="재무부 바이백 발표로 장기금리가 압축되며 숏스퀴즈와 BTC 급등이 발생하고, 열흘 뒤 워시의 매파적 잭슨홀 발언이 그 절반을 되돌리는 두 파동 개념도 자리"></div>
+  <figcaption>그림 1. 8/19 재무부 바이백 발표 → 15bp 금리 압축 → 숏스퀴즈 → BTC $69.5K→$81.2K, 그리고 8/28 워시의 매파적 잭슨홀 데뷔 → BTC $77~78K대로 되돌림(개념도, as-of 8/31). 라이브 수치는 <a href="/sectors">섹터 동향</a>·<a href="/">시그널 스캐너</a> 참조.</figcaption>
+</figure>
+
+<h2 id="s2">2. 매크로 — 같은 '할인율' 변수를 재무부가 눌렀다가, 연준이 다시 올렸다</h2>
+<p><strong>① 재무부의 레버 — QE가 아니라 재융자다.</strong> 8/19 바이백 확대는 연준의 자산 매입(QE)과 다르다. 신규 단기채 발행으로 유동성이 낮은 장기채를 사들이는 순수 재융자 오퍼레이션으로, 통화량을 늘리지 않으면서도 장기 구간 수급을 조인다(<a href="https://crypto.news/bitcoin-80k-treasury-buybacks-short-squeeze-august-2026/">crypto.news</a>). 그런데도 시장은 이를 '완화적 신호'로 해석했다 — 백악관에서 크립토 관련 회동이 겹치고 대통령이 "크립토와의 전쟁은 끝났다"는 취지의 발언을 했다는 보도(<a href="https://www.bloomberg.com/news/articles/2026-08-19/bitcoin-surges-most-since-march-ahead-of-white-house-meeting">Bloomberg</a>)까지 겹치며, 극단적으로 숏에 쏠려 있던 포지셔닝이 하루 만에 무너졌다.</p>
+<p><strong>② 숫자는 8배 이상 갈리지만 방향은 하나다.</strong> 8/19 청산 규모는 출처마다 <strong>$1.29B~$1.74B(24시간 숏 청산)</strong>부터 <strong>$2.99B(전체 청산, 2026년 8번째 최대 규모)</strong>까지 갈린다(<a href="https://www.kucoin.com/news/flash/crypto-market-sees-2-99b-liquidations-on-august-19-8th-largest-in-history">KuCoin</a>). 어느 숫자를 취하든 결론은 같다 — <strong>포지셔닝의 붕괴가 뉴스보다 컸다.</strong> BTC는 이날 하루 <strong>+8~8.5%</strong> 튀며 $64.1K에서 $69.5K대로, ETH는 <strong>+18%대</strong>로 $2,257 부근까지 뛰었다(<a href="https://news.bitcoin.com/market-updates/bitcoin-rips-toward-70k-as-1-3b-short-squeeze-erupts/">News.Bitcoin.com</a>). 이후 BTC는 8/24 <strong>$81,240</strong>(5월 이후 최고)까지 연장됐다(<a href="https://en.cryptonomist.ch/2026/08/26/bitcoin-bull-market-treasury-buybacks/">Cryptonomist</a>).</p>
+<p><strong>③ 그리고 8/28, 진짜 연준이 말했다.</strong> 잭슨홀 심포지엄(8/27~29)에서 워시 의장이 취임 후 첫 기조연설을 했다. 요지는 매파적이었다 — 2% PCE 목표를 <strong>"확고하고 고정된 목표"</strong>로 규정했고, 12개월 PCE가 <strong>3.7%</strong>, 6개월 연율화 PCE는 <strong>4.1%</strong>라고 못박았다(<a href="https://www.federalreserve.gov/newsevents/speech/warsh20260828a.htm">Federal Reserve — 원문</a>). 폴리마켓의 2026년 내 <strong>인상</strong> 확률은 발언 직후 <strong>68%</strong>로 뛰었다(<a href="https://crypto.news/warsh-jackson-hole-speech-puts-rate-hike-on-the-table/">crypto.news</a>). BTC는 $80K 위에서 거래되다 당일 <strong>-2~2.5%</strong>, $77.6~79.2K대로 밀렸다(<a href="https://coinpedia.org/news/bitcoin-drops-3-amid-kevin-warshs-jackson-hole-hawkish-speech/">Coinpedia</a>, <a href="https://news.bitcoin.com/market-updates/bitcoin-price-retreats-after-warshs-hawkish-jackson-hole-keynote/">News.Bitcoin.com</a>). #19에서 우리가 "9월 인상 확률 50%+"를 판정 지표로 걸었는데, 그 확률이 4주 만에 68%까지 더 올라간 것이다 — <strong>할인율 상승이라는 방향 자체는 #19의 프레임과 정확히 일치</strong>하지만, 이번엔 재무부가 먼저 그 방향을 눌러놨다가 연준이 되돌렸다는 순서가 다르다.</p>
+
+<h2 id="s3">3. 시장 구조 — 같은 8/28에 BTC ETF는 팔고 ETH ETF는 계속 샀다</h2>
+<p>이번 구간에서 가장 깨끗한 단일 데이터 포인트는 <strong>8월 28일 하루</strong>에 있다. 워시 발언 당일, BTC 현물 ETF는 <strong>9거래일 연속 유입 행진이 -$202M 유출로 끊겼다</strong>(<a href="https://www.hokanews.com/2026/08/ethereum-etfs-extend-inflow-streak-as.html">Hokanews</a>). 그런데 같은 날 <strong>ETH 현물 ETF는 유입을 이어갔다</strong> — 8/17~27 누적 9~10거래일 연속 유입 <strong>+$1.42B</strong>(블랙록 ETHA가 약 $1.02B, 약 72% 주도, <a href="https://www.cryptotimes.io/2026/08/29/blackrocks-ethereum-etf-posts-1-02-billion-in-inflows-over-9-days-as-eth-price-surges/">The Crypto Times</a>)의 연장선이었다. <strong>같은 매파적 뉴스에 두 자산의 ETF 자금이 반대 방향으로 갈린 것</strong> — 이것이 #19에서 우리가 "기관이 조용히 그릇을 바꿨다"고 쓴 가설의 4주 뒤 재확인이다.</p>
+<p>다만 정직하게 짚어야 할 것은 규모다. 숏스퀴즈가 정점이던 8/17~21 주간, BTC ETF는 <strong>+$1.92B</strong>(블랙록 IBIT $1.33B 주도)를 모아 <strong>ETH ETF +$697.18M</strong>을 절대액에서 크게 앞섰다(<a href="https://incrypted.com/en/bitcoin-and-ethereum-etfs-posted-their-best-weekly-performance-of-2026-with-2-62b-in-inflows/">Incrypted</a>). 즉 <strong>위험선호가 강할 때는 여전히 BTC가 자금의 몸통</strong>이다. ETH가 이기는 구간은 위험선호 총량이 아니라 <strong>'금리 뉴스가 매파적으로 나온 그 하루'</strong>로 좁혀진다 — #19의 논리(자체 수익률을 가진 자산이 할인을 덜 받는다)가 평시가 아니라 정확히 금리 충격이 발생한 순간에만 관측된다는 뜻이며, 이는 우리 가설을 강화하는 동시에 그 적용 범위를 좁힌다.</p>
+<blockquote>#19의 헤드라인이 "기관이 조용히 그릇을 바꿨다"였다면, #20의 발견은 "그 그릇 교체는 상시가 아니라 금리 충격이 터지는 그 하루에만 선명하게 드러난다"는 것이다. 8/28 같은 날이 9월에도 반복되는지가 이 가설의 다음 시험대다.</blockquote>
+
+<h2 id="s4">4. 섹터 로테이션 — 가격은 올랐는데 시장의 폭은 좁아졌다</h2>
+<p>8월 마지막 주의 가장 불편한 통계는 가격이 아니라 <strong>폭(breadth)</strong>이다. 시총 상위 100개 자산 중 상승한 종목 수가 전주 <strong>86개에서 48개로</strong> 급감했다(<a href="https://www.dailyforex.com/forex-technical-analysis/2026/08/crypto-overview-analysis-30-august-2026/249138">DailyForex</a>, as-of 8/30). 알트코인 시즌 지수도 30대 초중반으로 여전히 'BTC 시즌' 영역에 머물러 있다는 보도가 있다(수치 확인 필요, §수치 주의 참고). 즉 <strong>동일가중 지표는 시총가중 성과보다 훨씬 약하다</strong> — 8월 랠리는 소수 대형주(BTC·ETH)가 지수를 끌고, 대다수 알트는 따라가지 못한 좁은 랠리였다는 뜻이다.</p>
+<p>그럼에도 개별 승자는 뚜렷했다 — 보도 기준 주간 성과로 <strong>ADA +10.5%대·SOL +3.9%대(~$76)·HYPE +3.7%대(~$54.7, 시총 ~$13.8B)</strong>가 거론된다(as-of 8/26~30, 출처·집계 시점 혼재 — §수치 주의 참고). <a href="/research/asset-sol-fee-collapse-vs-etf-bid-2026-07">지난 SOL 딥다이브</a>에서 짚은 ETF·Firedancer·Alpenglow 공급측 촉매가 밈 붕괴로 무너진 매출 기반 위에서도 가격을 지지하고 있는 모습이며, HYPE의 강세는 파생상품 수요가 이번 랠리에서도 여전히 크립토 리스크온의 선봉임을 시사한다.</p>
+<div class="prose-table-wrap">
+<table>
+<thead><tr><th class="num">순위</th><th>섹터/자산</th><th>성격</th><th>이번 구간 동인</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td>BTC (재무부 바이백)</td><td>스퀴즈 주도</td><td>8/19 +8%대 → 8/24 $81.2K(5월 이후 최고) → 워시 발언 후 되돌림</td></tr>
+<tr><td class="num">2</td><td>ETH (ETF 자금)</td><td>충격 국면 자금 리더</td><td>8/28 BTC ETF -$202M vs ETH ETF 유입 지속 — 금리 뉴스 당일에 한해 우위</td></tr>
+<tr><td class="num">3</td><td>ADA·HYPE 등 개별 알트</td><td>선별 강세</td><td>동일가중 폭(48/100)은 좁지만 개별 승자는 두 자릿수 %대 상승</td></tr>
+<tr><td class="num">4</td><td>알트 전반</td><td>참여 축소</td><td>전주 86/100→48/100 상승 종목 수 급감, 알트시즌 지수 여전히 BTC 우위권</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s5">5. 관점이 바뀌는 조건 · 9월 관전 포인트</h2>
+<ul>
+  <li><strong>9월 9일 — 재무부 바이백 실제 집행 시작.</strong> 8/19은 '발표'였고 9/9부터가 '집행'이다. 발표만으로 15bp가 눌렸다면, 실제 매입이 시작될 때 금리·크립토가 추가로 반응하는지가 이 채널의 지속력을 가른다.</li>
+  <li><strong>9월 5일 전후 — 8월 고용지표.</strong> #19부터 걸어 둔 조건 그대로: 고용이 식으면 워시의 매파 톤이 다수 의견으로 굳기 어렵고, 강한 임금·고용은 68% 인상 확률을 더 밀어올린다.</li>
+  <li><strong>9월 15~16일 FOMC.</strong> #19에서 예고한 다음 분기점. 워시가 잭슨홀에서 던진 "확고하고 고정된 2% 목표"가 실제 표결로 이어지는지 확인하는 자리다.</li>
+  <li><strong>9월 15일 — CLARITY 법안 클로처 투표(우연히 FOMC와 같은 주).</strong> 상원은 크립토 시장구조 법안(CLARITY Act) 절차적 표결을 9/15로 예고했다(<a href="https://www.fool.com/investing/2026/08/22/senators-plan-a-clarity-act-vote-on-sept-15/">The Motley Fool</a>). 통과 확률은 예측시장 기준 낮게 형성돼 있다는 보도가 있어(수치 미확정) 기대는 낮지만, 같은 주에 매크로·규제 촉매가 겹친다는 점 자체가 변동성 요인이다.</li>
+  <li><strong>BTC ETF vs ETH ETF 자금 방향 — 8/28형 다이버전스 재현 여부.</strong> §3의 가설(금리 충격 당일에만 ETH가 우위)이 9월 FOMC 당일에도 반복되면 우리 해석은 강화된다. 반대로 9월 FOMC에서 BTC ETF가 더 강하게 반등하면, 8/28은 일회성 노이즈였다고 봐야 한다.</li>
+</ul>
+
+<div class="prose-callout">
+  <p><strong>우리가 틀리는 조건.</strong> "8월 랠리의 진짜 엔진은 연준이 아니라 재무부였다"는 읽기는 두 경우 깨진다 — (1) 9/9 바이백이 실제 집행되는데도 금리·크립토가 무반응이라면(그렇다면 8/19의 반응은 재무부 메커니즘이 아니라 단순 포지셔닝 청산·백악관發 헤드라인 효과였다는 뜻이다). (2) 9월 FOMC에서 워시가 잭슨홀 톤을 실제 인상으로 이어가지 못하고 되레 완화 신호를 준다면(그렇다면 68% 인상 확률은 우리가 과대평가한 소음이었다는 뜻이다). 판정 지표는 9/9 바이백 집행일과 9/15~16 FOMC, 두 이벤트 각각에 대한 장기 금리·BTC의 동시 반응이다.</p>
+</div>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>수치 주의.</strong> 이번 리포트는 유독 출처 간 수치 편차가 컸다. 8/19 숏 청산 규모는 <strong>$1.29B(24시간 숏 청산)</strong>부터 <strong>$2.99B(전체 청산)</strong>까지 최대 8배 가까운 편차가 있으며(집계 범위·시간창 차이로 추정, 원자료 미확인), 알트코인 시즌 지수·ADA/SOL/HYPE 주간 등락률은 검색 결과에서 발행일·집계 기준이 명확히 분리되지 않아 <strong>as-of 8/26~30 보도 기준</strong>으로만 표기했다. BTC 도미넌스도 56.3%(7월 말)~59%(8월 말 일부 보도) 사이로 소스마다 다르다. 본문 결론(재무부發 스퀴즈 → 워시發 되돌림, 좁아진 시장 폭)은 어느 값을 취해도 바뀌지 않지만, 개별 수치의 정밀도는 사람이 원자료로 재확인하기를 권한다.</p>
+</div>
+
+<div class="prose-callout" data-variant="warn">
+  <p><strong>면책.</strong> 본 주간 시황은 시장 구조에 대한 관찰·교육 콘텐츠이며 BBDX 시그널과 무관하다. 본문의 가격·플로우·확률 수치는 명시된 as-of/보도 기준 값으로 변동하며, 개별 진입·청산 판단은 시그널 스캐너의 RSI·BB·ADX 컨플루언스를 따른다. 본 글은 단독 매매 신호나 가격 목표를 발행하지 않으며, 과거 성과는 미래를 보장하지 않는다.</p>
+</div>
+
+<h2 id="src">참고 자료</h2>
+<ul>
+  <li><a href="https://www.cryptotimes.io/2026/08/12/crypto-market-flat-as-us-cpi-cools-to-3-4-core-inflation-eases-to-2-5/">The Crypto Times — 7월 CPI 3.4%/근원 2.5%, 크립토 옆걸음</a></li>
+  <li><a href="https://crypto.news/treasury-buyback-bitcoin-yield-curve-rally/">crypto.news — 재무부 바이백 $4B·15bp 금리 압축 메커니즘</a></li>
+  <li><a href="https://crypto.news/bitcoin-80k-treasury-buybacks-short-squeeze-august-2026/">crypto.news — 바이백發 BTC $80K대 진입, 숏스퀴즈 해부</a></li>
+  <li><a href="https://www.bloomberg.com/news/articles/2026-08-19/bitcoin-surges-most-since-march-ahead-of-white-house-meeting">Bloomberg — 8/19 사상급 숏 청산, 백악관 회동 전후 급등</a></li>
+  <li><a href="https://www.kucoin.com/news/flash/crypto-market-sees-2-99b-liquidations-on-august-19-8th-largest-in-history">KuCoin — 8/19 청산 $2.99B(2026년 8번째 최대)</a></li>
+  <li><a href="https://news.bitcoin.com/market-updates/bitcoin-rips-toward-70k-as-1-3b-short-squeeze-erupts/">News.Bitcoin.com — BTC +8%대 $69.5K대, ETH +18%대 $2,257</a></li>
+  <li><a href="https://en.cryptonomist.ch/2026/08/26/bitcoin-bull-market-treasury-buybacks/">Cryptonomist — BTC 8/24 $81,240(5월 이후 최고)</a></li>
+  <li><a href="https://www.federalreserve.gov/newsevents/speech/warsh20260828a.htm">Federal Reserve — 워시 잭슨홀 기조연설 원문(8/28)</a></li>
+  <li><a href="https://crypto.news/warsh-jackson-hole-speech-puts-rate-hike-on-the-table/">crypto.news — 폴리마켓 2026 인상 확률 68%로 상승</a></li>
+  <li><a href="https://coinpedia.org/news/bitcoin-drops-3-amid-kevin-warshs-jackson-hole-hawkish-speech/">Coinpedia — 워시 발언 후 BTC 하락</a></li>
+  <li><a href="https://www.hokanews.com/2026/08/ethereum-etfs-extend-inflow-streak-as.html">Hokanews — 8/28 BTC ETF -$202M vs ETH ETF 유입 지속</a></li>
+  <li><a href="https://www.cryptotimes.io/2026/08/29/blackrocks-ethereum-etf-posts-1-02-billion-in-inflows-over-9-days-as-eth-price-surges/">The Crypto Times — ETH ETF 9거래일 +$1.42B, 블랙록 ETHA 주도</a></li>
+  <li><a href="https://incrypted.com/en/bitcoin-and-ethereum-etfs-posted-their-best-weekly-performance-of-2026-with-2-62b-in-inflows/">Incrypted — 8/17~21 주간 BTC ETF +$1.92B vs ETH ETF +$697M 상세</a></li>
+  <li><a href="https://sundayguardianlive.com/business/ethereum-price-today-31-august-eth-near-2500-after-powerful-august-rally-etf-demand-supports-gains-check-latest-eth-prices-in-usd-inr-gbp-euro-jpy-273588/">Sunday Guardian Live — ETH 8/31 ~$2,494</a></li>
+  <li><a href="https://finance.yahoo.com/markets/crypto/articles/crypto-fear-greed-index-flips-081252407.html">Yahoo Finance — 공포·탐욕 지수 8/29 67(탐욕), 30일 평균 43</a></li>
+  <li><a href="https://www.dailyforex.com/forex-technical-analysis/2026/08/crypto-overview-analysis-30-august-2026/249138">DailyForex — 상위 100 상승 종목 86→48, 시장 폭 축소</a></li>
+  <li><a href="https://www.fool.com/investing/2026/08/22/senators-plan-a-clarity-act-vote-on-sept-15/">The Motley Fool — CLARITY Act 상원 클로처 투표 9/15 예고</a></li>
+</ul>
+`;
+
 const WEEKLY_19_BODY = `
 <h2 id="s1">1. 한 주 요약 — 동결했는데, 더 매파적이었다</h2>
 <p><a href="/research/weekly-18-flows-reverse-into-fomc-2026-07">#18</a>(7/26) 이후 한 주(7/27~8/3)의 중심에는 7월 28~29일 FOMC가 있었다. 결과부터 보면 시장이 예상한 그대로다 — 연준은 정책금리를 <strong>3.50~3.75%</strong>에서 <strong>동결</strong>했다. 그런데 크립토는 안도하지 않았다. BTC는 회의 전후로 <strong>$63,100</strong>(7/28 장중 저점)까지 밀렸고(<a href="https://www.coinspeaker.com/bitcoin-etf-outflows-fed-rate-hike-price-drop/">Coinspeaker</a>), 8월 1일에는 하루 -3%대의 <strong>~$62,870</strong>까지 내려갔다가(<a href="https://www.coingabbar.com/en/crypto-currency-news/crypto-news-today-1-august-bitcoin-eth-drops-anthropic-gains">CoinGabbar</a>) 주말 <strong>$63,700대</strong>에서 마감했다. 공포·탐욕 지수는 <strong>25(극도의 공포)</strong>로 내려앉았다(as-of 8/2~3, <a href="https://milkroad.com/fear-greed/">Milk Road</a>).</p>
@@ -1373,6 +1467,34 @@ const MACRO_REGIME_BODY = `
 // ── seed 기사 (2026-06-14 발행분) ───────────────────────────────────
 export const RESEARCH_ARTICLES: ResearchArticle[] = [
   {
+    slug: "weekly-20-treasury-buyback-squeeze-warsh-hawkish-2026-08",
+    type: "weekly",
+    title: "주간 시황 #20 — 연준이 아니라 재무부가 랠리를 만들었다: $4B 바이백, 사상급 숏스퀴즈, 그리고 워시의 매파적 잭슨홀 데뷔",
+    dek: "8월 19일 재무부의 장기채 바이백 규모 2배 확대(9/9 시행 예고)가 장기 금리를 15bp 압축시키며 사상급 숏스퀴즈를 촉발, BTC는 $64K에서 $81.2K(5월 이후 최고)까지 치솟았다. 그런데 8월 28일 워시 의장의 첫 잭슨홀 연설이 매파적으로 나오자(2026년 인상 확률 68%) BTC는 되돌림, 같은 날 BTC ETF는 9일 유입 행진을 끊고 유출로 전환했지만 ETH ETF는 유입을 이어갔다 — #19의 '기관이 그릇을 바꿨다' 가설이 금리 충격 당일에 한해 다시 확인됐다.",
+    sector: "btc",
+    tags: ["주간 시황", "매크로", "재무부 바이백", "숏스퀴즈", "잭슨홀", "워시", "ETF", "섹터 로테이션", "ETH"],
+    assets: ["BTC", "ETH"],
+    author: "Tradelab 리서치",
+    readMinutes: 11,
+    publishedAt: "2026-08-31T15:00:00+09:00",
+    featured: true,
+    takeaways: [
+      "8월 랠리의 진짜 엔진은 연준이 아니라 재무부였다: 8/19 발표된 장기채 바이백 규모 2배 확대($2B→$4B, 9/9~11/4 시행)가 장기 금리를 ~15bp 압축시키며 극단적으로 숏에 쏠린 포지셔닝을 청산 — 출처별 편차는 크지만(24시간 숏 청산 $1.29B~전체 청산 $2.99B) BTC가 하루 +8%대로 튄 것은 공통. 이후 8/24 $81,240(5월 이후 최고)까지 연장됐다.",
+      "그리고 진짜 연준이 말하자 되돌림: 8/28 잭슨홀에서 워시 의장이 2% PCE를 '확고하고 고정된 목표'로 규정하며 12개월 PCE 3.7%·6개월 연율화 4.1%를 언급하자 2026년 인상 확률이 68%로 급등(#19 발행 시점 50%+에서 추가 상승), BTC는 $80K 위에서 -2~2.5% 되돌림.",
+      "같은 날 ETF 자금이 갈렸다: 8/28 BTC 현물 ETF는 9거래일 연속 유입이 -$202M 유출로 끊긴 반면, ETH 현물 ETF는 8/17~27 9~10일 연속 유입(누적 +$1.42B, 블랙록 ETHA 주도)을 그대로 이어갔다 — #19의 '기관이 그릇을 바꿨다' 가설의 4주 뒤 재확인. 단, 위험선호가 강했던 8/17~21 주간엔 BTC ETF(+$1.92B)가 ETH ETF(+$697M)를 절대액에서 크게 앞서 — 그릇 교체는 상시가 아니라 금리 충격 당일에만 선명하다.",
+      "가격은 올랐는데 시장의 폭은 좁아졌다: 시총 상위 100개 중 상승 종목이 전주 86개에서 48개로 급감(as-of 8/30) — 8월 랠리는 BTC·ETH가 지수를 끌고 다수 알트가 못 따라간 좁은 랠리였다. 단독 매매신호·가격목표는 발행하지 않는다.",
+    ],
+    toc: [
+      { no: "01", title: "지난 4주 요약 — 재무부가 랠리를 만들었고, 워시가 되돌렸다" },
+      { no: "02", title: "매크로 — 같은 '할인율'을 재무부가 눌렀다가 연준이 다시 올렸다" },
+      { no: "03", title: "시장 구조 — 8/28, BTC ETF는 팔고 ETH ETF는 계속 샀다" },
+      { no: "04", title: "섹터 로테이션 — 가격은 올랐는데 폭은 좁아졌다" },
+      { no: "05", title: "관점이 바뀌는 조건 · 9월 관전 포인트" },
+    ],
+    bodyHtml: WEEKLY_20_BODY,
+    canonical: null,
+  },
+  {
     slug: "weekly-19-hold-that-was-more-hawkish-2026-08",
     type: "weekly",
     title: "주간 시황 #19 — 동결인데 왜 더 매파적인가: 3인의 인상 반대표, 19년 만의 30년물, 그리고 조용히 바뀐 기관의 그릇",
@@ -1383,7 +1505,7 @@ export const RESEARCH_ARTICLES: ResearchArticle[] = [
     author: "Tradelab 리서치",
     readMinutes: 10,
     publishedAt: "2026-08-03T14:00:00+09:00",
-    featured: true,
+    featured: false,
     takeaways: [
       "정보는 '결정'이 아니라 '분포'에 있었다: 동결(3.50~3.75%, 5회 연속)이지만 표결은 9-3이고 반대 3인(해맥·카시카리·로건)은 전원 즉각 25bp '인상'을 원했다 — 2016년 9월 이후 최대 분열. 9월 인상 확률이 ~31.5%에서 50% 위로 뛰었다.",
       "변동 관점 — 크립토를 누른 것은 위험선호가 아니라 할인율: 30년물이 2007년 7월 이후 최고(19년 고점). 시티 감응도($100M당 +53bp)로 4일 -$526M은 약 -280bp를 설명하지만 실제 낙폭($66.7K→$62.87K)은 -5.7% — 잔차 절반은 흐름 밖, 즉 금리 재평가에서 왔다고 본다.",
